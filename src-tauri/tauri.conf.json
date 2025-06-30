@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-vue-starter",
+  "productName": "ApiChat",
   "version": "0.1.0",
-  "identifier": "com.tauri-vue-starter.app",
+  "identifier": "com.tlyboy.apichat",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-vue-starter",
-        "width": 800,
-        "height": 600
+        "title": "ApiChat",
+        "width": 1200,
+        "height": 800
       }
     ],
     "security": {

@@ -1,5 +1,5 @@
 {
-  "name": "tauri-vue-starter",
+  "name": "apichat",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,9 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.8",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-http": "~2.5.0",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-os": "~2.3.0",
     "@vueuse/core": "^13.3.0",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.3.0",
