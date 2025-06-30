@@ -61,13 +61,13 @@ const filteredList = computed(() => {
 })
 
 // 生成历史记录标题
-const generateTitle = (url: string, method: string) => {
+const generateTitle = (url: string) => {
   try {
     const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`)
     const path = urlObj.pathname.split('/').filter(Boolean).pop() || 'api'
-    return `${method} ${path}`
+    return path
   } catch {
-    return `${method} ${url.split('/').pop() || 'api'}`
+    return url.split('/').pop() || 'api'
   }
 }
 
@@ -76,7 +76,7 @@ const addHistory = (item: Omit<HistoryItem, 'id' | 'title' | 'timestamp'>) => {
   const historyItem: HistoryItem = {
     ...item,
     id: Date.now().toString(),
-    title: generateTitle(item.url, item.method),
+    title: generateTitle(item.url),
     timestamp: Date.now(),
   }
 
@@ -127,6 +127,30 @@ const loadHistory = (item: HistoryItem) => {
 const clearHistory = () => {
   list.value = []
   saveHistoryToStorage()
+}
+
+// 删除单个历史记录
+const deleteHistoryItem = (id: string) => {
+  const index = list.value.findIndex((item) => item.id === id)
+  if (index !== -1) {
+    list.value.splice(index, 1)
+    saveHistoryToStorage()
+
+    // 如果删除的是当前选中的记录，重置选中状态
+    if (current.value === index) {
+      current.value = -1
+      // 清空表单
+      url.value = ''
+      response.value = ''
+      error.value = ''
+      method.value = 'GET'
+      params.value = ''
+      body.value = ''
+    } else if (current.value > index) {
+      // 如果删除的记录在当前选中记录之前，需要调整索引
+      current.value--
+    }
+  }
 }
 
 // 新增新请求
@@ -500,7 +524,7 @@ Time: ${requestInfo.timestamp}`
           <div
             v-for="(item, index) in filteredList"
             :key="item.id"
-            class="flex cursor-pointer items-center gap-2 px-2 py-3 hover:bg-[#EAEAEA] hover:dark:bg-[#252525]"
+            class="group flex items-center gap-2 px-2 py-3 hover:bg-[#EAEAEA] hover:dark:bg-[#252525]"
             :class="{
               'bg-[#DEDEDE] dark:bg-[#303030]': current === index,
               'bg-[#F7F7F7] dark:bg-[#191919]': current !== index,
@@ -524,6 +548,13 @@ Time: ${requestInfo.timestamp}`
                 {{ formatTime(item.timestamp) }}
               </div>
             </div>
+            <button
+              @click.stop="deleteHistoryItem(item.id)"
+              class="cursor-pointer p-1 text-red-500 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+              title="删除此记录"
+            >
+              <span class="i-carbon-trash-can text-sm"></span>
+            </button>
           </div>
         </div>
 
