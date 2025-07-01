@@ -6,11 +6,26 @@ interface HistoryItem {
   id: string
   title: string
   url: string
-  method: 'GET' | 'POST'
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
   params: string
   body: string
+  headers: string
   timestamp: number
   response?: string
+}
+
+// 请求头类型定义
+interface HeaderItem {
+  key: string
+  value: string
+  enabled: boolean
+}
+
+// 请求参数类型定义
+interface ParamItem {
+  key: string
+  value: string
+  enabled: boolean
 }
 
 const list = ref<HistoryItem[]>([])
@@ -22,20 +37,34 @@ const loading = ref(false)
 const error = ref('')
 const copySuccess = ref(false)
 
+// Tab 页控制
+const activeTab = ref<'params' | 'body' | 'headers'>('params')
+
 // 请求方法
-const method = ref<'GET' | 'POST'>('GET')
+const method = ref<
+  'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
+>('GET')
 
 // 请求参数
-const params = ref('')
+const params = ref<ParamItem[]>([{ key: '', value: '', enabled: true }])
 const body = ref('')
+const headers = ref<HeaderItem[]>([
+  { key: 'Content-Type', value: 'application/json', enabled: true },
+  { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
+  { key: 'Authorization', value: '', enabled: false },
+])
 
 // 筛选相关
 const searchKeyword = ref('')
-const filterMethod = ref<'ALL' | 'GET' | 'POST'>('ALL')
+const filterMethod = ref<
+  'ALL' | 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
+>('ALL')
 
 // 显示参数输入
-const showParams = computed(() => method.value === 'GET')
-const showBody = computed(() => method.value === 'POST')
+const showParams = computed(() =>
+  ['GET', 'HEAD', 'OPTIONS'].includes(method.value),
+)
+const showBody = computed(() => ['POST', 'PUT', 'PATCH'].includes(method.value))
 
 // 筛选后的历史记录
 const filteredList = computed(() => {
@@ -117,10 +146,50 @@ const loadHistoryFromStorage = () => {
 const loadHistory = (item: HistoryItem) => {
   url.value = item.url
   method.value = item.method
-  params.value = item.params
+  params.value = parseParams(item.params)
   body.value = item.body
+  headers.value = parseHeaders(item.headers)
   response.value = item.response || ''
   error.value = ''
+}
+
+// 解析请求头字符串为对象数组
+const parseHeaders = (headersString: string): HeaderItem[] => {
+  if (!headersString.trim()) {
+    return [
+      { key: 'Content-Type', value: 'application/json', enabled: true },
+      { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
+      { key: 'Authorization', value: '', enabled: false },
+    ]
+  }
+
+  try {
+    const headersObj = JSON.parse(headersString)
+    return Object.entries(headersObj).map(([key, value]) => ({
+      key,
+      value: String(value),
+      enabled: true,
+    }))
+  } catch {
+    return [
+      { key: 'Content-Type', value: 'application/json', enabled: true },
+      { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
+      { key: 'Authorization', value: '', enabled: false },
+    ]
+  }
+}
+
+// 将请求头对象数组转换为字符串
+const stringifyHeaders = (headersArray: HeaderItem[]): string => {
+  const headersObj: Record<string, string> = {}
+  headersArray
+    .filter(
+      (header) => header.enabled && header.key.trim() && header.value.trim(),
+    )
+    .forEach((header) => {
+      headersObj[header.key.trim()] = header.value.trim()
+    })
+  return JSON.stringify(headersObj, null, 2)
 }
 
 // 清空历史记录
@@ -144,13 +213,21 @@ const deleteHistoryItem = (id: string) => {
       response.value = ''
       error.value = ''
       method.value = 'GET'
-      params.value = ''
-      body.value = ''
+      resetParams()
     } else if (current.value > index) {
       // 如果删除的记录在当前选中记录之前，需要调整索引
       current.value--
     }
   }
+}
+
+// 重置请求头
+const resetHeaders = () => {
+  headers.value = [
+    { key: 'Content-Type', value: 'application/json', enabled: true },
+    { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: false },
+    { key: 'Authorization', value: '', enabled: false },
+  ]
 }
 
 // 新增新请求
@@ -160,8 +237,7 @@ const createNewRequest = () => {
   response.value = ''
   error.value = ''
   method.value = 'GET'
-  params.value = ''
-  body.value = ''
+  resetParams()
 
   // 重置当前选中项
   current.value = -1
@@ -169,6 +245,21 @@ const createNewRequest = () => {
   // 清空筛选
   searchKeyword.value = ''
   filterMethod.value = 'ALL'
+}
+
+// 添加新的请求头
+const addHeader = () => {
+  headers.value.push({ key: '', value: '', enabled: true })
+}
+
+// 删除请求头
+const removeHeader = (index: number) => {
+  headers.value.splice(index, 1)
+}
+
+// 切换请求头启用状态
+const toggleHeader = (index: number) => {
+  headers.value[index].enabled = !headers.value[index].enabled
 }
 
 // 验证URL格式
@@ -197,7 +288,7 @@ const formatUrl = (urlString: string) => {
 
 // 解析查询参数
 const parseParams = (paramsString: string) => {
-  if (!paramsString.trim()) return {}
+  if (!paramsString.trim()) return []
 
   try {
     const paramsObj: Record<string, string> = {}
@@ -212,10 +303,14 @@ const parseParams = (paramsString: string) => {
       }
     })
 
-    return paramsObj
+    return Object.entries(paramsObj).map(([key, value]) => ({
+      key,
+      value,
+      enabled: true,
+    }))
   } catch (error) {
     console.error('解析参数失败:', error)
-    return {}
+    return []
   }
 }
 
@@ -282,19 +377,46 @@ const handleSend = async () => {
       method: method.value,
     }
 
+    // 处理请求头
+    const headersObj: Record<string, string> = {}
+    headers.value
+      .filter(
+        (header) => header.enabled && header.key.trim() && header.value.trim(),
+      )
+      .forEach((header) => {
+        headersObj[header.key.trim()] = header.value.trim()
+      })
+
+    if (Object.keys(headersObj).length > 0) {
+      requestOptions.headers = headersObj
+    }
+
     // 处理GET请求的参数
-    if (method.value === 'GET' && params.value.trim()) {
-      const paramsObj = parseParams(params.value)
+    if (showParams.value && params.value.length > 0) {
+      const paramsObj = params.value.reduce(
+        (acc, param) => {
+          if (param.enabled && param.key.trim() && param.value.trim()) {
+            acc[param.key.trim()] = param.value.trim()
+          }
+          return acc
+        },
+        {} as Record<string, string>,
+      )
       fullUrl = buildFullUrl(formattedUrl, paramsObj)
     }
 
-    // 处理POST请求的body
-    if (method.value === 'POST' && body.value.trim()) {
+    // 处理POST/PUT/PATCH请求的body
+    if (showBody.value && body.value.trim()) {
       try {
         const bodyObj = parseBody(body.value)
         requestOptions.body = JSON.stringify(bodyObj)
-        requestOptions.headers = {
-          'Content-Type': 'application/json',
+
+        // 如果没有设置Content-Type，默认设置为application/json
+        if (!headersObj['Content-Type']) {
+          requestOptions.headers = {
+            ...requestOptions.headers,
+            'Content-Type': 'application/json',
+          }
         }
       } catch (err) {
         error.value = 'JSON格式错误，请检查body内容'
@@ -309,8 +431,11 @@ const handleSend = async () => {
     addHistory({
       url: url.value,
       method: method.value,
-      params: params.value,
+      params: params.value
+        .map((param) => param.key + '=' + param.value)
+        .join('&'),
       body: body.value,
+      headers: stringifyHeaders(headers.value),
       response: response.value,
     })
   } catch (err) {
@@ -331,10 +456,21 @@ const handleEnter = (event: KeyboardEvent) => {
 
 // 切换请求方法时清空不相关的输入
 const handleMethodChange = () => {
-  if (method.value === 'GET') {
+  if (showParams.value) {
     body.value = ''
   } else {
-    params.value = ''
+    resetParams()
+  }
+
+  // 根据请求方法自动设置Content-Type
+  if (showBody.value) {
+    const contentTypeHeader = headers.value.find(
+      (h) => h.key === 'Content-Type',
+    )
+    if (contentTypeHeader) {
+      contentTypeHeader.value = 'application/json'
+      contentTypeHeader.enabled = true
+    }
   }
 }
 
@@ -409,8 +545,11 @@ const copyRequest = () => {
   const requestInfo = {
     method: method.value,
     url: url.value,
-    params: params.value,
+    params: params.value
+      .map((param) => param.key + '=' + param.value)
+      .join('&'),
     body: body.value,
+    headers: stringifyHeaders(headers.value),
     timestamp: new Date().toISOString(),
   }
 
@@ -418,9 +557,39 @@ const copyRequest = () => {
 URL: ${requestInfo.url}
 ${requestInfo.params ? `Params: ${requestInfo.params}` : ''}
 ${requestInfo.body ? `Body: ${requestInfo.body}` : ''}
+Headers: ${requestInfo.headers}
 Time: ${requestInfo.timestamp}`
 
   copyToClipboard(requestText)
+}
+
+// 添加新的参数
+const addParam = () => {
+  params.value.push({ key: '', value: '', enabled: true })
+}
+
+// 删除参数
+const removeParam = (index: number) => {
+  params.value.splice(index, 1)
+}
+
+// 切换参数启用状态
+const toggleParam = (index: number) => {
+  params.value[index].enabled = !params.value[index].enabled
+}
+
+// 设置示例参数
+const setExampleParams = () => {
+  params.value = [
+    { key: 'name', value: 'john', enabled: true },
+    { key: 'age', value: '25', enabled: true },
+    { key: 'city', value: 'beijing', enabled: true },
+  ]
+}
+
+// 重置参数
+const resetParams = () => {
+  params.value = [{ key: '', value: '', enabled: true }]
 }
 </script>
 
@@ -437,7 +606,7 @@ Time: ${requestInfo.timestamp}`
           <input
             v-model="searchKeyword"
             class="w-full rounded-md border border-[#DADADA] py-1 pr-8 pl-8 text-sm dark:border-[#292929]"
-            placeholder="搜索历史记录"
+            placeholder="搜索"
           />
           <button
             v-if="searchKeyword"
@@ -470,6 +639,11 @@ Time: ${requestInfo.timestamp}`
         >
           <option value="GET">GET</option>
           <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+          <option value="PATCH">PATCH</option>
+          <option value="HEAD">HEAD</option>
+          <option value="OPTIONS">OPTIONS</option>
         </select>
 
         <div class="flex-1">
@@ -512,6 +686,11 @@ Time: ${requestInfo.timestamp}`
               <option value="ALL">全部</option>
               <option value="GET">GET</option>
               <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+              <option value="PATCH">PATCH</option>
+              <option value="HEAD">HEAD</option>
+              <option value="OPTIONS">OPTIONS</option>
             </select>
           </div>
           <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -538,6 +717,16 @@ Time: ${requestInfo.timestamp}`
                   item.method === 'GET',
                 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300':
                   item.method === 'POST',
+                'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300':
+                  item.method === 'PUT',
+                'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300':
+                  item.method === 'DELETE',
+                'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300':
+                  item.method === 'PATCH',
+                'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300':
+                  item.method === 'HEAD',
+                'bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300':
+                  item.method === 'OPTIONS',
               }"
             >
               {{ item.method }}
@@ -598,35 +787,127 @@ Time: ${requestInfo.timestamp}`
           {{ error }}
         </div>
 
-        <!-- 参数输入区域 -->
+        <!-- Tab 切换栏 -->
+        <div
+          class="flex border-b border-[#DADADA] bg-[#F7F7F7] dark:border-[#292929] dark:bg-[#191919]"
+        >
+          <button
+            :class="[
+              'px-4 py-2 transition-colors duration-150',
+              activeTab === 'params'
+                ? 'border-b-2 border-blue-500 bg-white text-blue-600 dark:bg-[#191919]'
+                : 'text-gray-600 dark:text-gray-300',
+            ]"
+            style="height: 40px; line-height: 24px"
+            @click="activeTab = 'params'"
+          >
+            Params
+          </button>
+          <button
+            :class="[
+              'px-4 py-2 transition-colors duration-150',
+              activeTab === 'body'
+                ? 'border-b-2 border-blue-500 bg-white text-blue-600 dark:bg-[#191919]'
+                : 'text-gray-600 dark:text-gray-300',
+            ]"
+            style="height: 40px; line-height: 24px"
+            @click="activeTab = 'body'"
+          >
+            Body
+          </button>
+          <button
+            :class="[
+              'px-4 py-2 transition-colors duration-150',
+              activeTab === 'headers'
+                ? 'border-b-2 border-blue-500 bg-white text-blue-600 dark:bg-[#191919]'
+                : 'text-gray-600 dark:text-gray-300',
+            ]"
+            style="height: 40px; line-height: 24px"
+            @click="activeTab = 'headers'"
+          >
+            Headers
+          </button>
+        </div>
+
+        <!-- Tab 内容区 -->
         <div class="flex-1 border-b border-[#DADADA] dark:border-[#292929]">
-          <!-- GET参数 -->
-          <div v-if="showParams" class="flex h-full flex-col p-4">
+          <!-- Params Tab -->
+          <div v-if="activeTab === 'params'" class="flex h-full flex-col p-4">
             <div class="mb-2 flex items-center justify-between">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                查询参数 (Query Parameters)
+                Query 参数
               </div>
-              <button
-                @click="params = 'name=john&age=25&city=beijing'"
-                class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                :disabled="loading"
-              >
-                示例
-              </button>
+              <div class="flex gap-2">
+                <button
+                  @click="setExampleParams"
+                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  :disabled="loading"
+                >
+                  示例
+                </button>
+                <button
+                  @click="addParam"
+                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  :disabled="loading"
+                >
+                  添加
+                </button>
+                <button
+                  @click="resetParams"
+                  class="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                  :disabled="loading"
+                >
+                  重置
+                </button>
+              </div>
             </div>
-            <textarea
-              v-model="params"
-              class="w-full flex-1 resize-none rounded-md border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929]"
-              placeholder="格式: key1=value1&key2=value2&#10;例如: name=john&age=25"
-              :disabled="loading"
-              @keydown="
-                handleTabKey($event, $event.target as HTMLTextAreaElement)
-              "
-            ></textarea>
+            <div class="flex-1 overflow-y-auto">
+              <div
+                v-for="(param, index) in params"
+                :key="index"
+                class="mb-2 flex items-center gap-2"
+              >
+                <input
+                  type="checkbox"
+                  :checked="param.enabled"
+                  @change="toggleParam(index)"
+                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                  :disabled="loading"
+                />
+                <input
+                  v-model="param.key"
+                  type="text"
+                  class="flex-1 rounded border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C]"
+                  placeholder="参数名"
+                  :disabled="loading"
+                />
+                <input
+                  v-model="param.value"
+                  type="text"
+                  class="flex-1 rounded border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C]"
+                  placeholder="参数值"
+                  :disabled="loading"
+                />
+                <button
+                  @click="removeParam(index)"
+                  class="flex h-8 w-8 items-center justify-center rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900"
+                  :disabled="loading"
+                  title="删除此参数"
+                >
+                  <span class="i-carbon-close text-sm"></span>
+                </button>
+              </div>
+              <div
+                v-if="params.length === 0"
+                class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400"
+              >
+                <span class="i-carbon-settings mb-2 text-2xl"></span>
+                <div class="text-center text-sm">暂无参数</div>
+              </div>
+            </div>
           </div>
-
-          <!-- POST Body -->
-          <div v-if="showBody" class="flex h-full flex-col p-4">
+          <!-- Body Tab -->
+          <div v-if="activeTab === 'body'" class="flex h-full flex-col p-4">
             <div class="mb-2 flex items-center justify-between">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
                 请求体 (JSON)
@@ -654,6 +935,74 @@ Time: ${requestInfo.timestamp}`
                 handleTabKey($event, $event.target as HTMLTextAreaElement)
               "
             ></textarea>
+          </div>
+          <!-- Headers Tab -->
+          <div v-if="activeTab === 'headers'" class="flex h-full flex-col p-4">
+            <div class="mb-2 flex items-center justify-between">
+              <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                请求头 (Headers)
+              </div>
+              <div class="flex gap-2">
+                <button
+                  @click="addHeader"
+                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  :disabled="loading"
+                >
+                  添加
+                </button>
+                <button
+                  @click="resetHeaders"
+                  class="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                  :disabled="loading"
+                >
+                  重置
+                </button>
+              </div>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+              <div
+                v-for="(header, index) in headers"
+                :key="index"
+                class="mb-2 flex items-center gap-2"
+              >
+                <input
+                  type="checkbox"
+                  :checked="header.enabled"
+                  @change="toggleHeader(index)"
+                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                  :disabled="loading"
+                />
+                <input
+                  v-model="header.key"
+                  type="text"
+                  class="flex-1 rounded border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C]"
+                  placeholder="Header Name"
+                  :disabled="loading"
+                />
+                <input
+                  v-model="header.value"
+                  type="text"
+                  class="flex-1 rounded border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C]"
+                  placeholder="Header Value"
+                  :disabled="loading"
+                />
+                <button
+                  @click="removeHeader(index)"
+                  class="flex h-8 w-8 items-center justify-center rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900"
+                  :disabled="loading"
+                  title="删除此请求头"
+                >
+                  <span class="i-carbon-close text-sm"></span>
+                </button>
+              </div>
+              <div
+                v-if="headers.length === 0"
+                class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400"
+              >
+                <span class="i-carbon-settings mb-2 text-2xl"></span>
+                <div class="text-center text-sm">暂无请求头配置</div>
+              </div>
+            </div>
           </div>
         </div>
 
