@@ -10,6 +10,8 @@ interface HistoryItem {
   params: string
   body: string
   headers: string
+  bodyType?: string
+  formBody?: string
   timestamp: number
   response?: string
 }
@@ -89,6 +91,14 @@ const filteredList = computed(() => {
   return filtered
 })
 
+// 检查历史记录项是否被选中
+const isHistoryItemSelected = (item: HistoryItem) => {
+  return (
+    current.value ===
+    list.value.findIndex((listItem) => listItem.id === item.id)
+  )
+}
+
 // 生成历史记录标题
 const generateTitle = (url: string) => {
   try {
@@ -107,6 +117,8 @@ const addHistory = (item: Omit<HistoryItem, 'id' | 'title' | 'timestamp'>) => {
     id: Date.now().toString(),
     title: generateTitle(item.url),
     timestamp: Date.now(),
+    bodyType: bodyType.value,
+    formBody: JSON.stringify(formBody.value),
   }
 
   // 添加到列表开头
@@ -149,6 +161,10 @@ const loadHistory = (item: HistoryItem) => {
   params.value = parseParams(item.params)
   body.value = item.body
   headers.value = parseHeaders(item.headers)
+  bodyType.value = (item.bodyType as 'json' | 'form' | 'text') || 'json'
+  formBody.value = item.formBody
+    ? JSON.parse(item.formBody)
+    : [{ key: '', value: '', enabled: true }]
   response.value = item.response || ''
   error.value = ''
 }
@@ -214,6 +230,8 @@ const deleteHistoryItem = (id: string) => {
       error.value = ''
       method.value = 'GET'
       resetParams()
+      // 切换到 Params Tab
+      activeTab.value = 'params'
     } else if (current.value > index) {
       // 如果删除的记录在当前选中记录之前，需要调整索引
       current.value--
@@ -241,6 +259,9 @@ const createNewRequest = () => {
 
   // 重置当前选中项
   current.value = -1
+
+  // 切换到 Params Tab（因为 GET 方法默认显示 Params）
+  activeTab.value = 'params'
 
   // 清空筛选
   searchKeyword.value = ''
@@ -350,6 +371,38 @@ const formatTime = (timestamp: number) => {
   return date.toLocaleDateString()
 }
 
+// Body 类型
+const bodyType = ref<'json' | 'form' | 'text'>('json')
+
+// 表单 body 键值对
+interface FormItem {
+  key: string
+  value: string
+  enabled: boolean
+}
+const formBody = ref<FormItem[]>([{ key: '', value: '', enabled: true }])
+
+// 添加/删除/切换表单 body
+const addFormItem = () => {
+  formBody.value.push({ key: '', value: '', enabled: true })
+}
+const removeFormItem = (index: number) => {
+  formBody.value.splice(index, 1)
+}
+const toggleFormItem = (index: number) => {
+  formBody.value[index].enabled = !formBody.value[index].enabled
+}
+const setExampleForm = () => {
+  formBody.value = [
+    { key: 'name', value: 'john', enabled: true },
+    { key: 'age', value: '25', enabled: true },
+    { key: 'city', value: 'beijing', enabled: true },
+  ]
+}
+const resetFormBody = () => {
+  formBody.value = [{ key: '', value: '', enabled: true }]
+}
+
 const handleSend = async () => {
   // 重置错误信息
   error.value = ''
@@ -370,13 +423,11 @@ const handleSend = async () => {
 
   try {
     loading.value = true
-
     const formattedUrl = formatUrl(url.value)
     let fullUrl = formattedUrl
     let requestOptions: RequestInit = {
       method: method.value,
     }
-
     // 处理请求头
     const headersObj: Record<string, string> = {}
     headers.value
@@ -386,11 +437,6 @@ const handleSend = async () => {
       .forEach((header) => {
         headersObj[header.key.trim()] = header.value.trim()
       })
-
-    if (Object.keys(headersObj).length > 0) {
-      requestOptions.headers = headersObj
-    }
-
     // 处理GET请求的参数
     if (showParams.value && params.value.length > 0) {
       const paramsObj = params.value.reduce(
@@ -404,29 +450,43 @@ const handleSend = async () => {
       )
       fullUrl = buildFullUrl(formattedUrl, paramsObj)
     }
-
     // 处理POST/PUT/PATCH请求的body
-    if (showBody.value && body.value.trim()) {
-      try {
-        const bodyObj = parseBody(body.value)
-        requestOptions.body = JSON.stringify(bodyObj)
-
-        // 如果没有设置Content-Type，默认设置为application/json
-        if (!headersObj['Content-Type']) {
-          requestOptions.headers = {
-            ...requestOptions.headers,
-            'Content-Type': 'application/json',
+    if (showBody.value) {
+      if (bodyType.value === 'json') {
+        if (body.value.trim()) {
+          try {
+            const bodyObj = parseBody(body.value)
+            requestOptions.body = JSON.stringify(bodyObj)
+            if (!headersObj['Content-Type']) {
+              headersObj['Content-Type'] = 'application/json'
+            }
+          } catch (err) {
+            error.value = 'JSON格式错误，请检查body内容'
+            return
           }
         }
-      } catch (err) {
-        error.value = 'JSON格式错误，请检查body内容'
-        return
+      } else if (bodyType.value === 'form') {
+        const formData = formBody.value
+          .filter((item) => item.enabled && item.key.trim())
+          .map(
+            (item) =>
+              encodeURIComponent(item.key.trim()) +
+              '=' +
+              encodeURIComponent(item.value.trim()),
+          )
+          .join('&')
+        requestOptions.body = formData
+        headersObj['Content-Type'] = 'application/x-www-form-urlencoded'
+      } else if (bodyType.value === 'text') {
+        requestOptions.body = body.value
+        headersObj['Content-Type'] = 'text/plain'
       }
+      requestOptions.headers = headersObj
+    } else if (Object.keys(headersObj).length > 0) {
+      requestOptions.headers = headersObj
     }
-
     const res = await request(fullUrl, requestOptions)
     response.value = res as string
-
     // 添加到历史记录
     addHistory({
       url: url.value,
@@ -474,8 +534,12 @@ const handleMethodChange = () => {
   }
 }
 
-const handleHistoryClick = (index: number, item: HistoryItem) => {
-  current.value = index
+const handleHistoryClick = (item: HistoryItem) => {
+  // 找到在原始列表中的索引
+  const originalIndex = list.value.findIndex(
+    (listItem) => listItem.id === item.id,
+  )
+  current.value = originalIndex
   loadHistory(item)
 }
 
@@ -509,7 +573,14 @@ const handleTabKey = (event: KeyboardEvent, target: HTMLTextAreaElement) => {
 // 复制功能
 const copyToClipboard = async (text: string) => {
   try {
-    await navigator.clipboard.writeText(text)
+    // 优先使用现代的 Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      // 降级方案：使用现代的 writeText 方法
+      await navigator.clipboard.writeText(text)
+    }
+
     // 显示复制成功提示
     copySuccess.value = true
     setTimeout(() => {
@@ -517,19 +588,24 @@ const copyToClipboard = async (text: string) => {
     }, 2000)
   } catch (error) {
     console.error('复制失败:', error)
-    // 降级方案：使用传统的复制方法
-    const textArea = document.createElement('textarea')
-    textArea.value = text
-    document.body.appendChild(textArea)
-    textArea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textArea)
 
-    // 显示复制成功提示
-    copySuccess.value = true
-    setTimeout(() => {
-      copySuccess.value = false
-    }, 2000)
+    // 最后的降级方案：使用现代的 Clipboard API 的替代方法
+    try {
+      const clipboardItem = new ClipboardItem({
+        'text/plain': new Blob([text], { type: 'text/plain' }),
+      })
+      await navigator.clipboard.write([clipboardItem])
+
+      // 显示复制成功提示
+      copySuccess.value = true
+      setTimeout(() => {
+        copySuccess.value = false
+      }, 2000)
+    } catch (fallbackError) {
+      console.error('降级复制也失败:', fallbackError)
+      // 如果所有现代方法都失败，可以考虑显示错误提示
+      alert('复制失败，请手动复制内容')
+    }
   }
 }
 
@@ -549,17 +625,19 @@ const copyRequest = () => {
       .map((param) => param.key + '=' + param.value)
       .join('&'),
     body: body.value,
+    bodyType: bodyType.value,
+    formBody: JSON.stringify(formBody.value),
     headers: stringifyHeaders(headers.value),
     timestamp: new Date().toISOString(),
   }
-
   const requestText = `Method: ${requestInfo.method}
 URL: ${requestInfo.url}
 ${requestInfo.params ? `Params: ${requestInfo.params}` : ''}
 ${requestInfo.body ? `Body: ${requestInfo.body}` : ''}
+${requestInfo.bodyType ? `BodyType: ${requestInfo.bodyType}` : ''}
+${requestInfo.formBody ? `FormBody: ${requestInfo.formBody}` : ''}
 Headers: ${requestInfo.headers}
 Time: ${requestInfo.timestamp}`
-
   copyToClipboard(requestText)
 }
 
@@ -591,6 +669,12 @@ const setExampleParams = () => {
 const resetParams = () => {
   params.value = [{ key: '', value: '', enabled: true }]
 }
+
+const bodyTypes = [
+  { value: 'json', label: 'JSON' },
+  { value: 'form', label: '表单' },
+  { value: 'text', label: '文本' },
+]
 </script>
 
 <template>
@@ -605,7 +689,7 @@ const resetParams = () => {
           ></span>
           <input
             v-model="searchKeyword"
-            class="w-full rounded-md border border-[#DADADA] py-1 pr-8 pl-8 text-sm dark:border-[#292929]"
+            class="w-full rounded-md border border-[#DADADA] bg-white py-1 pr-8 pl-8 text-sm text-black dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
             placeholder="搜索"
           />
           <button
@@ -634,7 +718,7 @@ const resetParams = () => {
         <select
           v-model="method"
           @change="handleMethodChange"
-          class="rounded-md border border-[#DADADA] bg-white px-2 py-1 dark:border-[#292929] dark:bg-[#2C2C2C]"
+          class="rounded-md border border-[#DADADA] bg-white px-2 py-1 text-black dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
           :disabled="loading"
         >
           <option value="GET">GET</option>
@@ -649,7 +733,7 @@ const resetParams = () => {
         <div class="flex-1">
           <input
             type="text"
-            class="w-full rounded-md border border-[#DADADA] px-2 py-1 dark:border-[#292929]"
+            class="w-full rounded-md border border-[#DADADA] bg-white px-2 py-1 text-black dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
             v-model="url"
             @keydown.enter="handleEnter"
             placeholder="输入API URL (例如: api.example.com/data)"
@@ -657,8 +741,9 @@ const resetParams = () => {
           />
         </div>
 
+        <!-- 主按钮 -->
         <button
-          class="btn flex items-center justify-center gap-2"
+          class="btn flex items-center justify-center gap-2 bg-[#3498db] text-white hover:bg-[#2980b9]"
           @click="handleSend"
           :disabled="loading || !url.trim()"
         >
@@ -681,7 +766,7 @@ const resetParams = () => {
           <div class="mb-2 flex items-center gap-1">
             <select
               v-model="filterMethod"
-              class="flex-1 rounded border border-[#DADADA] bg-white px-1 py-1 text-xs dark:border-[#292929] dark:bg-[#2C2C2C]"
+              class="flex-1 rounded border border-[#DADADA] bg-white px-1 py-1 text-xs text-black dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
             >
               <option value="ALL">全部</option>
               <option value="GET">GET</option>
@@ -701,38 +786,43 @@ const resetParams = () => {
         <!-- 历史记录列表 -->
         <div v-if="filteredList.length > 0">
           <div
-            v-for="(item, index) in filteredList"
+            v-for="item in filteredList"
             :key="item.id"
-            class="group flex items-center gap-2 px-2 py-3 hover:bg-[#EAEAEA] hover:dark:bg-[#252525]"
+            class="group selected-history flex items-center gap-2 px-2 py-3 hover:bg-[#EAEAEA] hover:dark:bg-[#252525]"
             :class="{
-              'bg-[#DEDEDE] dark:bg-[#303030]': current === index,
-              'bg-[#F7F7F7] dark:bg-[#191919]': current !== index,
+              'bg-[#ecf0f1] text-[#3498db] dark:bg-[#3B3B3B] dark:text-[#3498db]':
+                isHistoryItemSelected(item),
+              'bg-[#ffffff] dark:bg-[#2C2C2C]': !isHistoryItemSelected(item),
             }"
-            @click="handleHistoryClick(index, item)"
+            @click="handleHistoryClick(item)"
           >
             <div
-              class="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-[#FFFFFF] text-xs font-medium dark:bg-[#2C2C2C]"
+              class="flex h-[44px] w-[44px] items-center justify-center rounded-full text-xs font-medium"
               :class="{
-                'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300':
+                'bg-[#3498db] text-white dark:bg-[#2980b9] dark:text-white':
                   item.method === 'GET',
-                'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300':
+                'bg-[#2ecc71] text-white dark:bg-[#27ae60] dark:text-white':
                   item.method === 'POST',
-                'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300':
+                'bg-[#e67e22] text-white dark:bg-[#d35400] dark:text-white':
                   item.method === 'PUT',
-                'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300':
+                'bg-[#e74c3c] text-white dark:bg-[#c0392b] dark:text-white':
                   item.method === 'DELETE',
-                'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300':
+                'bg-[#9b59b6] text-white dark:bg-[#8e44ad] dark:text-white':
                   item.method === 'PATCH',
-                'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300':
+                'bg-[#95a5a6] text-white dark:bg-[#7f8c8d] dark:text-white':
                   item.method === 'HEAD',
-                'bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300':
+                'bg-[#34495e] text-white dark:bg-[#2c3e50] dark:text-white':
                   item.method === 'OPTIONS',
               }"
             >
               {{ item.method }}
             </div>
             <div class="flex-1 overflow-hidden">
-              <div class="truncate text-sm font-medium">{{ item.title }}</div>
+              <div
+                class="truncate text-sm font-medium text-gray-900 dark:text-white"
+              >
+                {{ item.title }}
+              </div>
               <div class="truncate text-xs text-gray-500 dark:text-gray-400">
                 {{ formatTime(item.timestamp) }}
               </div>
@@ -771,7 +861,7 @@ const resetParams = () => {
         >
           <button
             @click="clearHistory"
-            class="w-full py-1 text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            class="w-full cursor-pointer py-1 text-xs text-[#e74c3c] hover:bg-[#fdecea] hover:text-[#c0392b] dark:text-red-400 dark:hover:bg-[#3a2323] dark:hover:text-red-300"
           >
             清空历史记录
           </button>
@@ -782,7 +872,7 @@ const resetParams = () => {
         <!-- 错误提示 -->
         <div
           v-if="error"
-          class="border-b border-red-400 bg-red-100 px-4 py-2 text-red-700 dark:border-red-700 dark:bg-red-900 dark:text-red-300"
+          class="border-b border-[#e74c3c] bg-[#fdecea] px-4 py-2 text-[#e74c3c] dark:border-[#e74c3c] dark:bg-[#3a2323] dark:text-[#e74c3c]"
         >
           {{ error }}
         </div>
@@ -793,36 +883,33 @@ const resetParams = () => {
         >
           <button
             :class="[
-              'px-4 py-2 transition-colors duration-150',
+              'h-10 px-4 py-2 leading-6 transition-colors duration-150',
               activeTab === 'params'
-                ? 'border-b-2 border-blue-500 bg-white text-blue-600 dark:bg-[#191919]'
-                : 'text-gray-600 dark:text-gray-300',
+                ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
+                : 'text-[#7f8c8d] dark:text-[#95a5a6]',
             ]"
-            style="height: 40px; line-height: 24px"
             @click="activeTab = 'params'"
           >
             Params
           </button>
           <button
             :class="[
-              'px-4 py-2 transition-colors duration-150',
+              'h-10 px-4 py-2 leading-6 transition-colors duration-150',
               activeTab === 'body'
-                ? 'border-b-2 border-blue-500 bg-white text-blue-600 dark:bg-[#191919]'
-                : 'text-gray-600 dark:text-gray-300',
+                ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
+                : 'text-[#7f8c8d] dark:text-[#95a5a6]',
             ]"
-            style="height: 40px; line-height: 24px"
             @click="activeTab = 'body'"
           >
             Body
           </button>
           <button
             :class="[
-              'px-4 py-2 transition-colors duration-150',
+              'h-10 px-4 py-2 leading-6 transition-colors duration-150',
               activeTab === 'headers'
-                ? 'border-b-2 border-blue-500 bg-white text-blue-600 dark:bg-[#191919]'
-                : 'text-gray-600 dark:text-gray-300',
+                ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
+                : 'text-[#7f8c8d] dark:text-[#95a5a6]',
             ]"
-            style="height: 40px; line-height: 24px"
             @click="activeTab = 'headers'"
           >
             Headers
@@ -840,21 +927,21 @@ const resetParams = () => {
               <div class="flex gap-2">
                 <button
                   @click="setExampleParams"
-                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   :disabled="loading"
                 >
                   示例
                 </button>
                 <button
                   @click="addParam"
-                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   :disabled="loading"
                 >
                   添加
                 </button>
                 <button
                   @click="resetParams"
-                  class="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                  class="text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
                   :disabled="loading"
                 >
                   重置
@@ -871,26 +958,26 @@ const resetParams = () => {
                   type="checkbox"
                   :checked="param.enabled"
                   @change="toggleParam(index)"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                  class="h-4 w-4 rounded border-gray-300 text-[#3498db] focus:ring-[#3498db] dark:border-gray-600 dark:bg-gray-700"
                   :disabled="loading"
                 />
                 <input
                   v-model="param.key"
                   type="text"
-                  class="flex-1 rounded border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C]"
+                  class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                   placeholder="参数名"
                   :disabled="loading"
                 />
                 <input
                   v-model="param.value"
                   type="text"
-                  class="flex-1 rounded border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C]"
+                  class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                   placeholder="参数值"
                   :disabled="loading"
                 />
                 <button
                   @click="removeParam(index)"
-                  class="flex h-8 w-8 items-center justify-center rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900"
+                  class="flex h-8 w-8 items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] dark:text-red-400 dark:hover:bg-[#3a2323]"
                   :disabled="loading"
                   title="删除此参数"
                 >
@@ -909,50 +996,159 @@ const resetParams = () => {
           <!-- Body Tab -->
           <div v-if="activeTab === 'body'" class="flex h-full flex-col p-4">
             <div class="mb-2 flex items-center justify-between">
-              <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                请求体 (JSON)
+              <div class="flex gap-1">
+                <button
+                  v-for="type in bodyTypes"
+                  :key="type.value"
+                  :class="[
+                    'min-w-20 cursor-pointer rounded-full px-4 py-1 text-sm transition-all duration-150',
+                    bodyType === type.value
+                      ? 'bg-[#3498db] font-semibold text-white shadow'
+                      : 'bg-[#ecf0f1] text-[#34495e] hover:bg-[#bdc3c7] dark:bg-[#2C2C2C] dark:text-gray-300 dark:hover:bg-[#404040]',
+                  ]"
+                  @click="bodyType = type.value as 'json' | 'form' | 'text'"
+                >
+                  {{ type.label }}
+                </button>
               </div>
-              <button
-                @click="
-                  body = JSON.stringify(
-                    { name: 'john', age: 25, city: 'beijing' },
-                    null,
-                    2,
-                  )
-                "
-                class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                :disabled="loading"
-              >
-                示例
-              </button>
+              <div class="flex gap-2">
+                <button
+                  v-if="bodyType === 'json'"
+                  @click="
+                    body = JSON.stringify(
+                      { name: 'john', age: 25, city: 'beijing' },
+                      null,
+                      2,
+                    )
+                  "
+                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  :disabled="loading"
+                >
+                  示例
+                </button>
+                <button
+                  v-if="bodyType === 'form'"
+                  @click="setExampleForm"
+                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  :disabled="loading"
+                >
+                  示例
+                </button>
+                <button
+                  v-if="bodyType === 'form'"
+                  @click="addFormItem"
+                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  :disabled="loading"
+                >
+                  添加
+                </button>
+                <button
+                  v-if="bodyType === 'form'"
+                  @click="resetFormBody"
+                  class="text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
+                  :disabled="loading"
+                >
+                  重置
+                </button>
+                <button
+                  v-if="bodyType === 'text'"
+                  @click="body = 'hello world'"
+                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  :disabled="loading"
+                >
+                  示例
+                </button>
+              </div>
             </div>
-            <textarea
-              v-model="body"
-              class="w-full flex-1 resize-none rounded-md border border-[#DADADA] px-2 py-1 font-mono text-sm dark:border-[#292929]"
-              placeholder='格式: {"key": "value"}&#10;例如: {"name": "john", "age": 25}'
-              :disabled="loading"
-              @keydown="
-                handleTabKey($event, $event.target as HTMLTextAreaElement)
-              "
-            ></textarea>
+            <!-- JSON 输入区 -->
+            <div v-if="bodyType === 'json'" class="flex flex-1 flex-col">
+              <textarea
+                v-model="body"
+                class="w-full flex-1 resize-none rounded-md border border-[#DADADA] bg-white px-2 py-1 font-mono text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
+                placeholder='格式: {"key": "value"}&#10;例如: {"name": "john", "age": 25}'
+                :disabled="loading"
+                @keydown="
+                  handleTabKey($event, $event.target as HTMLTextAreaElement)
+                "
+              ></textarea>
+            </div>
+            <!-- 表单输入区 -->
+            <div v-if="bodyType === 'form'" class="flex flex-1 flex-col">
+              <div class="flex-1 overflow-y-auto">
+                <div
+                  v-for="(item, index) in formBody"
+                  :key="index"
+                  class="mb-2 flex items-center gap-2"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="item.enabled"
+                    @change="toggleFormItem(index)"
+                    class="h-4 w-4 rounded border-gray-300 text-[#3498db] focus:ring-[#3498db] dark:border-gray-600 dark:bg-gray-700"
+                    :disabled="loading"
+                  />
+                  <input
+                    v-model="item.key"
+                    type="text"
+                    class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
+                    placeholder="字段名"
+                    :disabled="loading"
+                  />
+                  <input
+                    v-model="item.value"
+                    type="text"
+                    class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
+                    placeholder="字段值"
+                    :disabled="loading"
+                  />
+                  <button
+                    @click="removeFormItem(index)"
+                    class="flex h-8 w-8 items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] dark:text-red-400 dark:hover:bg-[#3a2323]"
+                    :disabled="loading"
+                    title="删除此字段"
+                  >
+                    <span class="i-carbon-close text-sm"></span>
+                  </button>
+                </div>
+                <div
+                  v-if="formBody.length === 0"
+                  class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400"
+                >
+                  <span class="i-carbon-settings mb-2 text-2xl"></span>
+                  <div class="text-center text-sm">暂无表单字段</div>
+                </div>
+              </div>
+            </div>
+            <!-- 纯文本输入区 -->
+            <div v-if="bodyType === 'text'" class="flex flex-1 flex-col">
+              <textarea
+                v-model="body"
+                class="w-full flex-1 resize-none rounded-md border border-[#DADADA] bg-white px-2 py-1 font-mono text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
+                placeholder="纯文本内容"
+                :disabled="loading"
+                @keydown="
+                  handleTabKey($event, $event.target as HTMLTextAreaElement)
+                "
+              ></textarea>
+            </div>
           </div>
           <!-- Headers Tab -->
           <div v-if="activeTab === 'headers'" class="flex h-full flex-col p-4">
             <div class="mb-2 flex items-center justify-between">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                请求头 (Headers)
+                Headers
               </div>
               <div class="flex gap-2">
                 <button
                   @click="addHeader"
-                  class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   :disabled="loading"
                 >
                   添加
                 </button>
                 <button
                   @click="resetHeaders"
-                  class="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                  class="text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
                   :disabled="loading"
                 >
                   重置
@@ -969,26 +1165,26 @@ const resetParams = () => {
                   type="checkbox"
                   :checked="header.enabled"
                   @change="toggleHeader(index)"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                  class="h-4 w-4 rounded border-gray-300 text-[#3498db] focus:ring-[#3498db] dark:border-gray-600 dark:bg-gray-700"
                   :disabled="loading"
                 />
                 <input
                   v-model="header.key"
                   type="text"
-                  class="flex-1 rounded border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C]"
+                  class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                   placeholder="Header Name"
                   :disabled="loading"
                 />
                 <input
                   v-model="header.value"
                   type="text"
-                  class="flex-1 rounded border border-[#DADADA] px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C]"
+                  class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                   placeholder="Header Value"
                   :disabled="loading"
                 />
                 <button
                   @click="removeHeader(index)"
-                  class="flex h-8 w-8 items-center justify-center rounded text-red-500 hover:bg-red-100 dark:hover:bg-red-900"
+                  class="flex h-8 w-8 items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] dark:text-red-400 dark:hover:bg-[#3a2323]"
                   :disabled="loading"
                   title="删除此请求头"
                 >
@@ -1011,7 +1207,7 @@ const resetParams = () => {
           <!-- 复制成功提示 -->
           <div
             v-if="copySuccess"
-            class="mb-4 rounded border border-green-400 bg-green-100 px-4 py-2 text-green-700 dark:border-green-700 dark:bg-green-900 dark:text-green-300"
+            class="mb-4 rounded border border-[#2ecc71] bg-[#eafaf1] px-4 py-2 text-[#2ecc71] dark:border-[#2ecc71] dark:bg-[#1e3a2a] dark:text-[#2ecc71]"
           >
             复制成功！
           </div>
@@ -1024,7 +1220,7 @@ const resetParams = () => {
               <div v-if="response" class="flex gap-2">
                 <button
                   @click="copyRequest"
-                  class="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  class="flex items-center gap-1 text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   title="复制请求信息"
                 >
                   <span class="i-carbon-copy"></span>
@@ -1032,7 +1228,7 @@ const resetParams = () => {
                 </button>
                 <button
                   @click="copyResponse"
-                  class="flex items-center gap-1 text-xs text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                  class="flex items-center gap-1 text-xs text-[#2ecc71] hover:text-[#27ae60] dark:text-[#2ecc71] dark:hover:text-[#27ae60]"
                   title="复制响应结果"
                 >
                   <span class="i-carbon-copy"></span>
@@ -1042,7 +1238,7 @@ const resetParams = () => {
             </div>
             <textarea
               v-model="response"
-              class="w-full flex-1 resize-none rounded-md border border-[#DADADA] px-2 py-1 font-mono text-sm dark:border-[#292929]"
+              class="w-full flex-1 resize-none rounded-md border border-[#DADADA] bg-white px-2 py-1 font-mono text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
               :placeholder="
                 loading ? '正在发送请求...' : '响应结果将显示在这里...'
               "

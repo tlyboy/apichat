@@ -13,14 +13,14 @@ import logo from '@/assets/images/logo.png'
         <RouterLink
           to="/"
           :class="{ 'text-[#3498db]': $route.path === '/' }"
-          class="icon-btn i-carbon-home"
+          class="icon-btn i-carbon-http"
         ></RouterLink>
 
-        <RouterLink
+        <!-- <RouterLink
           to="/chat"
           :class="{ 'text-[#3498db]': $route.path === '/chat' }"
           class="icon-btn i-carbon-chat"
-        ></RouterLink>
+        ></RouterLink> -->
       </div>
 
       <div class="flex flex-col items-center gap-4 text-xl">
@@ -33,11 +33,11 @@ import logo from '@/assets/images/logo.png'
 
         <DarkToggle />
 
-        <RouterLink
+        <!-- <RouterLink
           to="/settings"
           :class="{ 'text-[#3498db]': $route.path === '/settings' }"
           class="icon-btn i-carbon-settings"
-        ></RouterLink>
+        ></RouterLink> -->
       </div>
     </div>
 
