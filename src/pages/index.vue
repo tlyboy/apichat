@@ -48,12 +48,13 @@ const method = ref<
 >('GET')
 
 // 请求参数
-const params = ref<ParamItem[]>([{ key: '', value: '', enabled: true }])
+const params = ref<ParamItem[]>([{ key: '', value: '', enabled: false }])
 const body = ref('')
 const headers = ref<HeaderItem[]>([
   { key: 'Content-Type', value: 'application/json', enabled: true },
   { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
   { key: 'Authorization', value: '', enabled: false },
+  { key: '', value: '', enabled: false }, // 添加空行
 ])
 
 // 筛选相关
@@ -66,7 +67,6 @@ const filterMethod = ref<
 const showParams = computed(() =>
   ['GET', 'HEAD', 'OPTIONS'].includes(method.value),
 )
-const showBody = computed(() => ['POST', 'PUT', 'PATCH'].includes(method.value))
 
 // 筛选后的历史记录
 const filteredList = computed(() => {
@@ -164,9 +164,12 @@ const loadHistory = (item: HistoryItem) => {
   bodyType.value = (item.bodyType as 'json' | 'form' | 'text') || 'json'
   formBody.value = item.formBody
     ? JSON.parse(item.formBody)
-    : [{ key: '', value: '', enabled: true }]
+    : [{ key: '', value: '', enabled: false }]
   response.value = item.response || ''
   error.value = ''
+
+  // 确保加载后也有空行
+  ensureEmptyRow()
 }
 
 // 解析请求头字符串为对象数组
@@ -176,21 +179,27 @@ const parseHeaders = (headersString: string): HeaderItem[] => {
       { key: 'Content-Type', value: 'application/json', enabled: true },
       { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
       { key: 'Authorization', value: '', enabled: false },
+      { key: '', value: '', enabled: false }, // 添加空行
     ]
   }
 
   try {
     const headersObj = JSON.parse(headersString)
-    return Object.entries(headersObj).map(([key, value]) => ({
+    const result = Object.entries(headersObj).map(([key, value]) => ({
       key,
       value: String(value),
       enabled: true,
     }))
+
+    // 确保有一个空行
+    result.push({ key: '', value: '', enabled: false })
+    return result
   } catch {
     return [
       { key: 'Content-Type', value: 'application/json', enabled: true },
       { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
       { key: 'Authorization', value: '', enabled: false },
+      { key: '', value: '', enabled: false }, // 添加空行
     ]
   }
 }
@@ -243,8 +252,9 @@ const deleteHistoryItem = (id: string) => {
 const resetHeaders = () => {
   headers.value = [
     { key: 'Content-Type', value: 'application/json', enabled: true },
-    { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: false },
+    { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
     { key: 'Authorization', value: '', enabled: false },
+    { key: '', value: '', enabled: false }, // 添加空行
   ]
 }
 
@@ -260,22 +270,102 @@ const createNewRequest = () => {
   // 重置当前选中项
   current.value = -1
 
-  // 切换到 Params Tab（因为 GET 方法默认显示 Params）
-  activeTab.value = 'params'
+  // 不强制切换Tab，让用户自由选择
+  // activeTab.value = 'params'
 
   // 清空筛选
   searchKeyword.value = ''
   filterMethod.value = 'ALL'
+
+  // 确保有空行
+  ensureEmptyRow()
 }
 
-// 添加新的请求头
-const addHeader = () => {
-  headers.value.push({ key: '', value: '', enabled: true })
+// 自动增加参数（当用户在最后一个参数输入框中输入时）
+const autoAddParam = (index: number) => {
+  const currentParam = params.value[index]
+  currentParam.enabled = !!(
+    currentParam.key.trim() || currentParam.value.trim()
+  )
+
+  // 只允许最后一行是空行
+  const last = params.value[params.value.length - 1]
+  if (last.key.trim() || last.value.trim()) {
+    params.value.push({ key: '', value: '', enabled: false })
+  }
+  // 删除多余空行（只保留最后一行空行）
+  for (let i = params.value.length - 2; i >= 0; i--) {
+    if (!params.value[i].key.trim() && !params.value[i].value.trim()) {
+      params.value.splice(i, 1)
+    }
+  }
+}
+
+// 删除参数
+const removeParam = (index: number) => {
+  params.value.splice(index, 1)
+  // 只保留最后一行空行
+  for (let i = params.value.length - 2; i >= 0; i--) {
+    if (!params.value[i].key.trim() && !params.value[i].value.trim()) {
+      params.value.splice(i, 1)
+    }
+  }
+  if (params.value.length === 0) {
+    params.value.push({ key: '', value: '', enabled: false })
+  }
+}
+
+// 切换参数启用状态
+const toggleParam = (index: number) => {
+  params.value[index].enabled = !params.value[index].enabled
+}
+
+// 设置示例参数
+const setExampleParams = () => {
+  params.value = [
+    { key: 'name', value: 'john', enabled: true },
+    { key: 'age', value: '25', enabled: true },
+    { key: 'city', value: 'beijing', enabled: true },
+  ]
+}
+
+// 重置参数
+const resetParams = () => {
+  params.value = [{ key: '', value: '', enabled: false }]
+}
+
+// 自动增加请求头（当用户在最后一个请求头输入框中输入时）
+const autoAddHeader = (index: number) => {
+  const currentHeader = headers.value[index]
+  currentHeader.enabled = !!(
+    currentHeader.key.trim() || currentHeader.value.trim()
+  )
+
+  // 只允许最后一行是空行
+  const last = headers.value[headers.value.length - 1]
+  if (last.key.trim() || last.value.trim()) {
+    headers.value.push({ key: '', value: '', enabled: false })
+  }
+  // 删除多余空行（只保留最后一行空行）
+  for (let i = headers.value.length - 2; i >= 0; i--) {
+    if (!headers.value[i].key.trim() && !headers.value[i].value.trim()) {
+      headers.value.splice(i, 1)
+    }
+  }
 }
 
 // 删除请求头
 const removeHeader = (index: number) => {
   headers.value.splice(index, 1)
+  // 只保留最后一行空行
+  for (let i = headers.value.length - 2; i >= 0; i--) {
+    if (!headers.value[i].key.trim() && !headers.value[i].value.trim()) {
+      headers.value.splice(i, 1)
+    }
+  }
+  if (headers.value.length === 0) {
+    headers.value.push({ key: '', value: '', enabled: false })
+  }
 }
 
 // 切换请求头启用状态
@@ -309,7 +399,7 @@ const formatUrl = (urlString: string) => {
 
 // 解析查询参数
 const parseParams = (paramsString: string) => {
-  if (!paramsString.trim()) return []
+  if (!paramsString.trim()) return [{ key: '', value: '', enabled: false }]
 
   try {
     const paramsObj: Record<string, string> = {}
@@ -324,14 +414,17 @@ const parseParams = (paramsString: string) => {
       }
     })
 
-    return Object.entries(paramsObj).map(([key, value]) => ({
+    const result = Object.entries(paramsObj).map(([key, value]) => ({
       key,
       value,
       enabled: true,
     }))
+
+    // 确保至少返回一条参数
+    return result.length > 0 ? result : [{ key: '', value: '', enabled: false }]
   } catch (error) {
     console.error('解析参数失败:', error)
-    return []
+    return [{ key: '', value: '', enabled: false }]
   }
 }
 
@@ -380,7 +473,7 @@ interface FormItem {
   value: string
   enabled: boolean
 }
-const formBody = ref<FormItem[]>([{ key: '', value: '', enabled: true }])
+const formBody = ref<FormItem[]>([{ key: '', value: '', enabled: false }])
 
 // 添加/删除/切换表单 body
 const addFormItem = () => {
@@ -400,7 +493,7 @@ const setExampleForm = () => {
   ]
 }
 const resetFormBody = () => {
-  formBody.value = [{ key: '', value: '', enabled: true }]
+  formBody.value = [{ key: '', value: '', enabled: false }]
 }
 
 const handleSend = async () => {
@@ -450,16 +543,17 @@ const handleSend = async () => {
       )
       fullUrl = buildFullUrl(formattedUrl, paramsObj)
     }
-    // 处理POST/PUT/PATCH请求的body
-    if (showBody.value) {
+    // 处理Body内容
+    if (
+      body.value.trim() ||
+      formBody.value.some((item) => item.enabled && item.key.trim())
+    ) {
       if (bodyType.value === 'json') {
         if (body.value.trim()) {
           try {
             const bodyObj = parseBody(body.value)
             requestOptions.body = JSON.stringify(bodyObj)
-            if (!headersObj['Content-Type']) {
-              headersObj['Content-Type'] = 'application/json'
-            }
+            // 不自动设置Content-Type，让用户完全控制
           } catch (err) {
             error.value = 'JSON格式错误，请检查body内容'
             return
@@ -476,10 +570,10 @@ const handleSend = async () => {
           )
           .join('&')
         requestOptions.body = formData
-        headersObj['Content-Type'] = 'application/x-www-form-urlencoded'
+        // 不自动设置Content-Type，让用户完全控制
       } else if (bodyType.value === 'text') {
         requestOptions.body = body.value
-        headersObj['Content-Type'] = 'text/plain'
+        // 不自动设置Content-Type，让用户完全控制
       }
       requestOptions.headers = headersObj
     } else if (Object.keys(headersObj).length > 0) {
@@ -516,22 +610,7 @@ const handleEnter = (event: KeyboardEvent) => {
 
 // 切换请求方法时清空不相关的输入
 const handleMethodChange = () => {
-  if (showParams.value) {
-    body.value = ''
-  } else {
-    resetParams()
-  }
-
-  // 根据请求方法自动设置Content-Type
-  if (showBody.value) {
-    const contentTypeHeader = headers.value.find(
-      (h) => h.key === 'Content-Type',
-    )
-    if (contentTypeHeader) {
-      contentTypeHeader.value = 'application/json'
-      contentTypeHeader.enabled = true
-    }
-  }
+  // 不再根据HTTP方法清空输入，让用户自由控制
 }
 
 const handleHistoryClick = (item: HistoryItem) => {
@@ -543,9 +622,28 @@ const handleHistoryClick = (item: HistoryItem) => {
   loadHistory(item)
 }
 
+// 确保始终有一个空行
+const ensureEmptyRow = () => {
+  // 确保参数始终有一个空行
+  if (params.value.length === 0) {
+    params.value.push({ key: '', value: '', enabled: false })
+  }
+
+  // 确保请求头始终有一个空行（检查最后一个是否为空行）
+  if (headers.value.length === 0) {
+    headers.value.push({ key: '', value: '', enabled: false })
+  } else {
+    const lastHeader = headers.value[headers.value.length - 1]
+    if (lastHeader.key.trim() || lastHeader.value.trim()) {
+      headers.value.push({ key: '', value: '', enabled: false })
+    }
+  }
+}
+
 // 页面加载时恢复历史记录
 onMounted(() => {
   loadHistoryFromStorage()
+  ensureEmptyRow()
 })
 
 // 清空搜索
@@ -639,35 +737,6 @@ ${requestInfo.formBody ? `FormBody: ${requestInfo.formBody}` : ''}
 Headers: ${requestInfo.headers}
 Time: ${requestInfo.timestamp}`
   copyToClipboard(requestText)
-}
-
-// 添加新的参数
-const addParam = () => {
-  params.value.push({ key: '', value: '', enabled: true })
-}
-
-// 删除参数
-const removeParam = (index: number) => {
-  params.value.splice(index, 1)
-}
-
-// 切换参数启用状态
-const toggleParam = (index: number) => {
-  params.value[index].enabled = !params.value[index].enabled
-}
-
-// 设置示例参数
-const setExampleParams = () => {
-  params.value = [
-    { key: 'name', value: 'john', enabled: true },
-    { key: 'age', value: '25', enabled: true },
-    { key: 'city', value: 'beijing', enabled: true },
-  ]
-}
-
-// 重置参数
-const resetParams = () => {
-  params.value = [{ key: '', value: '', enabled: true }]
 }
 
 const bodyTypes = [
@@ -933,13 +1002,6 @@ const bodyTypes = [
                   示例
                 </button>
                 <button
-                  @click="addParam"
-                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
-                  :disabled="loading"
-                >
-                  添加
-                </button>
-                <button
                   @click="resetParams"
                   class="text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
                   :disabled="loading"
@@ -967,6 +1029,7 @@ const bodyTypes = [
                   class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                   placeholder="参数名"
                   :disabled="loading"
+                  @input="autoAddParam(index)"
                 />
                 <input
                   v-model="param.value"
@@ -974,22 +1037,20 @@ const bodyTypes = [
                   class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                   placeholder="参数值"
                   :disabled="loading"
+                  @input="autoAddParam(index)"
                 />
                 <button
                   @click="removeParam(index)"
-                  class="flex h-8 w-8 items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] dark:text-red-400 dark:hover:bg-[#3a2323]"
-                  :disabled="loading"
+                  class="flex h-8 w-8 cursor-pointer items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-[#3a2323]"
+                  :disabled="
+                    loading ||
+                    params.length <= 1 ||
+                    (!param.key.trim() && !param.value.trim())
+                  "
                   title="删除此参数"
                 >
                   <span class="i-carbon-close text-sm"></span>
                 </button>
-              </div>
-              <div
-                v-if="params.length === 0"
-                class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400"
-              >
-                <span class="i-carbon-settings mb-2 text-2xl"></span>
-                <div class="text-center text-sm">暂无参数</div>
               </div>
             </div>
           </div>
@@ -1140,13 +1201,6 @@ const bodyTypes = [
               </div>
               <div class="flex gap-2">
                 <button
-                  @click="addHeader"
-                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
-                  :disabled="loading"
-                >
-                  添加
-                </button>
-                <button
                   @click="resetHeaders"
                   class="text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
                   :disabled="loading"
@@ -1174,6 +1228,7 @@ const bodyTypes = [
                   class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                   placeholder="Header Name"
                   :disabled="loading"
+                  @input="autoAddHeader(index)"
                 />
                 <input
                   v-model="header.value"
@@ -1181,22 +1236,20 @@ const bodyTypes = [
                   class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                   placeholder="Header Value"
                   :disabled="loading"
+                  @input="autoAddHeader(index)"
                 />
                 <button
                   @click="removeHeader(index)"
-                  class="flex h-8 w-8 items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] dark:text-red-400 dark:hover:bg-[#3a2323]"
-                  :disabled="loading"
+                  class="flex h-8 w-8 cursor-pointer items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-[#3a2323]"
+                  :disabled="
+                    loading ||
+                    headers.length <= 1 ||
+                    (!header.key.trim() && !header.value.trim())
+                  "
                   title="删除此请求头"
                 >
                   <span class="i-carbon-close text-sm"></span>
                 </button>
-              </div>
-              <div
-                v-if="headers.length === 0"
-                class="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400"
-              >
-                <span class="i-carbon-settings mb-2 text-2xl"></span>
-                <div class="text-center text-sm">暂无请求头配置</div>
               </div>
             </div>
           </div>
