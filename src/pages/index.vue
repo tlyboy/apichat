@@ -49,7 +49,6 @@ const method = ref<
 
 // 请求参数
 const params = ref<ParamItem[]>([{ key: '', value: '', enabled: false }])
-const body = ref('')
 const headers = ref<HeaderItem[]>([
   { key: 'Content-Type', value: 'application/json', enabled: true },
   { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
@@ -111,9 +110,20 @@ const generateTitle = (url: string) => {
 }
 
 // 添加历史记录
-const addHistory = (item: Omit<HistoryItem, 'id' | 'title' | 'timestamp'>) => {
+const addHistory = (
+  item: Omit<HistoryItem, 'id' | 'title' | 'timestamp' | 'body'>,
+) => {
+  // 根据当前 bodyType 获取对应的 body 内容
+  let bodyContent = ''
+  if (bodyType.value === 'json') {
+    bodyContent = jsonBody.value
+  } else if (bodyType.value === 'text') {
+    bodyContent = textBody.value
+  }
+
   const historyItem: HistoryItem = {
     ...item,
+    body: bodyContent,
     id: Date.now().toString(),
     title: generateTitle(item.url),
     timestamp: Date.now(),
@@ -159,7 +169,12 @@ const loadHistory = (item: HistoryItem) => {
   url.value = item.url
   method.value = item.method
   params.value = parseParams(item.params)
-  body.value = item.body
+  // 根据 bodyType 加载到对应的变量
+  if (item.bodyType === 'json') {
+    jsonBody.value = item.body
+  } else if (item.bodyType === 'text') {
+    textBody.value = item.body
+  }
   headers.value = parseHeaders(item.headers)
   bodyType.value = (item.bodyType as 'json' | 'form' | 'text') || 'json'
   formBody.value = item.formBody
@@ -239,6 +254,10 @@ const deleteHistoryItem = (id: string) => {
       error.value = ''
       method.value = 'GET'
       resetParams()
+      // 清空 body 内容
+      jsonBody.value = ''
+      textBody.value = ''
+      resetFormBody()
       // 切换到 Params Tab
       activeTab.value = 'params'
     } else if (current.value > index) {
@@ -266,6 +285,11 @@ const createNewRequest = () => {
   error.value = ''
   method.value = 'GET'
   resetParams()
+
+  // 清空 body 内容
+  jsonBody.value = ''
+  textBody.value = ''
+  resetFormBody()
 
   // 重置当前选中项
   current.value = -1
@@ -475,16 +499,53 @@ interface FormItem {
 }
 const formBody = ref<FormItem[]>([{ key: '', value: '', enabled: false }])
 
+// 为不同 body 类型创建独立的变量
+const jsonBody = ref('')
+const textBody = ref('')
+
+// 处理 bodyType 切换
+const handleBodyTypeChange = (newType: 'json' | 'form' | 'text') => {
+  bodyType.value = newType
+}
+
 // 添加/删除/切换表单 body
 const addFormItem = () => {
   formBody.value.push({ key: '', value: '', enabled: true })
 }
 const removeFormItem = (index: number) => {
   formBody.value.splice(index, 1)
+  // 只保留最后一行空行
+  for (let i = formBody.value.length - 2; i >= 0; i--) {
+    if (!formBody.value[i].key.trim() && !formBody.value[i].value.trim()) {
+      formBody.value.splice(i, 1)
+    }
+  }
+  if (formBody.value.length === 0) {
+    formBody.value.push({ key: '', value: '', enabled: false })
+  }
 }
 const toggleFormItem = (index: number) => {
   formBody.value[index].enabled = !formBody.value[index].enabled
 }
+
+// 自动增加表单项（当用户在最后一个表单项输入框中输入时）
+const autoAddFormItem = (index: number) => {
+  const currentItem = formBody.value[index]
+  currentItem.enabled = !!(currentItem.key.trim() || currentItem.value.trim())
+
+  // 只允许最后一行是空行
+  const last = formBody.value[formBody.value.length - 1]
+  if (last.key.trim() || last.value.trim()) {
+    formBody.value.push({ key: '', value: '', enabled: false })
+  }
+  // 删除多余空行（只保留最后一行空行）
+  for (let i = formBody.value.length - 2; i >= 0; i--) {
+    if (!formBody.value[i].key.trim() && !formBody.value[i].value.trim()) {
+      formBody.value.splice(i, 1)
+    }
+  }
+}
+
 const setExampleForm = () => {
   formBody.value = [
     { key: 'name', value: 'john', enabled: true },
@@ -544,14 +605,17 @@ const handleSend = async () => {
       fullUrl = buildFullUrl(formattedUrl, paramsObj)
     }
     // 处理Body内容
-    if (
-      body.value.trim() ||
-      formBody.value.some((item) => item.enabled && item.key.trim())
-    ) {
+    const hasBodyContent =
+      (bodyType.value === 'json' && jsonBody.value.trim()) ||
+      (bodyType.value === 'text' && textBody.value.trim()) ||
+      (bodyType.value === 'form' &&
+        formBody.value.some((item) => item.enabled && item.key.trim()))
+
+    if (hasBodyContent) {
       if (bodyType.value === 'json') {
-        if (body.value.trim()) {
+        if (jsonBody.value.trim()) {
           try {
-            const bodyObj = parseBody(body.value)
+            const bodyObj = parseBody(jsonBody.value)
             requestOptions.body = JSON.stringify(bodyObj)
             // 不自动设置Content-Type，让用户完全控制
           } catch (err) {
@@ -572,7 +636,7 @@ const handleSend = async () => {
         requestOptions.body = formData
         // 不自动设置Content-Type，让用户完全控制
       } else if (bodyType.value === 'text') {
-        requestOptions.body = body.value
+        requestOptions.body = textBody.value
         // 不自动设置Content-Type，让用户完全控制
       }
       requestOptions.headers = headersObj
@@ -588,7 +652,6 @@ const handleSend = async () => {
       params: params.value
         .map((param) => param.key + '=' + param.value)
         .join('&'),
-      body: body.value,
       headers: stringifyHeaders(headers.value),
       response: response.value,
     })
@@ -638,6 +701,16 @@ const ensureEmptyRow = () => {
       headers.value.push({ key: '', value: '', enabled: false })
     }
   }
+
+  // 确保表单始终有一个空行
+  if (formBody.value.length === 0) {
+    formBody.value.push({ key: '', value: '', enabled: false })
+  } else {
+    const lastFormItem = formBody.value[formBody.value.length - 1]
+    if (lastFormItem.key.trim() || lastFormItem.value.trim()) {
+      formBody.value.push({ key: '', value: '', enabled: false })
+    }
+  }
 }
 
 // 页面加载时恢复历史记录
@@ -649,23 +722,6 @@ onMounted(() => {
 // 清空搜索
 const clearSearch = () => {
   searchKeyword.value = ''
-}
-
-// 处理Tab键输入
-const handleTabKey = (event: KeyboardEvent, target: HTMLTextAreaElement) => {
-  if (event.key === 'Tab') {
-    event.preventDefault()
-
-    const start = target.selectionStart
-    const end = target.selectionEnd
-
-    // 插入两个空格
-    const value = target.value
-    target.value = value.substring(0, start) + '  ' + value.substring(end)
-
-    // 设置光标位置到两个空格后面
-    target.selectionStart = target.selectionEnd = start + 2
-  }
 }
 
 // 复制功能
@@ -716,13 +772,21 @@ const copyResponse = () => {
 
 // 复制请求信息
 const copyRequest = () => {
+  // 根据当前 bodyType 获取对应的 body 内容
+  let bodyContent = ''
+  if (bodyType.value === 'json') {
+    bodyContent = jsonBody.value
+  } else if (bodyType.value === 'text') {
+    bodyContent = textBody.value
+  }
+
   const requestInfo = {
     method: method.value,
     url: url.value,
     params: params.value
       .map((param) => param.key + '=' + param.value)
       .join('&'),
-    body: body.value,
+    body: bodyContent,
     bodyType: bodyType.value,
     formBody: JSON.stringify(formBody.value),
     headers: stringifyHeaders(headers.value),
@@ -744,6 +808,23 @@ const bodyTypes = [
   { value: 'form', label: '表单' },
   { value: 'text', label: '文本' },
 ]
+
+// 响应内容高亮语言自动判断
+const responseLanguage = computed(() => {
+  if (!response.value) return 'plaintext'
+  try {
+    JSON.parse(response.value)
+    return 'json'
+  } catch {
+    // 简单判断是否为 HTML
+    if (response.value.trim().startsWith('<')) return 'html'
+    // 简单判断是否为 XML
+    if (response.value.trim().startsWith('<?xml')) return 'xml'
+    // 简单判断是否为 JavaScript
+    if (/function|const|let|var|=>/.test(response.value)) return 'javascript'
+    return 'plaintext'
+  }
+})
 </script>
 
 <template>
@@ -764,7 +845,7 @@ const bodyTypes = [
           <button
             v-if="searchKeyword"
             @click="clearSearch"
-            class="absolute top-1/2 right-2 flex h-4 w-4 -translate-y-1/2 items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            class="absolute top-1/2 right-2 flex h-4 w-4 -translate-y-1/2 cursor-pointer items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             title="清空搜索"
           >
             <span class="i-carbon-close text-xs"></span>
@@ -952,7 +1033,7 @@ const bodyTypes = [
         >
           <button
             :class="[
-              'h-10 px-4 py-2 leading-6 transition-colors duration-150',
+              'h-10 cursor-pointer px-4 py-2 leading-6 transition-colors duration-150',
               activeTab === 'params'
                 ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
                 : 'text-[#7f8c8d] dark:text-[#95a5a6]',
@@ -963,7 +1044,7 @@ const bodyTypes = [
           </button>
           <button
             :class="[
-              'h-10 px-4 py-2 leading-6 transition-colors duration-150',
+              'h-10 cursor-pointer px-4 py-2 leading-6 transition-colors duration-150',
               activeTab === 'body'
                 ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
                 : 'text-[#7f8c8d] dark:text-[#95a5a6]',
@@ -974,7 +1055,7 @@ const bodyTypes = [
           </button>
           <button
             :class="[
-              'h-10 px-4 py-2 leading-6 transition-colors duration-150',
+              'h-10 cursor-pointer px-4 py-2 leading-6 transition-colors duration-150',
               activeTab === 'headers'
                 ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
                 : 'text-[#7f8c8d] dark:text-[#95a5a6]',
@@ -996,14 +1077,14 @@ const bodyTypes = [
               <div class="flex gap-2">
                 <button
                   @click="setExampleParams"
-                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  class="cursor-pointer text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   :disabled="loading"
                 >
                   示例
                 </button>
                 <button
                   @click="resetParams"
-                  class="text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
+                  class="cursor-pointer text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
                   :disabled="loading"
                 >
                   重置
@@ -1067,7 +1148,9 @@ const bodyTypes = [
                       ? 'bg-[#3498db] font-semibold text-white shadow'
                       : 'bg-[#ecf0f1] text-[#34495e] hover:bg-[#bdc3c7] dark:bg-[#2C2C2C] dark:text-gray-300 dark:hover:bg-[#404040]',
                   ]"
-                  @click="bodyType = type.value as 'json' | 'form' | 'text'"
+                  @click="
+                    handleBodyTypeChange(type.value as 'json' | 'form' | 'text')
+                  "
                 >
                   {{ type.label }}
                 </button>
@@ -1076,13 +1159,13 @@ const bodyTypes = [
                 <button
                   v-if="bodyType === 'json'"
                   @click="
-                    body = JSON.stringify(
+                    jsonBody = JSON.stringify(
                       { name: 'john', age: 25, city: 'beijing' },
                       null,
                       2,
                     )
                   "
-                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  class="cursor-pointer text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   :disabled="loading"
                 >
                   示例
@@ -1090,7 +1173,7 @@ const bodyTypes = [
                 <button
                   v-if="bodyType === 'form'"
                   @click="setExampleForm"
-                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  class="cursor-pointer text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   :disabled="loading"
                 >
                   示例
@@ -1098,7 +1181,7 @@ const bodyTypes = [
                 <button
                   v-if="bodyType === 'form'"
                   @click="addFormItem"
-                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  class="cursor-pointer text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   :disabled="loading"
                 >
                   添加
@@ -1106,15 +1189,15 @@ const bodyTypes = [
                 <button
                   v-if="bodyType === 'form'"
                   @click="resetFormBody"
-                  class="text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
+                  class="cursor-pointer text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
                   :disabled="loading"
                 >
                   重置
                 </button>
                 <button
                   v-if="bodyType === 'text'"
-                  @click="body = 'hello world'"
-                  class="text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  @click="textBody = 'hello world'"
+                  class="cursor-pointer text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   :disabled="loading"
                 >
                   示例
@@ -1123,15 +1206,7 @@ const bodyTypes = [
             </div>
             <!-- JSON 输入区 -->
             <div v-if="bodyType === 'json'" class="flex flex-1 flex-col">
-              <textarea
-                v-model="body"
-                class="w-full flex-1 resize-none rounded-md border border-[#DADADA] bg-white px-2 py-1 font-mono text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
-                placeholder='格式: {"key": "value"}&#10;例如: {"name": "john", "age": 25}'
-                :disabled="loading"
-                @keydown="
-                  handleTabKey($event, $event.target as HTMLTextAreaElement)
-                "
-              ></textarea>
+              <CodeEditor v-model="jsonBody" language="json" class="flex-1" />
             </div>
             <!-- 表单输入区 -->
             <div v-if="bodyType === 'form'" class="flex flex-1 flex-col">
@@ -1154,6 +1229,7 @@ const bodyTypes = [
                     class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                     placeholder="字段名"
                     :disabled="loading"
+                    @input="autoAddFormItem(index)"
                   />
                   <input
                     v-model="item.value"
@@ -1161,11 +1237,16 @@ const bodyTypes = [
                     class="flex-1 rounded border border-[#DADADA] bg-white px-2 py-1 text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
                     placeholder="字段值"
                     :disabled="loading"
+                    @input="autoAddFormItem(index)"
                   />
                   <button
                     @click="removeFormItem(index)"
-                    class="flex h-8 w-8 items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] dark:text-red-400 dark:hover:bg-[#3a2323]"
-                    :disabled="loading"
+                    class="flex h-8 w-8 cursor-pointer items-center justify-center rounded text-[#e74c3c] hover:bg-[#f9eaea] disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-[#3a2323]"
+                    :disabled="
+                      loading ||
+                      formBody.length <= 1 ||
+                      (!item.key.trim() && !item.value.trim())
+                    "
                     title="删除此字段"
                   >
                     <span class="i-carbon-close text-sm"></span>
@@ -1182,15 +1263,11 @@ const bodyTypes = [
             </div>
             <!-- 纯文本输入区 -->
             <div v-if="bodyType === 'text'" class="flex flex-1 flex-col">
-              <textarea
-                v-model="body"
-                class="w-full flex-1 resize-none rounded-md border border-[#DADADA] bg-white px-2 py-1 font-mono text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
-                placeholder="纯文本内容"
-                :disabled="loading"
-                @keydown="
-                  handleTabKey($event, $event.target as HTMLTextAreaElement)
-                "
-              ></textarea>
+              <CodeEditor
+                v-model="textBody"
+                language="plaintext"
+                class="flex-1"
+              />
             </div>
           </div>
           <!-- Headers Tab -->
@@ -1202,7 +1279,7 @@ const bodyTypes = [
               <div class="flex gap-2">
                 <button
                   @click="resetHeaders"
-                  class="text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
+                  class="cursor-pointer text-xs text-[#7f8c8d] hover:text-[#34495e] dark:text-[#95a5a6] dark:hover:text-[#ecf0f1]"
                   :disabled="loading"
                 >
                   重置
@@ -1273,7 +1350,7 @@ const bodyTypes = [
               <div v-if="response" class="flex gap-2">
                 <button
                   @click="copyRequest"
-                  class="flex items-center gap-1 text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  class="flex cursor-pointer items-center gap-1 text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   title="复制请求信息"
                 >
                   <span class="i-carbon-copy"></span>
@@ -1281,7 +1358,7 @@ const bodyTypes = [
                 </button>
                 <button
                   @click="copyResponse"
-                  class="flex items-center gap-1 text-xs text-[#2ecc71] hover:text-[#27ae60] dark:text-[#2ecc71] dark:hover:text-[#27ae60]"
+                  class="flex cursor-pointer items-center gap-1 text-xs text-[#2ecc71] hover:text-[#27ae60] dark:text-[#2ecc71] dark:hover:text-[#27ae60]"
                   title="复制响应结果"
                 >
                   <span class="i-carbon-copy"></span>
@@ -1289,17 +1366,12 @@ const bodyTypes = [
                 </button>
               </div>
             </div>
-            <textarea
+            <CodeEditor
               v-model="response"
-              class="w-full flex-1 resize-none rounded-md border border-[#DADADA] bg-white px-2 py-1 font-mono text-sm dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
-              :placeholder="
-                loading ? '正在发送请求...' : '响应结果将显示在这里...'
-              "
-              :readonly="loading"
-              @keydown="
-                handleTabKey($event, $event.target as HTMLTextAreaElement)
-              "
-            ></textarea>
+              :language="responseLanguage"
+              readonly
+              class="flex-1"
+            />
           </div>
         </div>
       </div>

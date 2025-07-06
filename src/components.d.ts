@@ -8,7 +8,9 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CodeEditor: typeof import('./components/CodeEditor.vue')['default']
     DarkToggle: typeof import('./components/DarkToggle.vue')['default']
+    MonacoEditor: typeof import('./components/MonacoEditor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

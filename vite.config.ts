@@ -9,6 +9,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import Layouts from 'vite-plugin-vue-layouts'
 import { VueRouterAutoImports } from 'unplugin-vue-router'
+import monacoEditorPlugin from 'vite-plugin-monaco-editor'
 
 const host = process.env.TAURI_DEV_HOST
 
@@ -31,6 +32,7 @@ export default defineConfig(async () => ({
     Components({
       dts: 'src/components.d.ts',
     }),
+    (monacoEditorPlugin as any).default({}),
   ],
   resolve: {
     alias: {
