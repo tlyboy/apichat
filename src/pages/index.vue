@@ -739,7 +739,7 @@ const copyToClipboard = async (text: string) => {
     copySuccess.value = true
     setTimeout(() => {
       copySuccess.value = false
-    }, 2000)
+    }, 1500)
   } catch (error) {
     console.error('复制失败:', error)
 
@@ -754,7 +754,7 @@ const copyToClipboard = async (text: string) => {
       copySuccess.value = true
       setTimeout(() => {
         copySuccess.value = false
-      }, 2000)
+      }, 1500)
     } catch (fallbackError) {
       console.error('降级复制也失败:', fallbackError)
       // 如果所有现代方法都失败，可以考虑显示错误提示
@@ -938,7 +938,7 @@ const responseLanguage = computed(() => {
           <div
             v-for="item in filteredList"
             :key="item.id"
-            class="group selected-history flex items-center gap-2 px-2 py-3 hover:bg-[#EAEAEA] hover:dark:bg-[#252525]"
+            class="group flex cursor-default items-center gap-2 px-2 py-3 hover:bg-[#EAEAEA] hover:dark:bg-[#252525]"
             :class="{
               'bg-[#ecf0f1] text-[#3498db] dark:bg-[#3B3B3B] dark:text-[#3498db]':
                 isHistoryItemSelected(item),
@@ -1069,8 +1069,11 @@ const responseLanguage = computed(() => {
         <!-- Tab 内容区 -->
         <div class="flex-1 border-b border-[#DADADA] dark:border-[#292929]">
           <!-- Params Tab -->
-          <div v-if="activeTab === 'params'" class="flex h-full flex-col p-4">
-            <div class="mb-2 flex items-center justify-between">
+          <div
+            v-if="activeTab === 'params'"
+            class="flex h-full flex-col gap-2 p-2"
+          >
+            <div class="flex items-center justify-between">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Query 参数
               </div>
@@ -1136,8 +1139,11 @@ const responseLanguage = computed(() => {
             </div>
           </div>
           <!-- Body Tab -->
-          <div v-if="activeTab === 'body'" class="flex h-full flex-col p-4">
-            <div class="mb-2 flex items-center justify-between">
+          <div
+            v-if="activeTab === 'body'"
+            class="flex h-full flex-col gap-2 p-2"
+          >
+            <div class="flex items-center justify-between">
               <div class="flex gap-1">
                 <button
                   v-for="type in bodyTypes"
@@ -1271,8 +1277,11 @@ const responseLanguage = computed(() => {
             </div>
           </div>
           <!-- Headers Tab -->
-          <div v-if="activeTab === 'headers'" class="flex h-full flex-col p-4">
-            <div class="mb-2 flex items-center justify-between">
+          <div
+            v-if="activeTab === 'headers'"
+            class="flex h-full flex-col gap-2 p-2"
+          >
+            <div class="flex items-center justify-between">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Headers
               </div>
@@ -1333,16 +1342,8 @@ const responseLanguage = computed(() => {
         </div>
 
         <!-- 响应显示区域 -->
-        <div class="flex-1 overflow-y-auto p-4">
-          <!-- 复制成功提示 -->
-          <div
-            v-if="copySuccess"
-            class="mb-4 rounded border border-[#2ecc71] bg-[#eafaf1] px-4 py-2 text-[#2ecc71] dark:border-[#2ecc71] dark:bg-[#1e3a2a] dark:text-[#2ecc71]"
-          >
-            复制成功！
-          </div>
-
-          <div class="flex h-full flex-col space-y-2">
+        <div class="flex-1 overflow-y-auto">
+          <div class="flex h-full flex-col gap-2 p-2">
             <div class="flex items-center justify-between">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
                 响应结果
@@ -1350,28 +1351,32 @@ const responseLanguage = computed(() => {
               <div v-if="response" class="flex gap-2">
                 <button
                   @click="copyRequest"
-                  class="flex cursor-pointer items-center gap-1 text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
+                  class="flex cursor-pointer items-center gap-1 text-xs text-[#3498db] hover:text-[#2980b9] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#3498db] dark:hover:text-[#2980b9]"
                   title="复制请求信息"
+                  :disabled="copySuccess"
                 >
                   <span class="i-carbon-copy"></span>
                   复制请求
                 </button>
                 <button
                   @click="copyResponse"
-                  class="flex cursor-pointer items-center gap-1 text-xs text-[#2ecc71] hover:text-[#27ae60] dark:text-[#2ecc71] dark:hover:text-[#27ae60]"
+                  class="flex cursor-pointer items-center gap-1 text-xs text-[#2ecc71] hover:text-[#27ae60] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#2ecc71] dark:hover:text-[#27ae60]"
                   title="复制响应结果"
+                  :disabled="copySuccess"
                 >
                   <span class="i-carbon-copy"></span>
                   复制响应
                 </button>
               </div>
             </div>
-            <CodeEditor
-              v-model="response"
-              :language="responseLanguage"
-              readonly
-              class="flex-1"
-            />
+            <div class="flex flex-1">
+              <CodeEditor
+                v-model="response"
+                :language="responseLanguage"
+                readonly
+                class="flex-1"
+              />
+            </div>
           </div>
         </div>
       </div>

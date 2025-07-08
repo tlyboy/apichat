@@ -13,14 +13,12 @@ body,
 }
 
 html {
-  background: #ecf0f1;
-  color: #121212;
+  background: #f3f3f3;
 }
 
 html.dark {
+  background: #111111;
   color-scheme: dark;
-  background: #121212;
-  color: #ecf0f1;
 }
 
 ::view-transition-old(root),
@@ -51,6 +49,6 @@ html.dark {
   }
 
   .icon-btn {
-    @apply inline-block cursor-pointer select-none opacity-75 transition duration-200 ease-in-out hover:text-[#3498db] hover:opacity-100;
+    @apply inline-block cursor-pointer opacity-75 transition duration-200 ease-in-out select-none hover:text-[#3498db] hover:opacity-100;
   }
 }

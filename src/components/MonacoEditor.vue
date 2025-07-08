@@ -82,6 +82,16 @@ watch(
   },
 )
 
+// 监听主题变化
+watch(
+  () => props.options.theme,
+  (newTheme) => {
+    if (editor && newTheme) {
+      monaco.editor.setTheme(newTheme)
+    }
+  },
+)
+
 watch(editorElement, (_, oldValue) => {
   if (!editorElement.value || oldValue) {
     return
