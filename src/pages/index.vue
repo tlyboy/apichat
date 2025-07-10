@@ -350,6 +350,7 @@ const setExampleParams = () => {
     { key: 'name', value: 'john', enabled: true },
     { key: 'age', value: '25', enabled: true },
     { key: 'city', value: 'beijing', enabled: true },
+    { key: '', value: '', enabled: false },
   ]
 }
 
@@ -508,10 +509,6 @@ const handleBodyTypeChange = (newType: 'json' | 'form' | 'text') => {
   bodyType.value = newType
 }
 
-// 添加/删除/切换表单 body
-const addFormItem = () => {
-  formBody.value.push({ key: '', value: '', enabled: true })
-}
 const removeFormItem = (index: number) => {
   formBody.value.splice(index, 1)
   // 只保留最后一行空行
@@ -551,6 +548,7 @@ const setExampleForm = () => {
     { key: 'name', value: 'john', enabled: true },
     { key: 'age', value: '25', enabled: true },
     { key: 'city', value: 'beijing', enabled: true },
+    { key: '', value: '', enabled: false },
   ]
 }
 const resetFormBody = () => {
@@ -1183,14 +1181,6 @@ const responseLanguage = computed(() => {
                   :disabled="loading"
                 >
                   示例
-                </button>
-                <button
-                  v-if="bodyType === 'form'"
-                  @click="addFormItem"
-                  class="cursor-pointer text-xs text-[#3498db] hover:text-[#2980b9] dark:text-[#3498db] dark:hover:text-[#2980b9]"
-                  :disabled="loading"
-                >
-                  添加
                 </button>
                 <button
                   v-if="bodyType === 'form'"
