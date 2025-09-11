@@ -829,7 +829,7 @@ const responseLanguage = computed(() => {
   <div class="flex h-full flex-col">
     <div class="flex items-center">
       <div
-        class="flex w-52 items-center gap-2 border-r border-b border-[#DADADA] bg-[#F7F7F7] px-2 py-4 dark:border-[#292929] dark:bg-[#191919]"
+        class="flex w-52 items-center gap-2 border-r border-b border-[#DADADA] bg-[#F7F7F7] px-2 py-4 dark:border-[#292929] dark:bg-[#242424]"
       >
         <div class="relative flex-1">
           <span
@@ -909,7 +909,7 @@ const responseLanguage = computed(() => {
       >
         <!-- 筛选工具栏 -->
         <div
-          class="border-b border-[#DADADA] bg-[#F7F7F7] p-2 dark:border-[#292929] dark:bg-[#191919]"
+          class="border-b border-[#DADADA] bg-[#F7F7F7] p-2 dark:border-[#292929] dark:bg-[#242424]"
         >
           <div class="mb-2 flex items-center gap-1">
             <select
@@ -936,31 +936,25 @@ const responseLanguage = computed(() => {
           <div
             v-for="item in filteredList"
             :key="item.id"
-            class="group flex cursor-default items-center gap-2 px-2 py-3 hover:bg-[#EAEAEA] hover:dark:bg-[#252525]"
+            class="group flex cursor-default items-center gap-2 px-2 py-3"
             :class="{
-              'bg-[#ecf0f1] text-[#3498db] dark:bg-[#3B3B3B] dark:text-[#3498db]':
+              'bg-[#DEDEDE] hover:bg-[#D3D3D3] dark:bg-[#3A3A3A] dark:hover:bg-[#444444]':
                 isHistoryItemSelected(item),
-              'bg-[#ffffff] dark:bg-[#2C2C2C]': !isHistoryItemSelected(item),
+              'bg-[#F7F7F7] hover:bg-[#EAEAEA] dark:bg-[#242424] hover:dark:bg-[#2F2F2F]':
+                !isHistoryItemSelected(item),
             }"
             @click="handleHistoryClick(item)"
           >
             <div
-              class="flex h-[44px] w-[44px] items-center justify-center rounded-full text-xs font-medium"
+              class="flex h-[44px] w-[44px] items-center justify-center rounded-full text-xs font-medium text-white"
               :class="{
-                'bg-[#3498db] text-white dark:bg-[#2980b9] dark:text-white':
-                  item.method === 'GET',
-                'bg-[#2ecc71] text-white dark:bg-[#27ae60] dark:text-white':
-                  item.method === 'POST',
-                'bg-[#e67e22] text-white dark:bg-[#d35400] dark:text-white':
-                  item.method === 'PUT',
-                'bg-[#e74c3c] text-white dark:bg-[#c0392b] dark:text-white':
-                  item.method === 'DELETE',
-                'bg-[#9b59b6] text-white dark:bg-[#8e44ad] dark:text-white':
-                  item.method === 'PATCH',
-                'bg-[#95a5a6] text-white dark:bg-[#7f8c8d] dark:text-white':
-                  item.method === 'HEAD',
-                'bg-[#34495e] text-white dark:bg-[#2c3e50] dark:text-white':
-                  item.method === 'OPTIONS',
+                'bg-[#3498db]': item.method === 'GET',
+                'bg-[#2ecc71]': item.method === 'POST',
+                'bg-[#e67e22]': item.method === 'PUT',
+                'bg-[#e74c3c]': item.method === 'DELETE',
+                'bg-[#9b59b6]': item.method === 'PATCH',
+                'bg-[#95a5a6]': item.method === 'HEAD',
+                'bg-[#34495e]': item.method === 'OPTIONS',
               }"
             >
               {{ item.method }}
@@ -1026,15 +1020,13 @@ const responseLanguage = computed(() => {
         </div>
 
         <!-- Tab 切换栏 -->
-        <div
-          class="flex border-b border-[#DADADA] bg-[#F7F7F7] dark:border-[#292929] dark:bg-[#191919]"
-        >
+        <div class="flex border-b border-[#DADADA] dark:border-[#292929]">
           <button
             :class="[
-              'h-10 cursor-pointer px-4 py-2 leading-6 transition-colors duration-150',
+              'h-10 cursor-pointer px-4 py-2',
               activeTab === 'params'
-                ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
-                : 'text-[#7f8c8d] dark:text-[#95a5a6]',
+                ? 'border-b-2 border-[#3498db] text-[#3498db]'
+                : '',
             ]"
             @click="activeTab = 'params'"
           >
@@ -1042,10 +1034,10 @@ const responseLanguage = computed(() => {
           </button>
           <button
             :class="[
-              'h-10 cursor-pointer px-4 py-2 leading-6 transition-colors duration-150',
+              'h-10 cursor-pointer px-4 py-2',
               activeTab === 'body'
-                ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
-                : 'text-[#7f8c8d] dark:text-[#95a5a6]',
+                ? 'border-b-2 border-[#3498db] text-[#3498db]'
+                : '',
             ]"
             @click="activeTab = 'body'"
           >
@@ -1053,10 +1045,10 @@ const responseLanguage = computed(() => {
           </button>
           <button
             :class="[
-              'h-10 cursor-pointer px-4 py-2 leading-6 transition-colors duration-150',
+              'h-10 cursor-pointer px-4 py-2',
               activeTab === 'headers'
-                ? 'border-b-2 border-[#3498db] bg-white text-[#3498db] dark:bg-[#191919] dark:text-[#3498db]'
-                : 'text-[#7f8c8d] dark:text-[#95a5a6]',
+                ? 'border-b-2 border-[#3498db] text-[#3498db]'
+                : '',
             ]"
             @click="activeTab = 'headers'"
           >
@@ -1147,10 +1139,10 @@ const responseLanguage = computed(() => {
                   v-for="type in bodyTypes"
                   :key="type.value"
                   :class="[
-                    'min-w-20 cursor-pointer rounded-full px-4 py-1 text-sm transition-all duration-150',
+                    'cursor-pointer rounded-full px-4 py-1 text-sm',
                     bodyType === type.value
-                      ? 'bg-[#3498db] font-semibold text-white shadow'
-                      : 'bg-[#ecf0f1] text-[#34495e] hover:bg-[#bdc3c7] dark:bg-[#2C2C2C] dark:text-gray-300 dark:hover:bg-[#404040]',
+                      ? 'bg-[#3498db] text-white'
+                      : 'bg-white dark:bg-[#2C2C2C]',
                   ]"
                   @click="
                     handleBodyTypeChange(type.value as 'json' | 'form' | 'text')

@@ -10,31 +10,31 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.11",
-    "@tauri-apps/api": "^2.6.0",
-    "@tauri-apps/plugin-http": "~2.5.0",
-    "@tauri-apps/plugin-opener": "^2.4.0",
-    "@tauri-apps/plugin-os": "~2.3.0",
-    "@vueuse/core": "^13.5.0",
+    "@tailwindcss/vite": "^4.1.13",
+    "@tauri-apps/api": "^2.8.0",
+    "@tauri-apps/plugin-http": "~2.5.2",
+    "@tauri-apps/plugin-opener": "^2.5.0",
+    "@tauri-apps/plugin-os": "~2.3.1",
+    "@vueuse/core": "^13.9.0",
     "defu": "^6.1.4",
     "monaco-editor": "^0.52.2",
     "pinia": "^3.0.3",
-    "pinia-plugin-persistedstate": "^4.4.1",
-    "tailwindcss": "^4.1.11",
-    "vue": "^3.5.17",
+    "pinia-plugin-persistedstate": "^4.5.0",
+    "tailwindcss": "^4.1.13",
+    "vue": "^3.5.21",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.9.0",
-    "@iconify-json/carbon": "^1.2.10",
-    "@shikijs/monaco": "^3.8.0",
-    "@tauri-apps/cli": "^2.6.2",
-    "@types/node": "^22.16.4",
-    "@vitejs/plugin-vue": "^6.0.0",
-    "esbuild": "^0.25.6",
+    "@iconify-json/carbon": "^1.2.13",
+    "@shikijs/monaco": "^3.12.2",
+    "@tauri-apps/cli": "^2.8.4",
+    "@types/node": "^22.18.1",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "esbuild": "^0.25.9",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "shiki": "^3.8.0",
+    "shiki": "^3.12.2",
     "typescript": "~5.8.3",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.8.0",
@@ -43,6 +43,7 @@
     "vite-plugin-monaco-editor": "^1.1.0",
     "vite-plugin-vue-devtools": "^7.7.7",
     "vite-plugin-vue-layouts": "^0.11.0",
-    "vue-tsc": "^3.0.1"
-  }
+    "vue-tsc": "^3.0.6"
+  },
+  "packageManager": "pnpm@10.15.1"
 }
