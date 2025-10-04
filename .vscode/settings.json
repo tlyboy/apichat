@@ -9,5 +9,6 @@
   },
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "prettier.enable": true
 }
