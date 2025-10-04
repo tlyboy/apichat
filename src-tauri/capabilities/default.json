@@ -18,7 +18,5 @@
     },
     "os:default"
   ],
-  "windows": [
-    "main"
-  ]
+  "windows": ["main"]
 }
