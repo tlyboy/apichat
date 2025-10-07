@@ -10,7 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.13",
+    "@tailwindcss/vite": "^4.1.14",
     "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-http": "~2.5.2",
     "@tauri-apps/plugin-opener": "^2.5.0",
@@ -20,21 +20,21 @@
     "monaco-editor": "^0.52.2",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.5.0",
-    "tailwindcss": "^4.1.13",
-    "vue": "^3.5.21",
+    "tailwindcss": "^4.1.14",
+    "vue": "^3.5.22",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.9.0",
     "@iconify-json/carbon": "^1.2.13",
-    "@shikijs/monaco": "^3.12.2",
+    "@shikijs/monaco": "^3.13.0",
     "@tauri-apps/cli": "^2.8.4",
-    "@types/node": "^22.18.1",
+    "@types/node": "^22.18.8",
     "@vitejs/plugin-vue": "^6.0.1",
-    "esbuild": "^0.25.9",
+    "esbuild": "^0.25.10",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "shiki": "^3.12.2",
+    "shiki": "^3.13.0",
     "typescript": "~5.8.3",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.8.0",
@@ -43,7 +43,7 @@
     "vite-plugin-monaco-editor": "^1.1.0",
     "vite-plugin-vue-devtools": "^7.7.7",
     "vite-plugin-vue-layouts": "^0.11.0",
-    "vue-tsc": "^3.0.6"
+    "vue-tsc": "^3.1.1"
   },
-  "packageManager": "pnpm@10.15.1"
+  "packageManager": "pnpm@10.18.1"
 }
