@@ -51,7 +51,7 @@ const method = ref<
 const params = ref<ParamItem[]>([{ key: '', value: '', enabled: false }])
 const headers = ref<HeaderItem[]>([
   { key: 'Content-Type', value: 'application/json', enabled: true },
-  { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
+  { key: 'User-Agent', value: 'ApiChat/0.1.1', enabled: true },
   { key: 'Authorization', value: '', enabled: false },
   { key: '', value: '', enabled: false }, // 添加空行
 ])
@@ -192,7 +192,7 @@ const parseHeaders = (headersString: string): HeaderItem[] => {
   if (!headersString.trim()) {
     return [
       { key: 'Content-Type', value: 'application/json', enabled: true },
-      { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
+      { key: 'User-Agent', value: 'ApiChat/0.1.1', enabled: true },
       { key: 'Authorization', value: '', enabled: false },
       { key: '', value: '', enabled: false }, // 添加空行
     ]
@@ -212,7 +212,7 @@ const parseHeaders = (headersString: string): HeaderItem[] => {
   } catch {
     return [
       { key: 'Content-Type', value: 'application/json', enabled: true },
-      { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
+      { key: 'User-Agent', value: 'ApiChat/0.1.1', enabled: true },
       { key: 'Authorization', value: '', enabled: false },
       { key: '', value: '', enabled: false }, // 添加空行
     ]
@@ -271,7 +271,7 @@ const deleteHistoryItem = (id: string) => {
 const resetHeaders = () => {
   headers.value = [
     { key: 'Content-Type', value: 'application/json', enabled: true },
-    { key: 'User-Agent', value: 'ApiChat/0.1.0', enabled: true },
+    { key: 'User-Agent', value: 'ApiChat/0.1.1', enabled: true },
     { key: 'Authorization', value: '', enabled: false },
     { key: '', value: '', enabled: false }, // 添加空行
   ]
