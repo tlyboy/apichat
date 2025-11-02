@@ -16,7 +16,8 @@
       ],
       "identifier": "http:default"
     },
-    "os:default"
+    "os:default",
+    "websocket:default"
   ],
   "windows": ["main"]
 }

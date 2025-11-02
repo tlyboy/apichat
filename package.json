@@ -15,6 +15,7 @@
     "@tauri-apps/plugin-http": "~2.5.4",
     "@tauri-apps/plugin-opener": "^2.5.2",
     "@tauri-apps/plugin-os": "~2.3.2",
+    "@tauri-apps/plugin-websocket": "~2",
     "@vueuse/core": "^13.9.0",
     "defu": "^6.1.4",
     "monaco-editor": "^0.52.2",

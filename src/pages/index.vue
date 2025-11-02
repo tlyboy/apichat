@@ -1057,7 +1057,9 @@ const responseLanguage = computed(() => {
         </div>
 
         <!-- Tab 内容区 -->
-        <div class="flex-1 border-b border-[#DADADA] dark:border-[#292929]">
+        <div
+          class="flex-1 overflow-hidden border-b border-[#DADADA] dark:border-[#292929]"
+        >
           <!-- Params Tab -->
           <div
             v-if="activeTab === 'params'"
@@ -1197,7 +1199,10 @@ const responseLanguage = computed(() => {
               <CodeEditor v-model="jsonBody" language="json" class="flex-1" />
             </div>
             <!-- 表单输入区 -->
-            <div v-if="bodyType === 'form'" class="flex flex-1 flex-col">
+            <div
+              v-if="bodyType === 'form'"
+              class="flex flex-1 flex-col overflow-y-auto"
+            >
               <div class="flex-1 overflow-y-auto">
                 <div
                   v-for="(item, index) in formBody"

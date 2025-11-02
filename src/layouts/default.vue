@@ -13,14 +13,16 @@ import logo from '@/assets/images/logo.png'
         <RouterLink
           to="/"
           :class="{ 'text-[#3498db]': $route.path === '/' }"
-          class="icon-btn i-carbon-http"
-        ></RouterLink>
+          class="flex h-[44px] w-[44px] items-center justify-center rounded text-xs"
+          >HTTP</RouterLink
+        >
 
-        <!-- <RouterLink
-          to="/chat"
-          :class="{ 'text-[#3498db]': $route.path === '/chat' }"
-          class="icon-btn i-carbon-chat"
-        ></RouterLink> -->
+        <RouterLink
+          to="/websocket"
+          :class="{ 'text-[#3498db]': $route.path === '/websocket' }"
+          class="flex h-[44px] w-[44px] items-center justify-center rounded text-xs"
+          >WS</RouterLink
+        >
       </div>
 
       <div class="flex flex-col items-center gap-4 text-xl">
