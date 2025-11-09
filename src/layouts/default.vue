@@ -8,19 +8,19 @@ import logo from '@/assets/images/logo.png'
       class="flex flex-col justify-between border-r border-[#DADADA] bg-[#EDEDED] px-2 py-4 dark:border-[#292929] dark:bg-[#121212]"
     >
       <div class="flex flex-col items-center gap-4 text-xl">
-        <img :src="logo" alt="logo" class="h-[44px] w-[44px]" />
+        <img :src="logo" alt="logo" class="h-11 w-11" />
 
         <RouterLink
           to="/"
           :class="{ 'text-[#3498db]': $route.path === '/' }"
-          class="flex h-[44px] w-[44px] items-center justify-center rounded text-xs"
+          class="flex h-11 w-11 items-center justify-center rounded text-xs"
           >HTTP</RouterLink
         >
 
         <RouterLink
           to="/websocket"
           :class="{ 'text-[#3498db]': $route.path === '/websocket' }"
-          class="flex h-[44px] w-[44px] items-center justify-center rounded text-xs"
+          class="flex h-11 w-11 items-center justify-center rounded text-xs"
           >WS</RouterLink
         >
       </div>

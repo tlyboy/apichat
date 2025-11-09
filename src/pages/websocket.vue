@@ -507,7 +507,7 @@ onUnmounted(() => {
             @click="switchTab(tab.id)"
           >
             <div
-              class="flex h-[44px] w-[44px] items-center justify-center rounded-full text-sm font-semibold text-white"
+              class="flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-white"
               :class="{
                 'bg-gray-400': tab.status === 'disconnected',
                 'bg-yellow-400': tab.status === 'connecting',

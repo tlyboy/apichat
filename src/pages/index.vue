@@ -946,7 +946,7 @@ const responseLanguage = computed(() => {
             @click="handleHistoryClick(item)"
           >
             <div
-              class="flex h-[44px] w-[44px] items-center justify-center rounded-full text-xs font-medium text-white"
+              class="flex h-11 w-11 items-center justify-center rounded-full text-xs font-medium text-white"
               :class="{
                 'bg-[#3498db]': item.method === 'GET',
                 'bg-[#2ecc71]': item.method === 'POST',
