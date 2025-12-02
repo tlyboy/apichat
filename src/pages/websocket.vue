@@ -374,10 +374,8 @@ onMounted(() => {
   // 先加载历史标签页
   loadTabsFromStorage()
 
-  // 如果没有标签页，创建默认标签页（在左侧列表中隐藏，直到输入 URL 或连接）
-  if (tabs.value.length === 0) {
-    createNewTab()
-  }
+  // 始终创建一个新的空白标签页作为默认显示
+  createNewTab()
 })
 
 // 组件卸载时清理
@@ -406,6 +404,9 @@ onUnmounted(() => {
             v-model="searchKeyword"
             class="w-full rounded-md border border-[#DADADA] bg-white py-1 pr-8 pl-8 text-sm text-black dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
             placeholder="搜索"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
           />
           <button
             v-if="searchKeyword"
@@ -432,12 +433,15 @@ onUnmounted(() => {
         <div class="flex flex-1 items-center gap-2">
           <input
             v-if="activeTab"
-            type="text"
+            type="url"
             class="flex-1 rounded-md border border-[#DADADA] bg-white px-2 py-1 text-black dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
             v-model="activeTab.url"
             @keydown.enter="handleEnter"
             placeholder="输入 WebSocket URL (例如: ws://localhost:8080)"
             :disabled="activeTab.loading || activeTab.status === 'connected'"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
           />
 
           <button
@@ -580,7 +584,9 @@ onUnmounted(() => {
         </div>
 
         <!-- 消息显示区 -->
-        <div class="flex-1 border-b border-[#DADADA] dark:border-[#292929]">
+        <div
+          class="flex-1 overflow-hidden border-b border-[#DADADA] dark:border-[#292929]"
+        >
           <div class="flex h-full flex-col gap-2 p-2">
             <div class="flex items-center justify-between">
               <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -664,7 +670,9 @@ onUnmounted(() => {
               v-model="activeTab.messageInput"
               @keydown.enter="handleEnter"
               placeholder="输入消息内容"
-              :disabled="activeTab.status !== 'connected'"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
             />
             <button
               class="btn flex items-center justify-center gap-2 bg-[#3498db] text-white hover:bg-[#2980b9]"
