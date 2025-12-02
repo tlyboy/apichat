@@ -51,7 +51,7 @@ const method = ref<
 const params = ref<ParamItem[]>([{ key: '', value: '', enabled: false }])
 const headers = ref<HeaderItem[]>([
   { key: 'Content-Type', value: 'application/json', enabled: true },
-  { key: 'User-Agent', value: 'ApiChat/0.1.1', enabled: true },
+  { key: 'User-Agent', value: 'ApiChat/0.1.2', enabled: true },
   { key: 'Authorization', value: '', enabled: false },
   { key: '', value: '', enabled: false }, // 添加空行
 ])
@@ -192,7 +192,7 @@ const parseHeaders = (headersString: string): HeaderItem[] => {
   if (!headersString.trim()) {
     return [
       { key: 'Content-Type', value: 'application/json', enabled: true },
-      { key: 'User-Agent', value: 'ApiChat/0.1.1', enabled: true },
+      { key: 'User-Agent', value: 'ApiChat/0.1.2', enabled: true },
       { key: 'Authorization', value: '', enabled: false },
       { key: '', value: '', enabled: false }, // 添加空行
     ]
@@ -212,7 +212,7 @@ const parseHeaders = (headersString: string): HeaderItem[] => {
   } catch {
     return [
       { key: 'Content-Type', value: 'application/json', enabled: true },
-      { key: 'User-Agent', value: 'ApiChat/0.1.1', enabled: true },
+      { key: 'User-Agent', value: 'ApiChat/0.1.2', enabled: true },
       { key: 'Authorization', value: '', enabled: false },
       { key: '', value: '', enabled: false }, // 添加空行
     ]
@@ -271,7 +271,7 @@ const deleteHistoryItem = (id: string) => {
 const resetHeaders = () => {
   headers.value = [
     { key: 'Content-Type', value: 'application/json', enabled: true },
-    { key: 'User-Agent', value: 'ApiChat/0.1.1', enabled: true },
+    { key: 'User-Agent', value: 'ApiChat/0.1.2', enabled: true },
     { key: 'Authorization', value: '', enabled: false },
     { key: '', value: '', enabled: false }, // 添加空行
   ]
@@ -839,6 +839,9 @@ const responseLanguage = computed(() => {
             v-model="searchKeyword"
             class="w-full rounded-md border border-[#DADADA] bg-white py-1 pr-8 pl-8 text-sm text-black dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
             placeholder="搜索"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
           />
           <button
             v-if="searchKeyword"
@@ -880,12 +883,15 @@ const responseLanguage = computed(() => {
 
         <div class="flex-1">
           <input
-            type="text"
+            type="url"
             class="w-full rounded-md border border-[#DADADA] bg-white px-2 py-1 text-black dark:border-[#292929] dark:bg-[#2C2C2C] dark:text-white"
             v-model="url"
             @keydown.enter="handleEnter"
             placeholder="输入API URL (例如: api.example.com/data)"
             :disabled="loading"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
           />
         </div>
 
@@ -946,7 +952,7 @@ const responseLanguage = computed(() => {
             @click="handleHistoryClick(item)"
           >
             <div
-              class="flex h-[44px] w-[44px] items-center justify-center rounded-full text-xs font-medium text-white"
+              class="flex h-11 w-11 items-center justify-center rounded-full text-xs font-medium text-white"
               :class="{
                 'bg-[#3498db]': item.method === 'GET',
                 'bg-[#2ecc71]': item.method === 'POST',
@@ -1106,6 +1112,9 @@ const responseLanguage = computed(() => {
                   placeholder="参数名"
                   :disabled="loading"
                   @input="autoAddParam(index)"
+                  autocapitalize="off"
+                  autocorrect="off"
+                  spellcheck="false"
                 />
                 <input
                   v-model="param.value"
@@ -1114,6 +1123,9 @@ const responseLanguage = computed(() => {
                   placeholder="参数值"
                   :disabled="loading"
                   @input="autoAddParam(index)"
+                  autocapitalize="off"
+                  autocorrect="off"
+                  spellcheck="false"
                 />
                 <button
                   @click="removeParam(index)"
@@ -1223,6 +1235,9 @@ const responseLanguage = computed(() => {
                     placeholder="字段名"
                     :disabled="loading"
                     @input="autoAddFormItem(index)"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false"
                   />
                   <input
                     v-model="item.value"
@@ -1231,6 +1246,9 @@ const responseLanguage = computed(() => {
                     placeholder="字段值"
                     :disabled="loading"
                     @input="autoAddFormItem(index)"
+                    autocapitalize="off"
+                    autocorrect="off"
+                    spellcheck="false"
                   />
                   <button
                     @click="removeFormItem(index)"
@@ -1302,6 +1320,9 @@ const responseLanguage = computed(() => {
                   placeholder="Header Name"
                   :disabled="loading"
                   @input="autoAddHeader(index)"
+                  autocapitalize="off"
+                  autocorrect="off"
+                  spellcheck="false"
                 />
                 <input
                   v-model="header.value"
@@ -1310,6 +1331,9 @@ const responseLanguage = computed(() => {
                   placeholder="Header Value"
                   :disabled="loading"
                   @input="autoAddHeader(index)"
+                  autocapitalize="off"
+                  autocorrect="off"
+                  spellcheck="false"
                 />
                 <button
                   @click="removeHeader(index)"
