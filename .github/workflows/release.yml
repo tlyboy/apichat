@@ -22,7 +22,7 @@ jobs:
           - platform: 'macos-latest' # for Intel based macs.
             args: '--target x86_64-apple-darwin'
           - platform: 'ubuntu-24.04' # This must match the platform value defined above.
-            args: '--bundles deb,rpm,updater'
+            args: '--verbose'
           - platform: 'windows-latest'
             args: ''
 
