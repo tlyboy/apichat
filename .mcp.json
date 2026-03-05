@@ -1,8 +1,16 @@
 {
   "mcpServers": {
+    "apichat": {
+      "type": "http",
+      "url": "http://localhost:45677/mcp"
+    },
+    "context7": {
+      "args": ["-y", "@upstash/context7-mcp"],
+      "command": "npx"
+    },
     "shadcn": {
-      "command": "npx",
-      "args": ["shadcn@latest", "mcp"]
+      "args": ["shadcn@latest", "mcp"],
+      "command": "npx"
     }
   }
 }

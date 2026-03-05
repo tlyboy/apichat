@@ -3,5 +3,32 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": ["main"],
-  "permissions": ["core:default", "opener:default"]
+  "permissions": [
+    "core:default",
+    "opener:default",
+    {
+      "allow": [
+        {
+          "url": "https://*:*"
+        },
+        {
+          "url": "http://*:*"
+        }
+      ],
+      "identifier": "http:default"
+    },
+    "os:default",
+    "websocket:default",
+    "updater:default",
+    "shell:allow-kill",
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "binaries/apichat-mcp",
+          "sidecar": true
+        }
+      ]
+    }
+  ]
 }
