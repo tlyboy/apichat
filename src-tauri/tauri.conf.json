@@ -35,9 +35,9 @@
     "createUpdaterArtifacts": true,
     "windows": {
       "nsis": {
-        "installer_icon": "icons/icon.ico",
+        "installerIcon": "icons/icon.ico",
         "languages": ["English", "SimpChinese"],
-        "display_language_selector": true
+        "displayLanguageSelector": true
       }
     }
   },
