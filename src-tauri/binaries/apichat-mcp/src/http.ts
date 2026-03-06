@@ -38,7 +38,7 @@ export function startHttpServer(port: number) {
 
       // CORS — only allow Tauri webview and local dev server
       const origin = req.headers.get('origin') || ''
-      const allowedOrigins = ['tauri://localhost', 'http://localhost:1420', 'http://localhost']
+      const allowedOrigins = ['tauri://localhost', 'https://tauri.localhost', 'http://localhost:1420', 'http://localhost']
       const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0]
 
       if (method === 'OPTIONS') {
