@@ -36,7 +36,7 @@
     "windows": {
       "nsis": {
         "installerIcon": "icons/icon.ico",
-        "languages": ["English", "SimpChinese"],
+        "languages": ["SimpChinese", "English"],
         "displayLanguageSelector": true
       }
     }
