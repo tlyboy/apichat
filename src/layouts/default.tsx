@@ -9,7 +9,7 @@ interface DefaultProps {
 
 function Default({ activePage, onNavigate, children }: DefaultProps) {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <div className="bg-background flex h-full">
         <SidebarNav activePage={activePage} onNavigate={onNavigate} />
         <div className="flex-1 overflow-hidden">{children}</div>
