@@ -12,7 +12,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@radix-ui/react-slot": "^1.2.4",
-    "@shikijs/monaco": "^4.0.1",
+    "@shikijs/monaco": "^4.0.2",
     "@tailwindcss/vite": "^4.2.1",
     "@tauri-apps/api": "^2.10.1",
     "@tauri-apps/plugin-http": "^2.5.7",
@@ -25,15 +25,15 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",
     "radix-ui": "^1.4.3",
-    "react": "^19.1.5",
-    "react-dom": "^19.1.5",
-    "shiki": "^4.0.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "shiki": "^4.0.2",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.10.0",
-    "@types/node": "^22.19.11",
+    "@tauri-apps/cli": "^2.10.1",
+    "@types/node": "^22.19.15",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
@@ -44,7 +44,7 @@
     "typescript": "~5.9.3",
     "vite": "npm:rolldown-vite@latest"
   },
-  "packageManager": "pnpm@10.30.2",
+  "packageManager": "pnpm@10.32.0",
   "engines": {
     "node": "24.x"
   }
