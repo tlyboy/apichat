@@ -3,6 +3,7 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js'
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
 import { getApis, getApi, createApi, updateApi, deleteApi, clearApis, getConfig, saveConfig, parseHeadersString, getHistory, addHistory, clearHistory, getWsList, getWs, createWs, updateWs, deleteWs, clearWs, getWsSessions, getWsSession, clearWsSessions } from './store'
 import { z } from 'zod'
+import pkg from '../package.json'
 
 async function executeApi(apiId: string, overrides?: { pathParams?: Record<string, string>; queryParams?: Record<string, string>; body?: string }): Promise<string> {
   const api = getApi(apiId)
@@ -590,7 +591,7 @@ function registerTools(server: McpServer) {
 export function createMcpServer(): McpServer {
   const server = new McpServer({
     name: 'apichat',
-    version: '0.1.0',
+    version: pkg.version,
   })
   registerTools(server)
   return server

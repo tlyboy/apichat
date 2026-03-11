@@ -26,6 +26,7 @@ import {
 import { importOpenAPI, exportOpenAPI } from './openapi'
 import { handleMcpRequest } from './mcp'
 import YAML from 'yaml'
+import pkg from '../package.json'
 
 export function startHttpServer(port: number) {
   const server = Bun.serve({
@@ -246,7 +247,7 @@ export function startHttpServer(port: number) {
 
         // --- Health ---
         if (path === '/health') {
-          return json({ status: 'ok', version: '0.1.0' })
+          return json({ status: 'ok', version: pkg.version })
         }
 
         return json({ error: 'Not found' }, 404)
