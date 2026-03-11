@@ -68,7 +68,15 @@ export interface HistoryRecord {
   timestamp: number
 }
 
-export const METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
+export const METHODS: HttpMethod[] = [
+  'GET',
+  'POST',
+  'PUT',
+  'DELETE',
+  'PATCH',
+  'HEAD',
+  'OPTIONS',
+]
 
 export const METHOD_COLORS: Record<string, string> = {
   GET: 'bg-blue-500/15 text-blue-700 dark:text-blue-400',

@@ -41,15 +41,18 @@ export function useHttpClient(t: TranslateFunction) {
   const [currentId, setCurrentId] = useState<string | null>(null)
 
   const refreshApis = () => {
-    apiStore.list().then((list) => {
-      setApis(list)
-      apisRef.current = list
-      // 如果当前选中的 API 已被外部删除，重置表单
-      if (currentId && !list.find(a => a.id === currentId)) {
-        setCurrentId(null)
-        resetForm()
-      }
-    }).catch(console.error)
+    apiStore
+      .list()
+      .then((list) => {
+        setApis(list)
+        apisRef.current = list
+        // 如果当前选中的 API 已被外部删除，重置表单
+        if (currentId && !list.find((a) => a.id === currentId)) {
+          setCurrentId(null)
+          resetForm()
+        }
+      })
+      .catch(console.error)
   }
 
   useEffect(() => {
@@ -119,11 +122,21 @@ export function useHttpClient(t: TranslateFunction) {
       for (const pair of paramsString.split('&')) {
         const idx = pair.indexOf('=')
         if (idx === -1) {
-          if (pair.trim()) result.push({ key: decodeURIComponent(pair.trim()), value: '', enabled: true })
+          if (pair.trim())
+            result.push({
+              key: decodeURIComponent(pair.trim()),
+              value: '',
+              enabled: true,
+            })
         } else {
           const key = pair.slice(0, idx).trim()
           const value = pair.slice(idx + 1).trim()
-          if (key) result.push({ key: decodeURIComponent(key), value: decodeURIComponent(value), enabled: true })
+          if (key)
+            result.push({
+              key: decodeURIComponent(key),
+              value: decodeURIComponent(value),
+              enabled: true,
+            })
         }
       }
       result.push({ key: '', value: '', enabled: false })
@@ -282,7 +295,11 @@ export function useHttpClient(t: TranslateFunction) {
 
       // Build URL: if relative path and base URL exists, combine them
       let rawUrl = url.trim()
-      if (globalBaseUrl && !rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+      if (
+        globalBaseUrl &&
+        !rawUrl.startsWith('http://') &&
+        !rawUrl.startsWith('https://')
+      ) {
         rawUrl = `${globalBaseUrl}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`
       }
       const formattedUrl = formatUrl(rawUrl)
@@ -359,7 +376,8 @@ export function useHttpClient(t: TranslateFunction) {
         url: fullUrl,
         method,
         params: params.map((p) => p.key + '=' + p.value).join('&'),
-        body: bodyType === 'json' ? jsonBody : bodyType === 'text' ? textBody : '',
+        body:
+          bodyType === 'json' ? jsonBody : bodyType === 'text' ? textBody : '',
         headers: stringifyHeaders(headers),
         bodyType,
         formBody: JSON.stringify(formBody),
@@ -368,7 +386,8 @@ export function useHttpClient(t: TranslateFunction) {
       })
     } catch (err) {
       console.error('Request failed:', err)
-      const errMsg = err instanceof Error ? err.message : t('common.requestFailed')
+      const errMsg =
+        err instanceof Error ? err.message : t('common.requestFailed')
       setError(errMsg)
       setResponse('')
       addHistoryRecord({
@@ -376,7 +395,8 @@ export function useHttpClient(t: TranslateFunction) {
         url: formatUrl(url),
         method,
         params: params.map((p) => p.key + '=' + p.value).join('&'),
-        body: bodyType === 'json' ? jsonBody : bodyType === 'text' ? textBody : '',
+        body:
+          bodyType === 'json' ? jsonBody : bodyType === 'text' ? textBody : '',
         headers: stringifyHeaders(headers),
         bodyType,
         formBody: JSON.stringify(formBody),

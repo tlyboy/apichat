@@ -15,10 +15,14 @@ function App() {
   const sidecar = useSidecar()
 
   useEffect(() => {
-    const unlisten = getCurrentWindow().onFocusChanged(({ payload: focused }) => {
-      if (focused) window.dispatchEvent(new Event('app-focus'))
-    })
-    return () => { unlisten.then(fn => fn()) }
+    const unlisten = getCurrentWindow().onFocusChanged(
+      ({ payload: focused }) => {
+        if (focused) window.dispatchEvent(new Event('app-focus'))
+      },
+    )
+    return () => {
+      unlisten.then((fn) => fn())
+    }
   }, [])
 
   return (

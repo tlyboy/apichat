@@ -45,7 +45,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useTranslations } from '@/i18n'
 import { Textarea } from '@/components/ui/textarea'
-import { METHODS, METHOD_COLORS, type HttpMethod, type BodyType, type FormItem, type ActiveTab } from '@/types'
+import {
+  METHODS,
+  METHOD_COLORS,
+  type HttpMethod,
+  type BodyType,
+  type FormItem,
+  type ActiveTab,
+} from '@/types'
 
 export function HttpClient() {
   const t = useTranslations()
@@ -182,7 +189,9 @@ export function HttpClient() {
               spellCheck={false}
             />
             {hasUnsavedChanges && (
-              <span className="text-muted-foreground mr-2 text-xs">{t('http.unsaved')}</span>
+              <span className="text-muted-foreground mr-2 text-xs">
+                {t('http.unsaved')}
+              </span>
             )}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -289,10 +298,9 @@ export function HttpClient() {
                   <DropdownMenuItem
                     onClick={() =>
                       openapiStore.exportJson().then((spec) => {
-                        const blob = new Blob(
-                          [JSON.stringify(spec, null, 2)],
-                          { type: 'application/json' },
-                        )
+                        const blob = new Blob([JSON.stringify(spec, null, 2)], {
+                          type: 'application/json',
+                        })
                         const url = URL.createObjectURL(blob)
                         const a = document.createElement('a')
                         a.href = url
@@ -449,16 +457,15 @@ export function HttpClient() {
               variant="line"
               className="w-full justify-start rounded-none px-2"
             >
-              <TabsTrigger value="description">{t('http.description')}</TabsTrigger>
+              <TabsTrigger value="description">
+                {t('http.description')}
+              </TabsTrigger>
               <TabsTrigger value="params">{t('http.params')}</TabsTrigger>
               <TabsTrigger value="body">{t('http.body')}</TabsTrigger>
               <TabsTrigger value="headers">{t('http.headers')}</TabsTrigger>
             </TabsList>
 
-            <TabsContent
-              value="description"
-              className="flex-1 overflow-auto"
-            >
+            <TabsContent value="description" className="flex-1 overflow-auto">
               <div className="flex h-full flex-col gap-2 p-2">
                 <Textarea
                   value={apiDescription}
@@ -470,10 +477,7 @@ export function HttpClient() {
               </div>
             </TabsContent>
 
-            <TabsContent
-              value="params"
-              className="flex-1 overflow-hidden"
-            >
+            <TabsContent value="params" className="flex-1 overflow-hidden">
               <div className="flex h-full flex-col gap-2 p-2">
                 <div className="flex items-center justify-between">
                   <div className="text-muted-foreground text-sm font-medium">
@@ -519,10 +523,7 @@ export function HttpClient() {
               </div>
             </TabsContent>
 
-            <TabsContent
-              value="body"
-              className="flex-1 overflow-hidden"
-            >
+            <TabsContent value="body" className="flex-1 overflow-hidden">
               <div className="flex h-full flex-col gap-2 p-2">
                 <div className="flex items-center justify-between">
                   <div className="flex gap-1">
@@ -634,10 +635,7 @@ export function HttpClient() {
               </div>
             </TabsContent>
 
-            <TabsContent
-              value="headers"
-              className="flex-1 overflow-hidden"
-            >
+            <TabsContent value="headers" className="flex-1 overflow-hidden">
               <div className="flex h-full flex-col gap-2 p-2">
                 <div className="flex items-center justify-between">
                   <div className="text-muted-foreground text-sm font-medium">

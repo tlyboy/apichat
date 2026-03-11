@@ -26,7 +26,9 @@ export function useWebSocketTabs(t: TranslateFunction) {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [sessions, setSessions] = useState<WsSession[]>([])
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
+    null,
+  )
   const connectedAtRef = useRef<number>(0)
   const messagesRef = useRef(messages)
   messagesRef.current = messages
@@ -37,10 +39,13 @@ export function useWebSocketTabs(t: TranslateFunction) {
   savedListRef.current = savedList
 
   const refreshList = () => {
-    wsStore.list().then((list) => {
-      setSavedList(list)
-      savedListRef.current = list
-    }).catch(console.error)
+    wsStore
+      .list()
+      .then((list) => {
+        setSavedList(list)
+        savedListRef.current = list
+      })
+      .catch(console.error)
   }
 
   const refreshSessions = () => {
@@ -50,7 +55,10 @@ export function useWebSocketTabs(t: TranslateFunction) {
   useEffect(() => {
     refreshList()
     refreshSessions()
-    const handler = () => { refreshList(); refreshSessions() }
+    const handler = () => {
+      refreshList()
+      refreshSessions()
+    }
     window.addEventListener('app-focus', handler)
     return () => window.removeEventListener('app-focus', handler)
   }, [])
@@ -86,9 +94,10 @@ export function useWebSocketTabs(t: TranslateFunction) {
   const isValidUrl = (urlString: string) => {
     if (!urlString.trim()) return false
     try {
-      const u = urlString.startsWith('ws://') || urlString.startsWith('wss://')
-        ? urlString
-        : `ws://${urlString}`
+      const u =
+        urlString.startsWith('ws://') || urlString.startsWith('wss://')
+          ? urlString
+          : `ws://${urlString}`
       new URL(u)
       return true
     } catch {
@@ -98,24 +107,29 @@ export function useWebSocketTabs(t: TranslateFunction) {
 
   const saveSession = () => {
     if (messagesRef.current.length === 0 || !connectedAtRef.current) return
-    wsHistoryStore.add({
-      wsId: currentId || undefined,
-      wsName: name || generateName(url),
-      wsUrl: url,
-      messages: messagesRef.current.map((m) => ({
-        type: m.type,
-        content: m.content,
-        timestamp: m.timestamp,
-      })),
-      connectedAt: connectedAtRef.current,
-      disconnectedAt: Date.now(),
-    }).then(() => refreshSessions()).catch(console.error)
+    wsHistoryStore
+      .add({
+        wsId: currentId || undefined,
+        wsName: name || generateName(url),
+        wsUrl: url,
+        messages: messagesRef.current.map((m) => ({
+          type: m.type,
+          content: m.content,
+          timestamp: m.timestamp,
+        })),
+        connectedAt: connectedAtRef.current,
+        disconnectedAt: Date.now(),
+      })
+      .then(() => refreshSessions())
+      .catch(console.error)
   }
 
   const generateName = (urlString: string) => {
     if (!urlString) return t('ws.newConnection')
     try {
-      const u = new URL(urlString.startsWith('ws') ? urlString : `ws://${urlString}`)
+      const u = new URL(
+        urlString.startsWith('ws') ? urlString : `ws://${urlString}`,
+      )
       return u.host
     } catch {
       return urlString.slice(0, 30)
@@ -170,7 +184,9 @@ export function useWebSocketTabs(t: TranslateFunction) {
           description,
           url,
         })
-        setSavedList(savedListRef.current.map((w) => (w.id === currentId ? updated : w)))
+        setSavedList(
+          savedListRef.current.map((w) => (w.id === currentId ? updated : w)),
+        )
       } else {
         const created = await wsStore.create({
           name: itemName,
@@ -323,7 +339,10 @@ export function useWebSocketTabs(t: TranslateFunction) {
   const markChanged = () => setHasUnsavedChanges(true)
 
   const formatMessageTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString(LOCALE_MAP[locale] || locale, { hour12: false })
+    return new Date(timestamp).toLocaleTimeString(
+      LOCALE_MAP[locale] || locale,
+      { hour12: false },
+    )
   }
 
   const statusText = (() => {
@@ -346,11 +365,20 @@ export function useWebSocketTabs(t: TranslateFunction) {
     filteredList,
     currentId,
     name,
-    setName: (v: string) => { setName(v); markChanged() },
+    setName: (v: string) => {
+      setName(v)
+      markChanged()
+    },
     description,
-    setDescription: (v: string) => { setDescription(v); markChanged() },
+    setDescription: (v: string) => {
+      setDescription(v)
+      markChanged()
+    },
     url,
-    setUrl: (v: string) => { setUrl(v); markChanged() },
+    setUrl: (v: string) => {
+      setUrl(v)
+      markChanged()
+    },
     messages,
     status,
     messageInput,

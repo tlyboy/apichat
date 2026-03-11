@@ -27,8 +27,13 @@ const bunTarget = BUN_TARGET_MAP[target]
 const targetFlag = bunTarget ? `--target=${bunTarget}` : ''
 const outfile = `../apichat-mcp-${target}${target.includes('windows') ? '.exe' : ''}`
 
-console.log(`Building for target: ${target}${bunTarget ? ` (bun: ${bunTarget})` : ''}`)
-execSync(`bun build src/index.ts --compile --minify ${targetFlag} --outfile ${outfile}`, {
-  stdio: 'inherit',
-})
+console.log(
+  `Building for target: ${target}${bunTarget ? ` (bun: ${bunTarget})` : ''}`,
+)
+execSync(
+  `bun build src/index.ts --compile --minify ${targetFlag} --outfile ${outfile}`,
+  {
+    stdio: 'inherit',
+  },
+)
 console.log(`Output: ${outfile}`)

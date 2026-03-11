@@ -34,9 +34,7 @@ export function CodeEditor({
 
   useEffect(() => {
     if (!monacoRef.current) return
-    monacoRef.current.editor.setTheme(
-      isDark ? 'vitesse-dark' : 'vitesse-light',
-    )
+    monacoRef.current.editor.setTheme(isDark ? 'vitesse-dark' : 'vitesse-light')
   }, [isDark])
 
   const handleOnMount = (_editor: unknown, monaco: Monaco) => {

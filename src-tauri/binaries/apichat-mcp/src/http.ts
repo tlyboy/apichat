@@ -39,8 +39,15 @@ export function startHttpServer(port: number) {
 
       // CORS — only allow Tauri webview and local dev server
       const origin = req.headers.get('origin') || ''
-      const allowedOrigins = ['tauri://localhost', 'https://tauri.localhost', 'http://localhost:1420', 'http://localhost']
-      const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0]
+      const allowedOrigins = [
+        'tauri://localhost',
+        'https://tauri.localhost',
+        'http://localhost:1420',
+        'http://localhost',
+      ]
+      const corsOrigin = allowedOrigins.includes(origin)
+        ? origin
+        : allowedOrigins[0]
 
       if (method === 'OPTIONS') {
         return new Response(null, {
@@ -58,7 +65,11 @@ export function startHttpServer(port: number) {
         Response.json(data, { status, headers: corsHeaders })
 
       const parseJson = async () => {
-        try { return await req.json() } catch { return null }
+        try {
+          return await req.json()
+        } catch {
+          return null
+        }
       }
 
       try {
@@ -95,7 +106,9 @@ export function startHttpServer(port: number) {
           }
 
           if (method === 'DELETE') {
-            return deleteApi(id) ? json({ ok: true }) : json({ error: 'Not found' }, 404)
+            return deleteApi(id)
+              ? json({ ok: true })
+              : json({ error: 'Not found' }, 404)
           }
         }
 
@@ -118,7 +131,9 @@ export function startHttpServer(port: number) {
         const historyMatch = path.match(/^\/history\/([^/]+)$/)
         if (historyMatch && method === 'DELETE') {
           const id = historyMatch[1]
-          return deleteHistory(id) ? json({ ok: true }) : json({ error: 'Not found' }, 404)
+          return deleteHistory(id)
+            ? json({ ok: true })
+            : json({ error: 'Not found' }, 404)
         }
 
         // --- OpenAPI ---
@@ -186,7 +201,9 @@ export function startHttpServer(port: number) {
           }
 
           if (method === 'DELETE') {
-            return deleteWs(id) ? json({ ok: true }) : json({ error: 'Not found' }, 404)
+            return deleteWs(id)
+              ? json({ ok: true })
+              : json({ error: 'Not found' }, 404)
           }
         }
 
@@ -217,7 +234,9 @@ export function startHttpServer(port: number) {
             return session ? json(session) : json({ error: 'Not found' }, 404)
           }
           if (method === 'DELETE') {
-            return deleteWsSession(id) ? json({ ok: true }) : json({ error: 'Not found' }, 404)
+            return deleteWsSession(id)
+              ? json({ ok: true })
+              : json({ error: 'Not found' }, 404)
           }
         }
 

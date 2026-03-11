@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  RefreshCw,
-  Copy,
-  Check,
-  Circle,
-  Download,
-} from 'lucide-react'
+import { RefreshCw, Copy, Check, Circle, Download } from 'lucide-react'
 import { check } from '@tauri-apps/plugin-updater'
 import { configStore } from '@/utils/store'
 import { Input } from '@/components/ui/input'
@@ -27,14 +21,19 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
   const [defaultHeaders, setDefaultHeaders] = useState('')
   const [saved, setSaved] = useState(false)
   const [mcpCopied, setMcpCopied] = useState<'claude' | 'codex' | null>(null)
-  const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'downloading' | 'ready' | 'latest' | 'error'>('idle')
+  const [updateStatus, setUpdateStatus] = useState<
+    'idle' | 'checking' | 'downloading' | 'ready' | 'latest' | 'error'
+  >('idle')
   const [updateVersion, setUpdateVersion] = useState('')
 
   useEffect(() => {
-    configStore.get().then((config) => {
-      setBaseUrl(config.baseUrl || '')
-      setDefaultHeaders(config.defaultHeaders || '')
-    }).catch(console.error)
+    configStore
+      .get()
+      .then((config) => {
+        setBaseUrl(config.baseUrl || '')
+        setDefaultHeaders(config.defaultHeaders || '')
+      })
+      .catch(console.error)
   }, [])
 
   const handleSave = async () => {
@@ -84,7 +83,9 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
 
   const handleCopyMcp = async (type: 'claude' | 'codex') => {
     try {
-      await navigator.clipboard.writeText(type === 'claude' ? claudeConfig : codexConfig)
+      await navigator.clipboard.writeText(
+        type === 'claude' ? claudeConfig : codexConfig,
+      )
       setMcpCopied(type)
       setTimeout(() => setMcpCopied(null), 1500)
     } catch {
@@ -102,7 +103,9 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
         <div className="mx-auto max-w-2xl space-y-8 px-6 py-6">
           {/* Global Config */}
           <section>
-            <h2 className="mb-4 text-sm font-semibold">{t('settings.global')}</h2>
+            <h2 className="mb-4 text-sm font-semibold">
+              {t('settings.global')}
+            </h2>
             <div className="space-y-4">
               <div>
                 <label className="text-muted-foreground mb-1 block text-xs">
@@ -154,7 +157,9 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
 
           {/* Sidecar */}
           <section>
-            <h2 className="mb-4 text-sm font-semibold">{t('settings.sidecar')}</h2>
+            <h2 className="mb-4 text-sm font-semibold">
+              {t('settings.sidecar')}
+            </h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -199,7 +204,9 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
 
           {/* Update */}
           <section>
-            <h2 className="mb-4 text-sm font-semibold">{t('settings.update')}</h2>
+            <h2 className="mb-4 text-sm font-semibold">
+              {t('settings.update')}
+            </h2>
             <div className="flex items-center justify-between">
               <div className="text-muted-foreground text-sm">
                 {t('settings.currentVersion')}: v{__APP_VERSION__}
@@ -207,24 +214,45 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={updateStatus === 'ready' ? () => location.reload() : handleCheckUpdate}
-                disabled={updateStatus === 'checking' || updateStatus === 'downloading'}
+                onClick={
+                  updateStatus === 'ready'
+                    ? () => location.reload()
+                    : handleCheckUpdate
+                }
+                disabled={
+                  updateStatus === 'checking' || updateStatus === 'downloading'
+                }
               >
                 {updateStatus === 'checking' && (
-                  <><RefreshCw className="mr-1 size-3.5 animate-spin" />{t('settings.checking')}</>
+                  <>
+                    <RefreshCw className="mr-1 size-3.5 animate-spin" />
+                    {t('settings.checking')}
+                  </>
                 )}
                 {updateStatus === 'downloading' && (
-                  <><Download className="mr-1 size-3.5 animate-bounce" />{t('settings.downloading', { version: updateVersion })}</>
+                  <>
+                    <Download className="mr-1 size-3.5 animate-bounce" />
+                    {t('settings.downloading', { version: updateVersion })}
+                  </>
                 )}
                 {updateStatus === 'ready' && (
-                  <><RefreshCw className="mr-1 size-3.5" />{t('settings.restartToUpdate')}</>
+                  <>
+                    <RefreshCw className="mr-1 size-3.5" />
+                    {t('settings.restartToUpdate')}
+                  </>
                 )}
                 {updateStatus === 'latest' && (
-                  <><Check className="mr-1 size-3.5" />{t('settings.upToDate')}</>
+                  <>
+                    <Check className="mr-1 size-3.5" />
+                    {t('settings.upToDate')}
+                  </>
                 )}
                 {updateStatus === 'error' && t('settings.updateError')}
                 {updateStatus === 'idle' && (
-                  <><Download className="mr-1 size-3.5" />{t('settings.checkUpdate')}</>
+                  <>
+                    <Download className="mr-1 size-3.5" />
+                    {t('settings.checkUpdate')}
+                  </>
                 )}
               </Button>
             </div>
@@ -241,7 +269,9 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
             <div className="space-y-4">
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-muted-foreground text-xs font-medium">Claude Code (.mcp.json)</span>
+                  <span className="text-muted-foreground text-xs font-medium">
+                    Claude Code (.mcp.json)
+                  </span>
                   <Button
                     variant="outline"
                     size="sm"
@@ -249,9 +279,15 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                     onClick={() => handleCopyMcp('claude')}
                   >
                     {mcpCopied === 'claude' ? (
-                      <><Check className="mr-1 size-3" />{t('settings.mcpCopied')}</>
+                      <>
+                        <Check className="mr-1 size-3" />
+                        {t('settings.mcpCopied')}
+                      </>
                     ) : (
-                      <><Copy className="mr-1 size-3" />{t('settings.mcpCopy')}</>
+                      <>
+                        <Copy className="mr-1 size-3" />
+                        {t('settings.mcpCopy')}
+                      </>
                     )}
                   </Button>
                 </div>
@@ -261,7 +297,9 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
               </div>
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-muted-foreground text-xs font-medium">Codex (.codex/config.toml)</span>
+                  <span className="text-muted-foreground text-xs font-medium">
+                    Codex (.codex/config.toml)
+                  </span>
                   <Button
                     variant="outline"
                     size="sm"
@@ -269,9 +307,15 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                     onClick={() => handleCopyMcp('codex')}
                   >
                     {mcpCopied === 'codex' ? (
-                      <><Check className="mr-1 size-3" />{t('settings.mcpCopied')}</>
+                      <>
+                        <Check className="mr-1 size-3" />
+                        {t('settings.mcpCopied')}
+                      </>
                     ) : (
-                      <><Copy className="mr-1 size-3" />{t('settings.mcpCopy')}</>
+                      <>
+                        <Copy className="mr-1 size-3" />
+                        {t('settings.mcpCopy')}
+                      </>
                     )}
                   </Button>
                 </div>

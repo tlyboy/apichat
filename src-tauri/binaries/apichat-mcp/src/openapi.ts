@@ -73,7 +73,10 @@ function defaultForType(type?: string): string {
 function describeSchemaFields(schema: any, prefix = ''): string[] {
   const lines: string[] = []
   if (!schema?.properties) return lines
-  for (const [key, prop] of Object.entries(schema.properties) as [string, any][]) {
+  for (const [key, prop] of Object.entries(schema.properties) as [
+    string,
+    any,
+  ][]) {
     const type = prop.type || 'any'
     const desc = prop.description || ''
     const req = schema.required?.includes(key) ? ', required' : ''
@@ -82,7 +85,10 @@ function describeSchemaFields(schema: any, prefix = ''): string[] {
   return lines
 }
 
-export function importOpenAPI(input: string, options: ImportOptions = {}): ApiItem[] {
+export function importOpenAPI(
+  input: string,
+  options: ImportOptions = {},
+): ApiItem[] {
   let spec: OpenAPISpec
 
   // Try JSON first, then YAML
@@ -97,9 +103,10 @@ export function importOpenAPI(input: string, options: ImportOptions = {}): ApiIt
   }
 
   // Base URL: user-provided > spec servers > empty
-  const baseUrl = (options.baseUrl?.replace(/\/$/, ''))
-    || (spec.servers?.[0]?.url?.replace(/\/$/, ''))
-    || ''
+  const baseUrl =
+    options.baseUrl?.replace(/\/$/, '') ||
+    spec.servers?.[0]?.url?.replace(/\/$/, '') ||
+    ''
 
   // Global headers
   const globalHeadersObj = parseHeadersString(options.globalHeaders || '')
@@ -108,13 +115,18 @@ export function importOpenAPI(input: string, options: ImportOptions = {}): ApiIt
 
   for (const [path, methods] of Object.entries(spec.paths)) {
     for (const [method, operation] of Object.entries(methods)) {
-      if (['get', 'post', 'put', 'delete', 'patch', 'head', 'options'].indexOf(method.toLowerCase()) === -1) {
+      if (
+        ['get', 'post', 'put', 'delete', 'patch', 'head', 'options'].indexOf(
+          method.toLowerCase(),
+        ) === -1
+      ) {
         continue
       }
 
-      const name = operation.operationId
-        || operation.summary
-        || `${method.toUpperCase()} ${path}`
+      const name =
+        operation.operationId ||
+        operation.summary ||
+        `${method.toUpperCase()} ${path}`
 
       const summaryText = operation.description || operation.summary || ''
 
@@ -126,43 +138,50 @@ export function importOpenAPI(input: string, options: ImportOptions = {}): ApiIt
       if (summaryText) descParts.push(summaryText)
 
       // Path params
-      const pathParams = (operation.parameters || [])
-        .filter((p) => p.in === 'path')
+      const pathParams = (operation.parameters || []).filter(
+        (p) => p.in === 'path',
+      )
       if (pathParams.length > 0) {
         descParts.push('')
         descParts.push('Path 参数:')
         for (const p of pathParams) {
           const type = p.schema?.type || 'string'
           const req = p.required ? ', required' : ''
-          descParts.push(`- ${p.name}: ${p.description || ''}(${type}${req})`.trimEnd())
+          descParts.push(
+            `- ${p.name}: ${p.description || ''}(${type}${req})`.trimEnd(),
+          )
         }
       }
 
       // Query params
-      const queryParams = (operation.parameters || [])
-        .filter((p) => p.in === 'query')
+      const queryParams = (operation.parameters || []).filter(
+        (p) => p.in === 'query',
+      )
       if (queryParams.length > 0) {
         descParts.push('')
         descParts.push('Query 参数:')
         for (const p of queryParams) {
           const type = p.schema?.type || 'string'
           const req = p.required ? ', required' : ''
-          descParts.push(`- ${p.name}: ${p.description || ''}(${type}${req})`.trimEnd())
+          descParts.push(
+            `- ${p.name}: ${p.description || ''}(${type}${req})`.trimEnd(),
+          )
         }
       }
       const paramsStr = queryParams
         .filter((p) => p.name)
         .map((p) => {
-          const defaultVal = p.schema?.default?.toString()
-            || defaultForType(p.schema?.type)
+          const defaultVal =
+            p.schema?.default?.toString() || defaultForType(p.schema?.type)
           return `${p.name}=${defaultVal}`
         })
         .join('&')
 
       // Headers: global + per-operation
       const headersObj: Record<string, string> = { ...globalHeadersObj }
-      const headerParams = (operation.parameters || [])
-        .filter((p) => p.in === 'header')
+      const headerParams = (operation.parameters || []).filter(
+        (p) => p.in === 'header',
+      )
       for (const h of headerParams) {
         headersObj[h.name] = h.schema?.default?.toString() || ''
       }
@@ -175,7 +194,8 @@ export function importOpenAPI(input: string, options: ImportOptions = {}): ApiIt
         if (content['application/json']) {
           bodyType = 'json'
           const jsonContent = content['application/json']
-          const example = jsonContent.example ?? buildExampleFromSchema(jsonContent.schema)
+          const example =
+            jsonContent.example ?? buildExampleFromSchema(jsonContent.schema)
           if (example !== undefined) {
             body = JSON.stringify(example, null, 2)
           }
@@ -207,7 +227,10 @@ export function importOpenAPI(input: string, options: ImportOptions = {}): ApiIt
         method: method.toUpperCase(),
         params: paramsStr,
         body,
-        headers: Object.keys(headersObj).length > 0 ? JSON.stringify(headersObj, null, 2) : '{}',
+        headers:
+          Object.keys(headersObj).length > 0
+            ? JSON.stringify(headersObj, null, 2)
+            : '{}',
         bodyType,
       })
 
@@ -248,10 +271,11 @@ export function exportOpenAPI(): OpenAPISpec {
     const method = api.method.toLowerCase()
 
     const operation: any = {
-      operationId: api.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_|_$/g, '') || undefined,
+      operationId:
+        api.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_|_$/g, '') || undefined,
       summary: api.name,
     }
 
@@ -296,7 +320,8 @@ export function exportOpenAPI(): OpenAPISpec {
         const headersObj = JSON.parse(api.headers)
         for (const [key, value] of Object.entries(headersObj)) {
           // Skip common headers
-          if (['content-type', 'user-agent'].includes(key.toLowerCase())) continue
+          if (['content-type', 'user-agent'].includes(key.toLowerCase()))
+            continue
           parameters.push({
             name: key,
             in: 'header',

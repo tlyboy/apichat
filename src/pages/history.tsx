@@ -280,9 +280,7 @@ export function HistoryPage() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-3" side="top">
-                  <p className="mb-2 text-sm">
-                    {t('history.confirmClear')}
-                  </p>
+                  <p className="mb-2 text-sm">{t('history.confirmClear')}</p>
                   <div className="flex justify-end gap-2">
                     <PopoverClose asChild>
                       <Button variant="outline" size="sm" className="h-7">

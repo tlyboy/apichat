@@ -29,6 +29,7 @@ pnpm prettier --write .
 This is a **Tauri 2.0 + React 19 + TypeScript** desktop application.
 
 ### Tech Stack
+
 - **Frontend**: React 19 with React Compiler (babel-plugin-react-compiler)
 - **Styling**: Tailwind CSS 4 with @egoist/tailwindcss-icons (Carbon icons)
 - **Build**: Vite (via rolldown-vite) with Tauri integration
@@ -36,6 +37,7 @@ This is a **Tauri 2.0 + React 19 + TypeScript** desktop application.
 - **Package Manager**: pnpm
 
 ### Project Structure
+
 - `src/` - React frontend code
   - `components/` - Reusable React components (theme-provider, mode-toggle)
   - `layouts/` - Page layout wrappers
@@ -46,10 +48,12 @@ This is a **Tauri 2.0 + React 19 + TypeScript** desktop application.
   - `tauri.conf.json` - Tauri configuration
 
 ### Key Patterns
+
 - **Path alias**: Use `@/` to import from `src/` directory
 - **Theme system**: ThemeProvider with dark/light/system modes, persisted to localStorage
 - **Icons**: Use Tailwind classes like `i-carbon-*` for Carbon icons
 - **Custom components**: `.btn` and `.icon-btn` utility classes defined in index.css
 
 ### Tauri Commands
+
 Define Rust commands in `src-tauri/src/lib.rs` using `#[tauri::command]` macro, then register them in `invoke_handler`.
