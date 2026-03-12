@@ -163,15 +163,17 @@ export function HttpClient() {
             )}
           </div>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                onClick={createNewApi}
-              >
-                <Plus className="size-4" />
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  onClick={createNewApi}
+                />
+              }
+            >
+              <Plus className="size-4" />
             </TooltipTrigger>
             <TooltipContent>{t('http.newRequest')}</TooltipContent>
           </Tooltip>
@@ -194,16 +196,18 @@ export function HttpClient() {
               </span>
             )}
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="size-7"
-                  onClick={saveApi}
-                  disabled={!apiName.trim() && !url.trim()}
-                >
-                  <Save className="size-3.5" />
-                </Button>
+              <TooltipTrigger
+                render={
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="size-7"
+                    onClick={saveApi}
+                    disabled={!apiName.trim() && !url.trim()}
+                  />
+                }
+              >
+                <Save className="size-3.5" />
               </TooltipTrigger>
               <TooltipContent>{t('http.save')}</TooltipContent>
             </Tooltip>
@@ -213,6 +217,7 @@ export function HttpClient() {
               value={method}
               onValueChange={(v) => setMethod(v as HttpMethod)}
               disabled={loading}
+              items={Object.fromEntries(METHODS.map((m) => [m, m]))}
             >
               <SelectTrigger className="w-[110px]" size="sm">
                 <SelectValue />
@@ -262,6 +267,10 @@ export function HttpClient() {
             <Select
               value={filterMethod}
               onValueChange={(v) => setFilterMethod(v as 'ALL' | HttpMethod)}
+              items={{
+                ALL: t('http.all'),
+                ...Object.fromEntries(METHODS.map((m) => [m, m])),
+              }}
             >
               <SelectTrigger size="sm" className="mb-2 w-full text-xs">
                 <SelectValue />
@@ -280,15 +289,17 @@ export function HttpClient() {
                 {t('http.apiCount', { count: filteredList.length })}
               </div>
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground h-6 px-1.5 text-xs"
-                  >
-                    <Import className="mr-1 size-3" />
-                    {t('http.import')}
-                  </Button>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground h-6 px-1.5 text-xs"
+                    />
+                  }
+                >
+                  <Import className="mr-1 size-3" />
+                  {t('http.import')}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
                   <DropdownMenuItem onClick={handleImportOpenAPI}>
@@ -358,25 +369,33 @@ export function HttpClient() {
                     {item.name}
                   </span>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-destructive size-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2 className="size-3" />
-                      </Button>
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-destructive size-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      }
+                    >
+                      <Trash2 className="size-3" />
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-3" side="right">
                       <p className="mb-2 text-sm">
                         {t('common.confirmDelete')}
                       </p>
                       <div className="flex justify-end gap-2">
-                        <PopoverClose asChild>
-                          <Button variant="outline" size="sm" className="h-7">
-                            {t('common.cancel')}
-                          </Button>
+                        <PopoverClose
+                          render={
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7"
+                            />
+                          }
+                        >
+                          {t('common.cancel')}
                         </PopoverClose>
                         <Button
                           variant="destructive"
@@ -408,22 +427,26 @@ export function HttpClient() {
           {apis.length > 0 && (
             <div className="border-t p-2">
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-destructive w-full text-xs"
-                  >
-                    {t('http.clearAllApis')}
-                  </Button>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive w-full text-xs"
+                    />
+                  }
+                >
+                  {t('http.clearAllApis')}
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-3" side="top">
                   <p className="mb-2 text-sm">{t('common.confirmClearApis')}</p>
                   <div className="flex justify-end gap-2">
-                    <PopoverClose asChild>
-                      <Button variant="outline" size="sm" className="h-7">
-                        {t('common.cancel')}
-                      </Button>
+                    <PopoverClose
+                      render={
+                        <Button variant="outline" size="sm" className="h-7" />
+                      }
+                    >
+                      {t('common.cancel')}
                     </PopoverClose>
                     <Button
                       variant="destructive"

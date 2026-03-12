@@ -40,19 +40,21 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
         <Separator className="mb-1 w-6" />
         {navItems.map(({ page, labelKey, icon: Icon }) => (
           <Tooltip key={page}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`size-8 ${
-                  activePage === page
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                onClick={() => onNavigate(page)}
-              >
-                <Icon className="size-4" />
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`size-8 ${
+                    activePage === page
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => onNavigate(page)}
+                />
+              }
+            >
+              <Icon className="size-4" />
             </TooltipTrigger>
             <TooltipContent side="right">{t(labelKey)}</TooltipContent>
           </Tooltip>
@@ -61,21 +63,24 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
 
       <div className="flex flex-col items-center gap-1">
         <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground size-8"
-              asChild
-            >
-              <a
-                href="https://github.com/tlyboy/apichat"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Github className="size-4" />
-              </a>
-            </Button>
+          <TooltipTrigger
+            render={
+              <Button
+                nativeButton={false}
+                render={
+                  <a
+                    href="https://github.com/tlyboy/apichat"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground size-8"
+              />
+            }
+          >
+            <Github className="size-4" />
           </TooltipTrigger>
           <TooltipContent side="right">{t('nav.github')}</TooltipContent>
         </Tooltip>

@@ -167,6 +167,10 @@ export function HistoryPage() {
             <Select
               value={filterMethod}
               onValueChange={(v) => setFilterMethod(v as 'ALL' | HttpMethod)}
+              items={{
+                ALL: t('history.all'),
+                ...Object.fromEntries(METHODS.map((m) => [m, m])),
+              }}
             >
               <SelectTrigger size="sm" className="mb-2 w-full text-xs">
                 <SelectValue />
@@ -217,25 +221,33 @@ export function HistoryPage() {
                     </div>
                   </div>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-destructive size-7 opacity-0 transition-opacity group-hover:opacity-100"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-destructive size-7 opacity-0 transition-opacity group-hover:opacity-100"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      }
+                    >
+                      <Trash2 className="size-3.5" />
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-3" side="right">
                       <p className="mb-2 text-sm">
                         {t('common.confirmDelete')}
                       </p>
                       <div className="flex justify-end gap-2">
-                        <PopoverClose asChild>
-                          <Button variant="outline" size="sm" className="h-7">
-                            {t('common.cancel')}
-                          </Button>
+                        <PopoverClose
+                          render={
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7"
+                            />
+                          }
+                        >
+                          {t('common.cancel')}
                         </PopoverClose>
                         <Button
                           variant="destructive"
@@ -270,22 +282,26 @@ export function HistoryPage() {
           {records.length > 0 && (
             <div className="border-t p-2">
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-destructive w-full text-xs"
-                  >
-                    {t('history.clearAll')}
-                  </Button>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive w-full text-xs"
+                    />
+                  }
+                >
+                  {t('history.clearAll')}
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-3" side="top">
                   <p className="mb-2 text-sm">{t('history.confirmClear')}</p>
                   <div className="flex justify-end gap-2">
-                    <PopoverClose asChild>
-                      <Button variant="outline" size="sm" className="h-7">
-                        {t('common.cancel')}
-                      </Button>
+                    <PopoverClose
+                      render={
+                        <Button variant="outline" size="sm" className="h-7" />
+                      }
+                    >
+                      {t('common.cancel')}
                     </PopoverClose>
                     <Button
                       variant="destructive"

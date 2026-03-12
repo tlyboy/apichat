@@ -65,7 +65,7 @@ export function CodeEditor({
           readOnly: readonly,
           cursorSmoothCaretAnimation: 'on',
           fontFamily:
-            "'FiraCode Nerd Font', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+            "'Fira Code Variable', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
           fontLigatures: true,
           smoothScrolling: true,
           tabSize: 2,
