@@ -13,6 +13,8 @@ interface SidecarState {
   running: boolean
   restarting: boolean
   restart: () => Promise<void>
+  stop: () => Promise<void>
+  start: () => Promise<void>
 }
 
 export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
@@ -53,6 +55,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
       if (update) {
         setUpdateVersion(update.version)
         setUpdateStatus('downloading')
+        await sidecar.stop()
         await update.downloadAndInstall()
         setUpdateStatus('ready')
       } else {
@@ -61,6 +64,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
       }
     } catch (err) {
       console.error('Update check failed:', err)
+      await sidecar.start()
       setUpdateStatus('error')
       setTimeout(() => setUpdateStatus('idle'), 3000)
     }

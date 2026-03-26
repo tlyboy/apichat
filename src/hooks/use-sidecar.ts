@@ -49,5 +49,5 @@ export function useSidecar() {
     }
   }, [])
 
-  return { running, restarting, restart }
+  return { running, restarting, restart, stop, start }
 }
