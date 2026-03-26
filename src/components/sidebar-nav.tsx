@@ -1,4 +1,6 @@
-import { Globe, Plug, History, Settings, Github } from 'lucide-react'
+import { Globe, Plug, History, Settings } from 'lucide-react'
+import { siGithub } from 'simple-icons'
+import { SimpleIcon } from '@/components/simple-icon'
 import { ModeToggle } from '@/components/mode-toggle'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { Button } from '@/components/ui/button'
@@ -80,7 +82,7 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
               />
             }
           >
-            <Github className="size-4" />
+            <SimpleIcon icon={siGithub} className="size-4" />
           </TooltipTrigger>
           <TooltipContent side="right">{t('nav.github')}</TooltipContent>
         </Tooltip>
