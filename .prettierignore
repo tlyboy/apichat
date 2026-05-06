@@ -1,0 +1,7 @@
+dist
+pnpm-lock.yaml
+auto-imports.d.ts
+components.d.ts
+route-map.d.ts
+gen
+target
