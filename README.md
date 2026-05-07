@@ -2,6 +2,11 @@
 
 🤖 A modern API client built with Tauri
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/banner-dark.png">
+  <img alt="ApiChat banner" src="img/banner-light.png">
+</picture>
+
 - 🚀 Built with Tauri 2.0 + React 19 for excellent performance
 - 🎨 Dark / Light theme support
 - 🌐 i18n support (English, 简体中文)
