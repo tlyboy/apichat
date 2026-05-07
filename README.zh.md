@@ -2,6 +2,11 @@
 
 🤖 基于 Tauri 构建的现代 API 客户端
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/banner-dark-zh.png">
+  <img alt="ApiChat banner" src="img/banner-light-zh.png">
+</picture>
+
 - 🚀 基于 Tauri 2.0 + React 19，性能优异
 - 🎨 深色 / 浅色主题
 - 🌐 国际化支持（English、简体中文）
