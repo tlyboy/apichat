@@ -20,14 +20,14 @@
 
 ### 从 Releases 下载
 
-前往 [Releases](https://github.com/tlyboys/apichat/releases) 页面下载对应平台的安装包。
+前往 [Releases](https://github.com/tlyboy/apichat/releases) 页面下载对应平台的安装包。
 
 ### 从源码构建
 
 需要安装 [Rust](https://www.rust-lang.org/) 和 [Bun](https://bun.sh/)。
 
 ```bash
-git clone https://github.com/tlyboys/apichat.git
+git clone https://github.com/tlyboy/apichat.git
 cd apichat
 pnpm install
 pnpm tauri dev
