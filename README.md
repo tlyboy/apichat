@@ -20,14 +20,14 @@
 
 ### Download from Releases
 
-Go to the [Releases](https://github.com/tlyboys/apichat/releases) page and download the installer for your platform.
+Go to the [Releases](https://github.com/tlyboy/apichat/releases) page and download the installer for your platform.
 
 ### Build from Source
 
 Requires [Rust](https://www.rust-lang.org/) and [Bun](https://bun.sh/) to be installed.
 
 ```bash
-git clone https://github.com/tlyboys/apichat.git
+git clone https://github.com/tlyboy/apichat.git
 cd apichat
 pnpm install
 pnpm tauri dev

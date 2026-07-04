@@ -71,7 +71,7 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
               className="text-muted-foreground hover:text-foreground size-8"
             >
               <a
-                href="https://github.com/tlyboys/apichat"
+                href="https://github.com/tlyboy/apichat"
                 target="_blank"
                 rel="noopener noreferrer"
               >
