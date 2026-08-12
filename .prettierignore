@@ -5,3 +5,6 @@ components.d.ts
 route-map.d.ts
 gen
 target
+
+# shadcn 拉下来的组件保持上游原样，不参与格式化
+src/components/ui

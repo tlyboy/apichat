@@ -95,8 +95,20 @@ export function HistoryPage() {
 
   const selectedRecord = records.find((r) => r.id === selectedId)
 
+  /*
+   * 「当前时间」放进 state 每 30 秒推进一次，而不是在渲染里直接读 Date.now()。
+   * 两个原因：一是渲染必须是纯的，读时钟会让同样的 props 渲出不同结果
+   * （React Compiler 的 purity 规则），二是原先「3 分钟前」只在别的原因触发
+   * 重渲染时才更新，页面停着不动的话时间就一直卡住。
+   */
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   const formatTime = (timestamp: number) => {
-    const diff = Date.now() - timestamp
+    const diff = now - timestamp
     if (diff < 60000) return t('history.justNow')
     if (diff < 3600000)
       return t('history.minutesAgo', { count: Math.floor(diff / 60000) })
@@ -111,7 +123,7 @@ export function HistoryPage() {
       <div className="flex items-center border-b">
         <div className="flex w-64 items-center gap-2 border-r px-2 py-4">
           <div className="relative flex-1">
-            <Search className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
+            <Search className="absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
@@ -124,7 +136,7 @@ export function HistoryPage() {
             {searchKeyword && (
               <button
                 onClick={() => setSearchKeyword('')}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 flex size-4 -translate-y-1/2 cursor-pointer items-center justify-center"
+                className="absolute top-1/2 right-2 flex size-4 -translate-y-1/2 cursor-pointer items-center justify-center text-muted-foreground hover:text-foreground"
               >
                 <X className="size-3" />
               </button>
@@ -133,7 +145,7 @@ export function HistoryPage() {
         </div>
 
         <div className="flex h-full flex-1 items-center justify-between px-4">
-          <div className="text-muted-foreground text-sm font-medium">
+          <div className="text-sm font-medium text-muted-foreground">
             {selectedRecord
               ? `${selectedRecord.method} ${selectedRecord.url}`
               : t('history.title')}
@@ -180,7 +192,7 @@ export function HistoryPage() {
                 ))}
               </SelectContent>
             </Select>
-            <div className="text-muted-foreground text-xs">
+            <div className="text-xs text-muted-foreground">
               {t('history.records', { count: filteredRecords.length })}
             </div>
           </div>
@@ -207,7 +219,7 @@ export function HistoryPage() {
                     <div className="truncate text-sm font-medium">
                       {record.name || generateTitle(record.url)}
                     </div>
-                    <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       {record.status === 'error' && (
                         <XCircle className="size-3 text-red-500" />
                       )}
@@ -221,7 +233,7 @@ export function HistoryPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-muted-foreground hover:text-destructive size-7 opacity-0 transition-opacity group-hover:opacity-100"
+                        className="size-7 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Trash2 className="size-3.5" />
@@ -254,7 +266,7 @@ export function HistoryPage() {
                 </div>
               ))
             ) : (
-              <div className="text-muted-foreground flex flex-col items-center justify-center py-8">
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                 <Clock className="mb-2 size-6" />
                 <div className="text-center text-sm">
                   {searchKeyword
@@ -274,7 +286,7 @@ export function HistoryPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-muted-foreground hover:text-destructive w-full text-xs"
+                    className="w-full text-xs text-muted-foreground hover:text-destructive"
                   >
                     {t('history.clearAll')}
                   </Button>
@@ -309,7 +321,7 @@ export function HistoryPage() {
         <div className="flex flex-1 flex-col overflow-hidden">
           {selectedRecord ? (
             <div className="flex h-full flex-col gap-2 p-2">
-              <div className="text-muted-foreground text-sm font-medium">
+              <div className="text-sm font-medium text-muted-foreground">
                 {t('history.response')}
               </div>
               <CodeEditor
@@ -320,7 +332,7 @@ export function HistoryPage() {
               />
             </div>
           ) : (
-            <div className="text-muted-foreground flex h-full flex-col items-center justify-center">
+            <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
               <Clock className="mb-2 size-10 opacity-30" />
               <div className="text-sm">{t('history.selectRecord')}</div>
             </div>

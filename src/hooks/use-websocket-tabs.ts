@@ -10,6 +10,32 @@ import { useI18n, type TranslateFunction } from '@/i18n'
 
 const LOCALE_MAP: Record<string, string> = { 'zh-cn': 'zh-CN', en: 'en-US' }
 
+/*
+ * 落库这一段提到模块级：它只在断连 / 切换会话等事件回调里被调用，但只要函数
+ * 定义在渲染作用域内，React Compiler 就无法证明调用点，会把里面的 Date.now()
+ * 判成渲染期调用（purity 违规）。提到模块外之后依赖也变显式了。
+ */
+function persistSession(params: {
+  wsId: string | null
+  wsName: string
+  wsUrl: string
+  messages: WebSocketMessage[]
+  connectedAt: number
+}) {
+  return wsHistoryStore.add({
+    wsId: params.wsId || undefined,
+    wsName: params.wsName,
+    wsUrl: params.wsUrl,
+    messages: params.messages.map((m) => ({
+      type: m.type,
+      content: m.content,
+      timestamp: m.timestamp,
+    })),
+    connectedAt: params.connectedAt,
+    disconnectedAt: Date.now(),
+  })
+}
+
 export function useWebSocketTabs(t: TranslateFunction) {
   const { locale } = useI18n()
   const [savedList, setSavedList] = useState<WsItem[]>([])
@@ -31,12 +57,22 @@ export function useWebSocketTabs(t: TranslateFunction) {
   )
   const connectedAtRef = useRef<number>(0)
   const messagesRef = useRef(messages)
-  messagesRef.current = messages
-
   const wsClientRef = useRef(wsClient)
-  wsClientRef.current = wsClient
   const savedListRef = useRef(savedList)
-  savedListRef.current = savedList
+
+  /*
+   * 这三个 ref 只是 state 的镜像，供事件回调与卸载清理读到最新值。
+   * 原先直接在渲染期赋值，React Compiler 会判为 refs 违规——渲染必须无副作用，
+   * 否则它生成的记忆化代码可能读到半更新的值。
+   * 挪进「每次渲染后都跑」的 effect：本文件所有读取都发生在事件回调或卸载
+   * 清理里，时机都晚于 effect，语义不变。这个 effect 必须排在下面那个
+   * 卸载清理 effect 之前，保证卸载时读到的是最后一次渲染的值。
+   */
+  useEffect(() => {
+    messagesRef.current = messages
+    wsClientRef.current = wsClient
+    savedListRef.current = savedList
+  })
 
   const refreshList = () => {
     wsStore
@@ -107,19 +143,13 @@ export function useWebSocketTabs(t: TranslateFunction) {
 
   const saveSession = () => {
     if (messagesRef.current.length === 0 || !connectedAtRef.current) return
-    wsHistoryStore
-      .add({
-        wsId: currentId || undefined,
-        wsName: name || generateName(url),
-        wsUrl: url,
-        messages: messagesRef.current.map((m) => ({
-          type: m.type,
-          content: m.content,
-          timestamp: m.timestamp,
-        })),
-        connectedAt: connectedAtRef.current,
-        disconnectedAt: Date.now(),
-      })
+    persistSession({
+      wsId: currentId,
+      wsName: name || generateName(url),
+      wsUrl: url,
+      messages: messagesRef.current,
+      connectedAt: connectedAtRef.current,
+    })
       .then(() => refreshSessions())
       .catch(console.error)
   }
@@ -269,7 +299,9 @@ export function useWebSocketTabs(t: TranslateFunction) {
           savedListRef.current = newList
           setCurrentId(created.id)
           if (!name.trim()) setName(itemName)
-        } catch {}
+        } catch {
+          // 保存失败不阻断当前连接，列表下次打开会重新拉
+        }
       }
 
       setError('')

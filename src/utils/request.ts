@@ -38,12 +38,12 @@ export default async function request(url: string, options?: RequestInit) {
     }
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error('请求超时')
+      throw new Error('请求超时', { cause: error })
     }
     if (error instanceof Error) {
       throw error
     }
-    throw new Error('网络请求失败')
+    throw new Error('网络请求失败', { cause: error })
   } finally {
     clearTimeout(timer)
   }

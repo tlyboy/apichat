@@ -89,7 +89,9 @@ async function executeApi(
   if (api.headers) {
     try {
       Object.assign(headers, JSON.parse(api.headers))
-    } catch {}
+    } catch {
+      // headers 是用户填的自由文本，解析不了就当没配，不该中断请求
+    }
   }
 
   const init: RequestInit = { method: api.method, headers }
@@ -122,7 +124,9 @@ async function executeApi(
         if (!headers['Content-Type'] && !headers['content-type']) {
           headers['Content-Type'] = 'application/x-www-form-urlencoded'
         }
-      } catch {}
+      } catch {
+        // 用户填的自由文本解析不了就跳过，不该中断请求
+      }
     }
   }
 

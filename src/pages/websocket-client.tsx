@@ -69,7 +69,7 @@ export function WebSocketClientPage() {
       <div className="flex items-stretch border-b">
         <div className="flex w-64 items-center gap-2 border-r px-2 py-4">
           <div className="relative flex-1">
-            <Search className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
+            <Search className="absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={ws.searchKeyword}
               onChange={(e) => ws.setSearchKeyword(e.target.value)}
@@ -82,7 +82,7 @@ export function WebSocketClientPage() {
             {ws.searchKeyword && (
               <button
                 onClick={() => ws.setSearchKeyword('')}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 flex size-4 -translate-y-1/2 cursor-pointer items-center justify-center"
+                className="absolute top-1/2 right-2 flex size-4 -translate-y-1/2 cursor-pointer items-center justify-center text-muted-foreground hover:text-foreground"
               >
                 <X className="size-3" />
               </button>
@@ -106,7 +106,7 @@ export function WebSocketClientPage() {
         <div className="flex flex-1 flex-col">
           <div className="flex items-center px-4 py-1.5">
             <input
-              className="text-foreground placeholder:text-muted-foreground h-7 flex-1 bg-transparent text-sm font-medium outline-none"
+              className="h-7 flex-1 bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
               value={ws.name}
               onChange={(e) => ws.setName(e.target.value)}
               placeholder={t('ws.namePlaceholder')}
@@ -115,7 +115,7 @@ export function WebSocketClientPage() {
               spellCheck={false}
             />
             {ws.hasUnsavedChanges && (
-              <span className="text-muted-foreground mr-2 text-xs">
+              <span className="mr-2 text-xs text-muted-foreground">
                 {t('http.unsaved')}
               </span>
             )}
@@ -213,7 +213,7 @@ export function WebSocketClientPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-muted-foreground hover:text-destructive size-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                        className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Trash2 className="size-3" />
@@ -243,7 +243,7 @@ export function WebSocketClientPage() {
                 </div>
               ))
             ) : (
-              <div className="text-muted-foreground flex flex-col items-center justify-center py-8">
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                 <Search className="mb-2 size-6" />
                 <div className="text-center text-sm">
                   {!ws.searchKeyword.trim()
@@ -261,7 +261,7 @@ export function WebSocketClientPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-muted-foreground hover:text-destructive w-full text-xs"
+                    className="w-full text-xs text-muted-foreground hover:text-destructive"
                   >
                     {t('ws.clearAllTabs')}
                   </Button>
@@ -292,7 +292,7 @@ export function WebSocketClientPage() {
         {/* Right content */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {ws.error && (
-            <div className="bg-destructive/10 text-destructive px-4 py-2 text-sm">
+            <div className="bg-destructive/10 px-4 py-2 text-sm text-destructive">
               {ws.error}
             </div>
           )}
@@ -353,7 +353,7 @@ export function WebSocketClientPage() {
                                   ? t('ws.received')
                                   : t('ws.system')}
                             </Badge>
-                            <span className="text-muted-foreground text-xs">
+                            <span className="text-xs text-muted-foreground">
                               {ws.formatMessageTime(message.timestamp)}
                             </span>
                           </div>
@@ -364,7 +364,7 @@ export function WebSocketClientPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-muted-foreground flex flex-col items-center justify-center py-16">
+                    <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                       <MessageSquare className="mb-2 size-10" />
                       <div className="text-center text-sm">
                         {t('ws.noMessages')}
@@ -391,7 +391,7 @@ export function WebSocketClientPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-muted-foreground h-8 text-xs"
+                    className="h-8 text-xs text-muted-foreground"
                     onClick={ws.clearMessages}
                   >
                     {t('ws.clearMessages')}
@@ -445,7 +445,7 @@ export function WebSocketClientPage() {
                             <div className="truncate text-sm font-medium">
                               {session.wsName}
                             </div>
-                            <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <span>
                                 {new Date(session.connectedAt).toLocaleString()}
                               </span>
@@ -462,7 +462,7 @@ export function WebSocketClientPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-muted-foreground hover:text-destructive size-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                                className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <Trash2 className="size-3" />
@@ -501,7 +501,7 @@ export function WebSocketClientPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-muted-foreground hover:text-destructive w-full text-xs"
+                              className="w-full text-xs text-muted-foreground hover:text-destructive"
                             >
                               {t('ws.clearSessions')}
                             </Button>
@@ -534,7 +534,7 @@ export function WebSocketClientPage() {
                       </div>
                     </>
                   ) : (
-                    <div className="text-muted-foreground flex flex-col items-center justify-center py-16">
+                    <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                       <Clock className="mb-2 size-6" />
                       <div className="text-center text-sm">
                         {t('ws.noSessions')}
@@ -576,7 +576,7 @@ export function WebSocketClientPage() {
                                   ? t('ws.received')
                                   : t('ws.system')}
                             </Badge>
-                            <span className="text-muted-foreground text-xs">
+                            <span className="text-xs text-muted-foreground">
                               {ws.formatMessageTime(message.timestamp)}
                             </span>
                           </div>
@@ -587,7 +587,7 @@ export function WebSocketClientPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-muted-foreground flex flex-col items-center justify-center py-16">
+                    <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                       <Clock className="mb-2 size-10 opacity-30" />
                       <div className="text-sm">{t('history.selectRecord')}</div>
                     </div>

@@ -1,5 +1,7 @@
 {
   "plugins": ["prettier-plugin-tailwindcss"],
   "semi": false,
-  "singleQuote": true
+  "singleQuote": true,
+  "tailwindFunctions": ["cn", "cva"],
+  "tailwindStylesheet": "src/index.css"
 }

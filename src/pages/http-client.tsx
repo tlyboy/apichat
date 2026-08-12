@@ -113,9 +113,31 @@ export function HttpClient() {
     { value: 'text', labelKey: 'http.text' },
   ]
 
+  /*
+   * showOpenFilePicker 属于 File System Access API，TypeScript 的内置 DOM
+   * 类型库还没收录它，所以要自己声明。这里只写实际用到的那部分签名，
+   * 比 `(window as any)` 精确得多——至少 getFile / text 的返回值是有类型的。
+   */
+  type FilePickerOptions = {
+    types?: { description: string; accept: Record<string, string[]> }[]
+  }
+  const pickOpenApiFile = (
+    options: FilePickerOptions,
+  ): Promise<FileSystemFileHandle[]> => {
+    const picker = (
+      window as unknown as {
+        showOpenFilePicker?: (
+          o: FilePickerOptions,
+        ) => Promise<FileSystemFileHandle[]>
+      }
+    ).showOpenFilePicker
+    if (!picker) throw new Error('showOpenFilePicker is not available')
+    return picker(options)
+  }
+
   const handleImportOpenAPI = async () => {
     try {
-      const [fileHandle] = await (window as any).showOpenFilePicker({
+      const [fileHandle] = await pickOpenApiFile({
         types: [
           {
             description: 'OpenAPI Spec',
@@ -143,7 +165,7 @@ export function HttpClient() {
       <div className="flex items-stretch border-b">
         <div className="flex w-64 items-center gap-2 border-r px-2 py-4">
           <div className="relative flex-1">
-            <Search className="text-muted-foreground absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
+            <Search className="absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
@@ -156,7 +178,7 @@ export function HttpClient() {
             {searchKeyword && (
               <button
                 onClick={() => setSearchKeyword('')}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 flex size-4 -translate-y-1/2 cursor-pointer items-center justify-center"
+                className="absolute top-1/2 right-2 flex size-4 -translate-y-1/2 cursor-pointer items-center justify-center text-muted-foreground hover:text-foreground"
               >
                 <X className="size-3" />
               </button>
@@ -180,7 +202,7 @@ export function HttpClient() {
         <div className="flex flex-1 flex-col">
           <div className="flex items-center px-4 py-1.5">
             <input
-              className="text-foreground placeholder:text-muted-foreground h-7 flex-1 bg-transparent text-sm font-medium outline-none"
+              className="h-7 flex-1 bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
               value={apiName}
               onChange={(e) => setApiName(e.target.value)}
               placeholder={t('http.apiNamePlaceholder')}
@@ -189,7 +211,7 @@ export function HttpClient() {
               spellCheck={false}
             />
             {hasUnsavedChanges && (
-              <span className="text-muted-foreground mr-2 text-xs">
+              <span className="mr-2 text-xs text-muted-foreground">
                 {t('http.unsaved')}
               </span>
             )}
@@ -276,7 +298,7 @@ export function HttpClient() {
               </SelectContent>
             </Select>
             <div className="flex items-center justify-between">
-              <div className="text-muted-foreground text-xs">
+              <div className="text-xs text-muted-foreground">
                 {t('http.apiCount', { count: filteredList.length })}
               </div>
               <DropdownMenu>
@@ -284,7 +306,7 @@ export function HttpClient() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-muted-foreground h-6 px-1.5 text-xs"
+                    className="h-6 px-1.5 text-xs text-muted-foreground"
                   >
                     <Import className="mr-1 size-3" />
                     {t('http.import')}
@@ -362,7 +384,7 @@ export function HttpClient() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-muted-foreground hover:text-destructive size-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                        className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Trash2 className="size-3" />
@@ -392,7 +414,7 @@ export function HttpClient() {
                 </div>
               ))
             ) : (
-              <div className="text-muted-foreground flex flex-col items-center justify-center py-8">
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                 <Search className="mb-2 size-6" />
                 <div className="text-center text-sm">
                   {searchKeyword
@@ -412,7 +434,7 @@ export function HttpClient() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-muted-foreground hover:text-destructive w-full text-xs"
+                    className="w-full text-xs text-muted-foreground hover:text-destructive"
                   >
                     {t('http.clearAllApis')}
                   </Button>
@@ -443,7 +465,7 @@ export function HttpClient() {
         {/* Right content area */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {error && (
-            <div className="bg-destructive/10 text-destructive px-4 py-2 text-sm">
+            <div className="bg-destructive/10 px-4 py-2 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -480,7 +502,7 @@ export function HttpClient() {
             <TabsContent value="params" className="flex-1 overflow-hidden">
               <div className="flex h-full flex-col gap-2 p-2">
                 <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground text-sm font-medium">
+                  <div className="text-sm font-medium text-muted-foreground">
                     {t('http.queryParams')}
                   </div>
                   <div className="flex gap-2">
@@ -503,7 +525,7 @@ export function HttpClient() {
                     <Button
                       variant="link"
                       size="sm"
-                      className="text-muted-foreground h-auto p-0 text-xs"
+                      className="h-auto p-0 text-xs text-muted-foreground"
                       onClick={() =>
                         setParams([{ key: '', value: '', enabled: false }])
                       }
@@ -582,7 +604,7 @@ export function HttpClient() {
                         <Button
                           variant="link"
                           size="sm"
-                          className="text-muted-foreground h-auto p-0 text-xs"
+                          className="h-auto p-0 text-xs text-muted-foreground"
                           onClick={() =>
                             setFormBody([
                               { key: '', value: '', enabled: false },
@@ -638,13 +660,13 @@ export function HttpClient() {
             <TabsContent value="headers" className="flex-1 overflow-hidden">
               <div className="flex h-full flex-col gap-2 p-2">
                 <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground text-sm font-medium">
+                  <div className="text-sm font-medium text-muted-foreground">
                     {t('http.headers')}
                   </div>
                   <Button
                     variant="link"
                     size="sm"
-                    className="text-muted-foreground h-auto p-0 text-xs"
+                    className="h-auto p-0 text-xs text-muted-foreground"
                     onClick={() =>
                       setHeaders([
                         {
@@ -681,7 +703,7 @@ export function HttpClient() {
           <div className="flex-1 overflow-y-auto border-t">
             <div className="flex h-full flex-col gap-2 p-2">
               <div className="flex items-center justify-between">
-                <div className="text-muted-foreground text-sm font-medium">
+                <div className="text-sm font-medium text-muted-foreground">
                   {t('http.response')}
                 </div>
                 {response && (

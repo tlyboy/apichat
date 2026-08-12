@@ -8,10 +8,7 @@ export interface WebSocketMessage {
 }
 
 export type WebSocketStatus =
-  | 'disconnected'
-  | 'connecting'
-  | 'connected'
-  | 'error'
+  'disconnected' | 'connecting' | 'connected' | 'error'
 
 export class WebSocketClient {
   private ws: WebSocket | null = null
@@ -45,7 +42,7 @@ export class WebSocketClient {
           return
         }
 
-        let content = ''
+        let content: string
         if (typeof data === 'string') {
           content = data
         } else if (data && typeof data === 'object' && 'data' in data) {

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import request from '@/utils/request'
 import { parseHeadersString } from '@/lib/utils'
 import { addHistoryRecord } from '@/utils/history'
@@ -40,12 +40,40 @@ export function useHttpClient(t: TranslateFunction) {
   const [apis, setApis] = useState<ApiItem[]>([])
   const [currentId, setCurrentId] = useState<string | null>(null)
 
+  const [searchKeyword, setSearchKeyword] = useState('')
+  const [filterMethod, setFilterMethod] = useState<'ALL' | HttpMethod>('ALL')
+  const [activeTab, setActiveTab] = useState<ActiveTab>('description')
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [apiName, setApiName] = useState('')
+  const [apiDescription, setApiDescription] = useState('')
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  /*
+   * resetForm 提到这里：原先它声明在文件下方，却被上面的 refreshApis 引用，
+   * React Compiler 会判为「先用后声明」。它只调用 setter、没有别的依赖，
+   * 放在所有 useState 之后是最自然的位置。
+   */
+  const resetForm = () => {
+    setUrl('')
+    setResponse('')
+    setError('')
+    setMethod('GET')
+    setParams([{ key: '', value: '', enabled: false }])
+    setJsonBody('')
+    setTextBody('')
+    setFormBody([{ key: '', value: '', enabled: false }])
+    setHeaders([...DEFAULT_HEADERS])
+    setApiName('')
+    setApiDescription('')
+    setActiveTab('description')
+    setHasUnsavedChanges(false)
+  }
+
   const refreshApis = () => {
     apiStore
       .list()
       .then((list) => {
         setApis(list)
-        apisRef.current = list
         // 如果当前选中的 API 已被外部删除，重置表单
         if (currentId && !list.find((a) => a.id === currentId)) {
           setCurrentId(null)
@@ -60,17 +88,10 @@ export function useHttpClient(t: TranslateFunction) {
     const handler = () => refreshApis()
     window.addEventListener('app-focus', handler)
     return () => window.removeEventListener('app-focus', handler)
+    // 只在挂载时装一次监听；refreshApis 每次渲染都是新函数，
+    // 放进依赖会让监听器反复卸载重装。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const [filterMethod, setFilterMethod] = useState<'ALL' | HttpMethod>('ALL')
-  const [activeTab, setActiveTab] = useState<ActiveTab>('description')
-  const [copySuccess, setCopySuccess] = useState(false)
-  const [apiName, setApiName] = useState('')
-  const [apiDescription, setApiDescription] = useState('')
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-
-  const apisRef = useRef(apis)
-  apisRef.current = apis
 
   const showParams = ['GET', 'HEAD', 'OPTIONS'].includes(method)
 
@@ -218,7 +239,7 @@ export function useHttpClient(t: TranslateFunction) {
           formBody: state.formBody,
         }
         const updated = await apiStore.update(currentId, updates)
-        setApis(apisRef.current.map((a) => (a.id === currentId ? updated : a)))
+        setApis((prev) => prev.map((a) => (a.id === currentId ? updated : a)))
       } else {
         const created = await apiStore.create({
           name,
@@ -231,9 +252,7 @@ export function useHttpClient(t: TranslateFunction) {
           body: state.body,
           formBody: state.formBody,
         })
-        const newApis = [created, ...apisRef.current]
-        setApis(newApis)
-        apisRef.current = newApis
+        setApis((prev) => [created, ...prev])
         setCurrentId(created.id)
       }
       setHasUnsavedChanges(false)
@@ -291,7 +310,9 @@ export function useHttpClient(t: TranslateFunction) {
         if (config.defaultHeaders) {
           globalHeaders = parseHeadersString(config.defaultHeaders)
         }
-      } catch {}
+      } catch {
+        // 配置读不出来就用空的全局默认值，请求照常发
+      }
 
       // Build URL: if relative path and base URL exists, combine them
       let rawUrl = url.trim()
@@ -409,9 +430,7 @@ export function useHttpClient(t: TranslateFunction) {
   }
 
   const deleteApi = async (id: string) => {
-    const newApis = apis.filter((item) => item.id !== id)
-    setApis(newApis)
-    apisRef.current = newApis
+    setApis((prev) => prev.filter((item) => item.id !== id))
     apiStore.delete(id).catch(console.error)
 
     if (currentId === id) {
@@ -422,26 +441,9 @@ export function useHttpClient(t: TranslateFunction) {
 
   const clearAllApis = async () => {
     setApis([])
-    apisRef.current = []
     apiStore.clear().catch(console.error)
     setCurrentId(null)
     resetForm()
-  }
-
-  const resetForm = () => {
-    setUrl('')
-    setResponse('')
-    setError('')
-    setMethod('GET')
-    setParams([{ key: '', value: '', enabled: false }])
-    setJsonBody('')
-    setTextBody('')
-    setFormBody([{ key: '', value: '', enabled: false }])
-    setHeaders([...DEFAULT_HEADERS])
-    setApiName('')
-    setApiDescription('')
-    setActiveTab('description')
-    setHasUnsavedChanges(false)
   }
 
   const createNewApi = () => {
