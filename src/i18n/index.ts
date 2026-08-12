@@ -23,7 +23,9 @@ export function detectLocale(): Locale {
     if (saved && (saved === 'en' || saved === 'zh-cn')) {
       return saved as Locale
     }
-  } catch {}
+  } catch {
+    // 隐私模式 / 禁用存储时 localStorage 会抛，忽略并走浏览器语言探测
+  }
 
   const lang = navigator.language.toLowerCase()
   if (lang.startsWith('zh')) return 'zh-cn'

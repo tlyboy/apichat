@@ -10,6 +10,32 @@ import { useI18n, type TranslateFunction } from '@/i18n'
 
 const LOCALE_MAP: Record<string, string> = { 'zh-cn': 'zh-CN', en: 'en-US' }
 
+/*
+ * Move this persistence logic to module scope: it is only called in event callbacks such as disconnecting / switching sessions, but as long as the function
+ * is defined inside the render scope, React Compiler cannot prove where it is called and will classify the Date.now() inside it
+ * as a render-time call (a purity violation). Moving it outside the module also makes the dependencies explicit.
+ */
+function persistSession(params: {
+  wsId: string | null
+  wsName: string
+  wsUrl: string
+  messages: WebSocketMessage[]
+  connectedAt: number
+}) {
+  return wsHistoryStore.add({
+    wsId: params.wsId || undefined,
+    wsName: params.wsName,
+    wsUrl: params.wsUrl,
+    messages: params.messages.map((m) => ({
+      type: m.type,
+      content: m.content,
+      timestamp: m.timestamp,
+    })),
+    connectedAt: params.connectedAt,
+    disconnectedAt: Date.now(),
+  })
+}
+
 export function useWebSocketTabs(t: TranslateFunction) {
   const { locale } = useI18n()
   const [savedList, setSavedList] = useState<WsItem[]>([])
@@ -31,12 +57,22 @@ export function useWebSocketTabs(t: TranslateFunction) {
   )
   const connectedAtRef = useRef<number>(0)
   const messagesRef = useRef(messages)
-  messagesRef.current = messages
-
   const wsClientRef = useRef(wsClient)
-  wsClientRef.current = wsClient
   const savedListRef = useRef(savedList)
-  savedListRef.current = savedList
+
+  /*
+   * These three refs are just mirrors of state, so event callbacks and unmount cleanup can read the latest values.
+   * Previously, they were assigned directly during render, which React Compiler flags as a refs violation — rendering must have no side effects,
+   * or the memoized code it generates may read partially updated values.
+   * Move the assignments into an effect that runs after every render: all reads in this file happen in event callbacks or unmount
+   * cleanup, both of which occur after the effect, so the semantics are unchanged. This effect must come before the unmount cleanup effect below,
+   * so that it reads the values from the final render during unmount.
+   */
+  useEffect(() => {
+    messagesRef.current = messages
+    wsClientRef.current = wsClient
+    savedListRef.current = savedList
+  })
 
   const refreshList = () => {
     wsStore
@@ -107,19 +143,13 @@ export function useWebSocketTabs(t: TranslateFunction) {
 
   const saveSession = () => {
     if (messagesRef.current.length === 0 || !connectedAtRef.current) return
-    wsHistoryStore
-      .add({
-        wsId: currentId || undefined,
-        wsName: name || generateName(url),
-        wsUrl: url,
-        messages: messagesRef.current.map((m) => ({
-          type: m.type,
-          content: m.content,
-          timestamp: m.timestamp,
-        })),
-        connectedAt: connectedAtRef.current,
-        disconnectedAt: Date.now(),
-      })
+    persistSession({
+      wsId: currentId,
+      wsName: name || generateName(url),
+      wsUrl: url,
+      messages: messagesRef.current,
+      connectedAt: connectedAtRef.current,
+    })
       .then(() => refreshSessions())
       .catch(console.error)
   }
@@ -269,7 +299,9 @@ export function useWebSocketTabs(t: TranslateFunction) {
           savedListRef.current = newList
           setCurrentId(created.id)
           if (!name.trim()) setName(itemName)
-        } catch {}
+        } catch {
+          // A save failure doesn't interrupt the current connection; the list will be fetched again the next time it's opened.
+        }
       }
 
       setError('')

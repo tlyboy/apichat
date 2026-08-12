@@ -17,7 +17,7 @@ export function LocaleSwitcher() {
         <Button
           variant="ghost"
           size="icon"
-          className="text-muted-foreground hover:text-foreground size-8"
+          className="size-8 text-muted-foreground hover:text-foreground"
         >
           <Languages className="size-4" />
         </Button>

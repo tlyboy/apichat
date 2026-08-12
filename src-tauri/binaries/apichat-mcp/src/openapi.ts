@@ -1,6 +1,30 @@
 import YAML from 'yaml'
 import { getApis, createApi, type ApiItem } from './store'
 
+/** Any JSON value permitted by the spec: fields like example and default have no fixed shape. */
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue }
+
+/**
+ * Schema in OpenAPI. Declare only the fields this file actually reads and writes—the full set of
+ * JSON Schema keywords numbers in the hundreds, so listing them all is unnecessary and impractical to maintain; add missing ones as needed.
+ */
+interface JsonSchema {
+  type?: string
+  format?: string
+  description?: string
+  example?: JsonValue
+  default?: JsonValue
+  properties?: Record<string, JsonSchema>
+  items?: JsonSchema
+  required?: string[]
+}
+
 interface OpenAPISpec {
   openapi: string
   info: { title: string; version: string; description?: string }
@@ -14,15 +38,17 @@ interface OpenAPIOperation {
   description?: string
   parameters?: OpenAPIParameter[]
   requestBody?: {
-    content?: Record<string, { schema?: any; example?: any }>
+    content?: Record<string, { schema?: JsonSchema; example?: JsonValue }>
   }
+  /** Minimal response description added during export; this field previously escaped type checking via any. */
+  responses?: Record<string, { description: string }>
 }
 
 interface OpenAPIParameter {
   name: string
   in: 'query' | 'header' | 'path' | 'cookie'
   required?: boolean
-  schema?: { type?: string; default?: any }
+  schema?: { type?: string; default?: JsonValue }
   description?: string
 }
 
@@ -35,13 +61,16 @@ interface ImportOptions {
 
 import { parseHeadersString } from './store'
 
-function buildExampleFromSchema(schema: any, depth = 0): any {
+function buildExampleFromSchema(
+  schema: JsonSchema | undefined,
+  depth = 0,
+): JsonValue | undefined {
   if (!schema || depth > 5) return undefined
   if (schema.example !== undefined) return schema.example
 
   if (schema.type === 'object' && schema.properties) {
-    const obj: Record<string, any> = {}
-    for (const [key, prop] of Object.entries(schema.properties) as any[]) {
+    const obj: Record<string, JsonValue> = {}
+    for (const [key, prop] of Object.entries(schema.properties)) {
       const val = buildExampleFromSchema(prop, depth + 1)
       if (val !== undefined) {
         obj[key] = val
@@ -70,13 +99,13 @@ function defaultForType(type?: string): string {
   return ''
 }
 
-function describeSchemaFields(schema: any, prefix = ''): string[] {
+function describeSchemaFields(
+  schema: JsonSchema | undefined,
+  prefix = '',
+): string[] {
   const lines: string[] = []
   if (!schema?.properties) return lines
-  for (const [key, prop] of Object.entries(schema.properties) as [
-    string,
-    any,
-  ][]) {
+  for (const [key, prop] of Object.entries(schema.properties)) {
     const type = prop.type || 'any'
     const desc = prop.description || ''
     const req = schema.required?.includes(key) ? ', required' : ''
@@ -247,7 +276,7 @@ export function exportOpenAPI(): OpenAPISpec {
   const apis = getApis()
 
   // Group by base URL
-  const paths: Record<string, Record<string, any>> = {}
+  const paths: Record<string, Record<string, OpenAPIOperation>> = {}
   const servers = new Set<string>()
 
   for (const api of apis) {
@@ -265,12 +294,11 @@ export function exportOpenAPI(): OpenAPISpec {
       servers.add(baseUrl)
     } catch {
       pathname = url
-      baseUrl = ''
     }
 
     const method = api.method.toLowerCase()
 
-    const operation: any = {
+    const operation: OpenAPIOperation = {
       operationId:
         api.name
           .toLowerCase()
@@ -284,7 +312,7 @@ export function exportOpenAPI(): OpenAPISpec {
     }
 
     // Parameters
-    const parameters: any[] = []
+    const parameters: OpenAPIParameter[] = []
 
     // Path params from {param} in URL
     const pathParamMatches = pathname.match(/\{(\w+)\}/g)
@@ -317,7 +345,7 @@ export function exportOpenAPI(): OpenAPISpec {
     // Header params
     if (api.headers && api.headers !== '{}') {
       try {
-        const headersObj = JSON.parse(api.headers)
+        const headersObj: Record<string, unknown> = JSON.parse(api.headers)
         for (const [key, value] of Object.entries(headersObj)) {
           // Skip common headers
           if (['content-type', 'user-agent'].includes(key.toLowerCase()))
@@ -325,10 +353,16 @@ export function exportOpenAPI(): OpenAPISpec {
           parameters.push({
             name: key,
             in: 'header',
-            schema: { type: 'string', default: value || undefined },
+            schema: {
+              type: 'string',
+              // Header values come from user-provided JSON and can be any type; write them all to the spec as strings
+              default: value == null || value === '' ? undefined : String(value),
+            },
           })
         }
-      } catch {}
+      } catch {
+        // If parsing headers fails, skip adding these parameters without affecting the other fields
+      }
     }
 
     if (parameters.length > 0) {

@@ -106,7 +106,7 @@ export function KeyValueEditor({
           <Button
             variant="ghost"
             size="icon"
-            className="text-muted-foreground hover:text-destructive size-7"
+            className="size-7 text-muted-foreground hover:text-destructive"
             onClick={() => handleRemove(index)}
             disabled={
               disabled ||

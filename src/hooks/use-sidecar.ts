@@ -43,6 +43,13 @@ export function useSidecar() {
   }
 
   useEffect(() => {
+    /*
+     * Updating state in an effect is indeed necessary here, but this isn't the anti-pattern of "using an effect to synchronize derived state":
+     * start() starts a sidecar subprocess — acquiring an external resource and killing it in cleanup is
+     * exactly what an effect is for. running reflects the actual state of this external resource, so only it can update it.
+     * Also, setRunning is called only after await spawn() or in the failure branch, not as part of a synchronous cascading render.
+     */
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     start()
     return () => {
       childRef.current?.kill()

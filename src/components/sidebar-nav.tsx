@@ -34,9 +34,9 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
   const t = useTranslations()
 
   return (
-    <div className="bg-sidebar flex w-12 flex-col items-center justify-between border-r py-3">
+    <div className="flex w-12 flex-col items-center justify-between border-r bg-sidebar py-3">
       <div className="flex flex-col items-center gap-1">
-        <div className="text-foreground mb-2 flex size-8 items-center justify-center text-base font-bold">
+        <div className="mb-2 flex size-8 items-center justify-center text-base font-bold text-foreground">
           A
         </div>
         <Separator className="mb-1 w-6" />
@@ -68,7 +68,7 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
               asChild
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground size-8"
+              className="size-8 text-muted-foreground hover:text-foreground"
             >
               <a
                 href="https://github.com/tlyboy/apichat"

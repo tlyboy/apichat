@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import request from '@/utils/request'
 import { parseHeadersString } from '@/lib/utils'
 import { addHistoryRecord } from '@/utils/history'
@@ -40,12 +40,40 @@ export function useHttpClient(t: TranslateFunction) {
   const [apis, setApis] = useState<ApiItem[]>([])
   const [currentId, setCurrentId] = useState<string | null>(null)
 
+  const [searchKeyword, setSearchKeyword] = useState('')
+  const [filterMethod, setFilterMethod] = useState<'ALL' | HttpMethod>('ALL')
+  const [activeTab, setActiveTab] = useState<ActiveTab>('description')
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [apiName, setApiName] = useState('')
+  const [apiDescription, setApiDescription] = useState('')
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  /*
+   * Moved resetForm here: it was originally declared below the file but referenced by the refreshApis above,
+   * which React Compiler flags as "use before declaration." It only calls setters and has no other dependencies,
+   * so placing it after all useState calls is the most natural choice.
+   */
+  const resetForm = () => {
+    setUrl('')
+    setResponse('')
+    setError('')
+    setMethod('GET')
+    setParams([{ key: '', value: '', enabled: false }])
+    setJsonBody('')
+    setTextBody('')
+    setFormBody([{ key: '', value: '', enabled: false }])
+    setHeaders([...DEFAULT_HEADERS])
+    setApiName('')
+    setApiDescription('')
+    setActiveTab('description')
+    setHasUnsavedChanges(false)
+  }
+
   const refreshApis = () => {
     apiStore
       .list()
       .then((list) => {
         setApis(list)
-        apisRef.current = list
         // If the currently selected API was deleted externally, reset the form
         if (currentId && !list.find((a) => a.id === currentId)) {
           setCurrentId(null)
@@ -60,17 +88,10 @@ export function useHttpClient(t: TranslateFunction) {
     const handler = () => refreshApis()
     window.addEventListener('app-focus', handler)
     return () => window.removeEventListener('app-focus', handler)
+    // Install the listener only once on mount; refreshApis is a new function on every render,
+    // so adding it to the dependencies would repeatedly tear down and reinstall the listener.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const [filterMethod, setFilterMethod] = useState<'ALL' | HttpMethod>('ALL')
-  const [activeTab, setActiveTab] = useState<ActiveTab>('description')
-  const [copySuccess, setCopySuccess] = useState(false)
-  const [apiName, setApiName] = useState('')
-  const [apiDescription, setApiDescription] = useState('')
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-
-  const apisRef = useRef(apis)
-  apisRef.current = apis
 
   const showParams = ['GET', 'HEAD', 'OPTIONS'].includes(method)
 
@@ -218,7 +239,7 @@ export function useHttpClient(t: TranslateFunction) {
           formBody: state.formBody,
         }
         const updated = await apiStore.update(currentId, updates)
-        setApis(apisRef.current.map((a) => (a.id === currentId ? updated : a)))
+        setApis((prev) => prev.map((a) => (a.id === currentId ? updated : a)))
       } else {
         const created = await apiStore.create({
           name,
@@ -231,9 +252,7 @@ export function useHttpClient(t: TranslateFunction) {
           body: state.body,
           formBody: state.formBody,
         })
-        const newApis = [created, ...apisRef.current]
-        setApis(newApis)
-        apisRef.current = newApis
+        setApis((prev) => [created, ...prev])
         setCurrentId(created.id)
       }
       setHasUnsavedChanges(false)
@@ -291,7 +310,9 @@ export function useHttpClient(t: TranslateFunction) {
         if (config.defaultHeaders) {
           globalHeaders = parseHeadersString(config.defaultHeaders)
         }
-      } catch {}
+      } catch {
+        // If the config can't be read, use empty global defaults and send the request as usual
+      }
 
       // Build URL: if relative path and base URL exists, combine them
       let rawUrl = url.trim()
@@ -409,9 +430,7 @@ export function useHttpClient(t: TranslateFunction) {
   }
 
   const deleteApi = async (id: string) => {
-    const newApis = apis.filter((item) => item.id !== id)
-    setApis(newApis)
-    apisRef.current = newApis
+    setApis((prev) => prev.filter((item) => item.id !== id))
     apiStore.delete(id).catch(console.error)
 
     if (currentId === id) {
@@ -422,26 +441,9 @@ export function useHttpClient(t: TranslateFunction) {
 
   const clearAllApis = async () => {
     setApis([])
-    apisRef.current = []
     apiStore.clear().catch(console.error)
     setCurrentId(null)
     resetForm()
-  }
-
-  const resetForm = () => {
-    setUrl('')
-    setResponse('')
-    setError('')
-    setMethod('GET')
-    setParams([{ key: '', value: '', enabled: false }])
-    setJsonBody('')
-    setTextBody('')
-    setFormBody([{ key: '', value: '', enabled: false }])
-    setHeaders([...DEFAULT_HEADERS])
-    setApiName('')
-    setApiDescription('')
-    setActiveTab('description')
-    setHasUnsavedChanges(false)
   }
 
   const createNewApi = () => {

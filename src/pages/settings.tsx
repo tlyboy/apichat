@@ -112,7 +112,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
             </h2>
             <div className="space-y-4">
               <div>
-                <label className="text-muted-foreground mb-1 block text-xs">
+                <label className="mb-1 block text-xs text-muted-foreground">
                   {t('settings.baseUrl')}
                 </label>
                 <Input
@@ -124,13 +124,13 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                   autoCorrect="off"
                   spellCheck={false}
                 />
-                <p className="text-muted-foreground mt-1 text-xs">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {t('settings.baseUrlDesc')}
                 </p>
               </div>
 
               <div>
-                <label className="text-muted-foreground mb-1 block text-xs">
+                <label className="mb-1 block text-xs text-muted-foreground">
                   {t('settings.defaultHeaders')}
                 </label>
                 <Textarea
@@ -139,7 +139,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                   placeholder={t('settings.defaultHeadersPlaceholder')}
                   spellCheck={false}
                 />
-                <p className="text-muted-foreground mt-1 text-xs">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {t('settings.defaultHeadersDesc')}
                 </p>
               </div>
@@ -167,7 +167,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-muted-foreground text-sm">
+                  <span className="text-sm text-muted-foreground">
                     {t('settings.sidecarStatus')}
                   </span>
                   <Badge
@@ -198,7 +198,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                   {t('settings.sidecarRestart')}
                 </Button>
               </div>
-              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>{t('settings.sidecarPort')}: 45677</span>
               </div>
             </div>
@@ -212,7 +212,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
               {t('settings.update')}
             </h2>
             <div className="flex items-center justify-between">
-              <div className="text-muted-foreground text-sm">
+              <div className="text-sm text-muted-foreground">
                 {t('settings.currentVersion')}: v{__APP_VERSION__}
               </div>
               <Button
@@ -267,13 +267,13 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
           {/* MCP Config */}
           <section>
             <h2 className="mb-2 text-sm font-semibold">{t('settings.mcp')}</h2>
-            <p className="text-muted-foreground mb-3 text-xs">
+            <p className="mb-3 text-xs text-muted-foreground">
               {t('settings.mcpDesc')}
             </p>
             <div className="space-y-4">
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-muted-foreground text-xs font-medium">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Claude Code (.mcp.json)
                   </span>
                   <Button
@@ -295,13 +295,13 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                     )}
                   </Button>
                 </div>
-                <pre className="bg-muted overflow-x-auto rounded-md border p-3 text-xs">
+                <pre className="overflow-x-auto rounded-md border bg-muted p-3 text-xs">
                   {claudeConfig}
                 </pre>
               </div>
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-muted-foreground text-xs font-medium">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Codex (.codex/config.toml)
                   </span>
                   <Button
@@ -323,7 +323,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                     )}
                   </Button>
                 </div>
-                <pre className="bg-muted overflow-x-auto rounded-md border p-3 text-xs">
+                <pre className="overflow-x-auto rounded-md border bg-muted p-3 text-xs">
                   {codexConfig}
                 </pre>
               </div>

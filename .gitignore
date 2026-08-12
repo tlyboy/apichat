@@ -27,3 +27,8 @@ dist-ssr
 # Environment
 .env
 src-tauri/.env
+
+# tsc --build 的产物
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

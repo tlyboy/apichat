@@ -89,7 +89,9 @@ async function executeApi(
   if (api.headers) {
     try {
       Object.assign(headers, JSON.parse(api.headers))
-    } catch {}
+    } catch {
+      // headers is free-form text entered by the user. If it can't be parsed, treat it as unconfigured; it shouldn't interrupt the request.
+    }
   }
 
   const init: RequestInit = { method: api.method, headers }
@@ -122,7 +124,9 @@ async function executeApi(
         if (!headers['Content-Type'] && !headers['content-type']) {
           headers['Content-Type'] = 'application/x-www-form-urlencoded'
         }
-      } catch {}
+      } catch {
+        // If the free-form text entered by the user can't be parsed, skip it; it shouldn't interrupt the request.
+      }
     }
   }
 
