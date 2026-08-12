@@ -3,19 +3,13 @@ import { flushSync } from 'react-dom'
 import { Button } from './ui/button'
 
 export function ModeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
 
   function toggleDark(event: React.MouseEvent<HTMLButtonElement>) {
     const isAppearanceTransition =
       typeof document.startViewTransition === 'function' &&
       !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    const resolvedTheme =
-      theme === 'system'
-        ? window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light'
-        : theme
     const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark'
 
     if (!isAppearanceTransition) {
