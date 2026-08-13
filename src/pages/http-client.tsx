@@ -9,6 +9,7 @@ import {
   Save,
   Import,
   Download,
+  ArrowDownUp,
 } from 'lucide-react'
 import { useHttpClient } from '@/hooks/use-http-client'
 import { KeyValueEditor } from '@/components/key-value-editor'
@@ -136,7 +137,9 @@ export function HttpClient() {
           const text = await file.text()
           const result = await openapiStore.import(text)
           refreshApis()
-          toast.success(`${t('http.importSuccess')}: ${result.imported} APIs`)
+          // importSuccess 是 "成功导入 {count} 个接口"，得把 count 传进去；
+          // 原来直接取模板再拼个英文 "APIs"，占位符根本没被替换
+          toast.success(t('http.importSuccess', { count: result.imported }))
         } catch (err) {
           // 原来失败只往 console 写，界面上毫无反应，跟「点了没用」分不出来
           console.error('Import failed:', err)
@@ -145,6 +148,31 @@ export function HttpClient() {
       })()
     }
     input.click()
+  }
+
+  /**
+   * 导出成文件。两个导出项原本各写一遍同样的 blob 流程，且都没有 .catch()——
+   * 失败会变成未处理的 Promise rejection，界面上也毫无反应。
+   */
+  const downloadFile = async (
+    filename: string,
+    type: string,
+    produce: () => Promise<string>,
+  ) => {
+    try {
+      const content = await produce()
+      const url = URL.createObjectURL(new Blob([content], { type }))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      a.click()
+      // 下次事件循环再撤销：紧跟着 click() 撤销的话，下载还没接手就没了
+      setTimeout(() => URL.revokeObjectURL(url), 0)
+      toast.success(t('http.exportSuccess', { filename }))
+    } catch (err) {
+      console.error('Export failed:', err)
+      toast.error(err instanceof Error ? err.message : String(err))
+    }
   }
 
   return (
@@ -290,8 +318,9 @@ export function HttpClient() {
                     variant="ghost"
                     className="px-1.5 text-xs text-muted-foreground"
                   >
-                    <Import className="mr-1 size-3" />
-                    {t('http.import')}
+                    {/* 菜单里同时有导入和导出，触发器不能只说「导入」 */}
+                    <ArrowDownUp className="mr-1 size-3" />
+                    {t('http.importExport')}
                   </Button>
                 </DropdownMenuTrigger>
                 {/*
@@ -305,37 +334,30 @@ export function HttpClient() {
                     {t('http.importOpenApi')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() =>
-                      openapiStore.exportJson().then((spec) => {
-                        const blob = new Blob([JSON.stringify(spec, null, 2)], {
-                          type: 'application/json',
-                        })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = 'apichat-openapi.json'
-                        a.click()
-                        URL.revokeObjectURL(url)
-                      })
-                    }
+                    onClick={() => {
+                      void downloadFile(
+                        'apichat-openapi.json',
+                        'application/json',
+                        async () =>
+                          JSON.stringify(
+                            await openapiStore.exportJson(),
+                            null,
+                            2,
+                          ),
+                      )
+                    }}
                   >
                     <Download className="mr-2 size-4" />
                     {t('http.exportJson')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() =>
-                      openapiStore.exportYaml().then((yaml) => {
-                        const blob = new Blob([yaml], {
-                          type: 'text/yaml',
-                        })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = 'apichat-openapi.yaml'
-                        a.click()
-                        URL.revokeObjectURL(url)
-                      })
-                    }
+                    onClick={() => {
+                      void downloadFile(
+                        'apichat-openapi.yaml',
+                        'text/yaml',
+                        () => openapiStore.exportYaml(),
+                      )
+                    }}
                   >
                     <Download className="mr-2 size-4" />
                     {t('http.exportYaml')}
