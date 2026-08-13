@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarNav, type Page } from '@/components/sidebar-nav'
+import { Toaster } from '@/components/ui/sonner'
 
 interface DefaultProps {
   activePage: Page
@@ -14,6 +15,8 @@ function Default({ activePage, onNavigate, children }: DefaultProps) {
         <SidebarNav activePage={activePage} onNavigate={onNavigate} />
         <div className="flex-1 overflow-hidden">{children}</div>
       </div>
+      {/* Place inside ThemeProvider: Toaster needs useTheme to follow the light and dark themes */}
+      <Toaster position="top-center" />
     </ThemeProvider>
   )
 }

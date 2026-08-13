@@ -13,6 +13,7 @@ import {
 import { useHttpClient } from '@/hooks/use-http-client'
 import { KeyValueEditor } from '@/components/key-value-editor'
 import { CodeEditor } from '@/components/code-editor'
+import { toast } from 'sonner'
 import { openapi as openapiStore } from '@/utils/store'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -113,50 +114,37 @@ export function HttpClient() {
     { value: 'text', labelKey: 'http.text' },
   ]
 
-  /*
-   * showOpenFilePicker is part of the File System Access API, which isn't yet included in TypeScript's built-in DOM
-   * type library, so we need to declare it ourselves. We only specify the signature we actually use here,
-   * which is much more precise than `(window as any)` — at least the return types of getFile / text are typed.
-   */
-  type FilePickerOptions = {
-    types?: { description: string; accept: Record<string, string[]> }[]
-  }
-  const pickOpenApiFile = (
-    options: FilePickerOptions,
-  ): Promise<FileSystemFileHandle[]> => {
-    const picker = (
-      window as unknown as {
-        showOpenFilePicker?: (
-          o: FilePickerOptions,
-        ) => Promise<FileSystemFileHandle[]>
-      }
-    ).showOpenFilePicker
-    if (!picker) throw new Error('showOpenFilePicker is not available')
-    return picker(options)
-  }
-
-  const handleImportOpenAPI = async () => {
-    try {
-      const [fileHandle] = await pickOpenApiFile({
-        types: [
-          {
-            description: 'OpenAPI Spec',
-            accept: {
-              'application/json': ['.json'],
-              'text/yaml': ['.yaml', '.yml'],
-            },
-          },
-        ],
-      })
-      const file = await fileHandle.getFile()
-      const text = await file.text()
-      const result = await openapiStore.import(text)
-      refreshApis()
-      alert(`${t('http.importSuccess')}: ${result.imported} APIs`)
-    } catch (err) {
-      if ((err as Error).name === 'AbortError') return
-      console.error('Import failed:', err)
+  const handleImportOpenAPI = () => {
+    /*
+     * Use <input type="file"> instead of showOpenFilePicker. The latter belongs to the File System
+     * Access API, which is implemented only in Chromium; packaged apps run in WKWebView on macOS and
+     * WebKitGTK on Linux, neither of which has this API. So the picker is undefined, and its error is
+     * swallowed by catch, making it look like "nothing happens when clicked." It works only when opening Chrome with `pnpm dev`,
+     * so this issue can't be caught by testing in a browser.
+     *
+     * input uses the standard <input> file picker, which all webviews support, and there's no need to add
+     * Tauri's dialog / fs plugins for this.
+     */
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json,.yaml,.yml,application/json,text/yaml'
+    input.onchange = () => {
+      const file = input.files?.[0]
+      if (!file) return
+      void (async () => {
+        try {
+          const text = await file.text()
+          const result = await openapiStore.import(text)
+          refreshApis()
+          toast.success(`${t('http.importSuccess')}: ${result.imported} APIs`)
+        } catch (err) {
+          // Originally, failures were only written to the console, with no response in the UI, making it indistinguishable from "nothing happens when clicked"
+          console.error('Import failed:', err)
+          toast.error(err instanceof Error ? err.message : String(err))
+        }
+      })()
     }
+    input.click()
   }
 
   return (
