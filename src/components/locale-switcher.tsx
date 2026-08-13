@@ -22,7 +22,7 @@ export function LocaleSwitcher() {
           <Languages className="size-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-auto">
         {LOCALES.map((l) => (
           <DropdownMenuItem
             key={l.value}

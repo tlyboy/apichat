@@ -2,6 +2,7 @@ import { Globe, Plug, History, Settings } from 'lucide-react'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { siGithub } from 'simple-icons'
 import { SimpleIcon } from '@/components/simple-icon'
+import { LogoMark } from '@/components/logo-mark'
 import { ModeToggle } from '@/components/mode-toggle'
 import { LocaleSwitcher } from '@/components/locale-switcher'
 import { Button } from '@/components/ui/button'
@@ -37,8 +38,8 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
   return (
     <div className="flex w-12 flex-col items-center justify-between border-r bg-sidebar py-3">
       <div className="flex flex-col items-center gap-1">
-        <div className="mb-2 flex size-8 items-center justify-center text-base font-bold text-foreground">
-          A
+        <div className="mb-2 flex size-8 items-center justify-center">
+          <LogoMark className="size-5 text-primary" />
         </div>
         <Separator className="mb-1 w-6" />
         {navItems.map(({ page, labelKey, icon: Icon }) => (

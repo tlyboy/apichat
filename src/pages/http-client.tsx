@@ -306,7 +306,12 @@ export function HttpClient() {
                     {t('http.import')}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                {/*
+                  w-auto 覆盖组件默认的 w-(--radix-dropdown-menu-trigger-width)：
+                  那个宽度锁成触发器宽度，适合 select 型下拉；这里触发器是个窄按钮，
+                  锁上之后「导入 OpenAPI」这类长文案会被挤到换行。
+                */}
+                <DropdownMenuContent align="start" className="w-auto">
                   <DropdownMenuItem onClick={handleImportOpenAPI}>
                     <Import className="mr-2 size-4" />
                     {t('http.importOpenApi')}
