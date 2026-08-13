@@ -144,7 +144,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                 </p>
               </div>
 
-              <Button size="sm" onClick={handleSave}>
+              <Button onClick={handleSave}>
                 {saved ? (
                   <>
                     <Check className="mr-1 size-4" />
@@ -188,7 +188,6 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                 </div>
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={sidecar.restart}
                   disabled={sidecar.restarting}
                 >
@@ -217,7 +216,6 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
               </div>
               <Button
                 variant="outline"
-                size="sm"
                 onClick={
                   updateStatus === 'ready'
                     ? () => location.reload()
@@ -278,8 +276,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                   </span>
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="h-6 text-xs"
+                    className="text-xs"
                     onClick={() => handleCopyMcp('claude')}
                   >
                     {mcpCopied === 'claude' ? (
@@ -306,8 +303,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                   </span>
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="h-6 text-xs"
+                    className="text-xs"
                     onClick={() => handleCopyMcp('codex')}
                   >
                     {mcpCopied === 'codex' ? (

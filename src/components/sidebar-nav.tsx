@@ -1,4 +1,5 @@
 import { Globe, Plug, History, Settings } from 'lucide-react'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { siGithub } from 'simple-icons'
 import { SimpleIcon } from '@/components/simple-icon'
 import { ModeToggle } from '@/components/mode-toggle'
@@ -64,19 +65,22 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
       <div className="flex flex-col items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
+            {/*
+              Use the opener plugin instead of <a target="_blank">: in Tauri, the latter is intercepted and handled by the
+              shell plugin, which calls shell.open. But capabilities only grant
+              shell spawn/kill (for the sidecar), not allow-open, so clicking does nothing and
+              the console throws "shell.open not allowed". opener:default already includes
+              allow-open-url, so just call it explicitly.
+            */}
             <Button
-              asChild
               variant="ghost"
               size="icon"
               className="size-8 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                void openUrl('https://github.com/tlyboy/apichat')
+              }}
             >
-              <a
-                href="https://github.com/tlyboy/apichat"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <SimpleIcon icon={siGithub} className="size-4" />
-              </a>
+              <SimpleIcon icon={siGithub} className="size-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">{t('nav.github')}</TooltipContent>

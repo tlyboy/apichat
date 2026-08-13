@@ -180,7 +180,7 @@ export function HistoryPage() {
               value={filterMethod}
               onValueChange={(v) => setFilterMethod(v as 'ALL' | HttpMethod)}
             >
-              <SelectTrigger size="sm" className="mb-2 w-full text-xs">
+              <SelectTrigger className="mb-2 w-full text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -245,14 +245,13 @@ export function HistoryPage() {
                       </p>
                       <div className="flex justify-end gap-2">
                         <PopoverClose asChild>
-                          <Button variant="outline" size="sm" className="h-7">
+                          <Button variant="outline">
                             {t('common.cancel')}
                           </Button>
                         </PopoverClose>
                         <Button
                           variant="destructive"
-                          size="sm"
-                          className="h-7"
+
                           onClick={() => {
                             deleteHistoryRecord(record.id)
                             if (selectedId === record.id) setSelectedId(null)
@@ -285,7 +284,6 @@ export function HistoryPage() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
                     className="w-full text-xs text-muted-foreground hover:text-destructive"
                   >
                     {t('history.clearAll')}
@@ -295,14 +293,11 @@ export function HistoryPage() {
                   <p className="mb-2 text-sm">{t('history.confirmClear')}</p>
                   <div className="flex justify-end gap-2">
                     <PopoverClose asChild>
-                      <Button variant="outline" size="sm" className="h-7">
-                        {t('common.cancel')}
-                      </Button>
+                      <Button variant="outline">{t('common.cancel')}</Button>
                     </PopoverClose>
                     <Button
                       variant="destructive"
-                      size="sm"
-                      className="h-7"
+
                       onClick={() => {
                         clearHistoryRecords()
                         setSelectedId(null)

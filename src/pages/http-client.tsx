@@ -202,7 +202,7 @@ export function HttpClient() {
         <div className="flex flex-1 flex-col">
           <div className="flex items-center px-4 py-1.5">
             <input
-              className="h-7 flex-1 bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
+              className="flex-1 bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
               value={apiName}
               onChange={(e) => setApiName(e.target.value)}
               placeholder={t('http.apiNamePlaceholder')}
@@ -218,7 +218,6 @@ export function HttpClient() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  size="sm"
                   variant="ghost"
                   className="size-7"
                   onClick={saveApi}
@@ -236,7 +235,7 @@ export function HttpClient() {
               onValueChange={(v) => setMethod(v as HttpMethod)}
               disabled={loading}
             >
-              <SelectTrigger className="w-[110px]" size="sm">
+              <SelectTrigger className="w-[110px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -261,11 +260,7 @@ export function HttpClient() {
               spellCheck={false}
             />
 
-            <Button
-              size="sm"
-              onClick={handleSend}
-              disabled={loading || !url.trim()}
-            >
+            <Button onClick={handleSend} disabled={loading || !url.trim()}>
               {loading ? t('http.sending') : t('http.send')}
               {loading ? (
                 <Clock className="ml-1 size-4" />
@@ -285,7 +280,7 @@ export function HttpClient() {
               value={filterMethod}
               onValueChange={(v) => setFilterMethod(v as 'ALL' | HttpMethod)}
             >
-              <SelectTrigger size="sm" className="mb-2 w-full text-xs">
+              <SelectTrigger className="mb-2 w-full text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -305,8 +300,7 @@ export function HttpClient() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-6 px-1.5 text-xs text-muted-foreground"
+                    className="px-1.5 text-xs text-muted-foreground"
                   >
                     <Import className="mr-1 size-3" />
                     {t('http.import')}
@@ -396,14 +390,13 @@ export function HttpClient() {
                       </p>
                       <div className="flex justify-end gap-2">
                         <PopoverClose asChild>
-                          <Button variant="outline" size="sm" className="h-7">
+                          <Button variant="outline">
                             {t('common.cancel')}
                           </Button>
                         </PopoverClose>
                         <Button
                           variant="destructive"
-                          size="sm"
-                          className="h-7"
+
                           onClick={() => deleteApi(item.id)}
                         >
                           {t('common.confirm')}
@@ -433,7 +426,6 @@ export function HttpClient() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
                     className="w-full text-xs text-muted-foreground hover:text-destructive"
                   >
                     {t('http.clearAllApis')}
@@ -443,14 +435,11 @@ export function HttpClient() {
                   <p className="mb-2 text-sm">{t('common.confirmClearApis')}</p>
                   <div className="flex justify-end gap-2">
                     <PopoverClose asChild>
-                      <Button variant="outline" size="sm" className="h-7">
-                        {t('common.cancel')}
-                      </Button>
+                      <Button variant="outline">{t('common.cancel')}</Button>
                     </PopoverClose>
                     <Button
                       variant="destructive"
-                      size="sm"
-                      className="h-7"
+
                       onClick={clearAllApis}
                     >
                       {t('common.confirm')}
@@ -508,7 +497,6 @@ export function HttpClient() {
                   <div className="flex gap-2">
                     <Button
                       variant="link"
-                      size="sm"
                       className="h-auto p-0 text-xs"
                       onClick={() =>
                         setParams([
@@ -524,7 +512,6 @@ export function HttpClient() {
                     </Button>
                     <Button
                       variant="link"
-                      size="sm"
                       className="h-auto p-0 text-xs text-muted-foreground"
                       onClick={() =>
                         setParams([{ key: '', value: '', enabled: false }])
@@ -555,8 +542,7 @@ export function HttpClient() {
                         variant={
                           bodyType === type.value ? 'default' : 'outline'
                         }
-                        size="sm"
-                        className="h-7 rounded-full px-3 text-xs"
+                        className="rounded-full px-3 text-xs"
                         onClick={() => setBodyType(type.value)}
                       >
                         {t(type.labelKey)}
@@ -567,7 +553,6 @@ export function HttpClient() {
                     {bodyType === 'json' && (
                       <Button
                         variant="link"
-                        size="sm"
                         className="h-auto p-0 text-xs"
                         onClick={() =>
                           setJsonBody(
@@ -587,7 +572,6 @@ export function HttpClient() {
                       <>
                         <Button
                           variant="link"
-                          size="sm"
                           className="h-auto p-0 text-xs"
                           onClick={() =>
                             setFormBody([
@@ -603,7 +587,6 @@ export function HttpClient() {
                         </Button>
                         <Button
                           variant="link"
-                          size="sm"
                           className="h-auto p-0 text-xs text-muted-foreground"
                           onClick={() =>
                             setFormBody([
@@ -619,7 +602,6 @@ export function HttpClient() {
                     {bodyType === 'text' && (
                       <Button
                         variant="link"
-                        size="sm"
                         className="h-auto p-0 text-xs"
                         onClick={() => setTextBody('hello world')}
                         disabled={loading}
@@ -665,7 +647,6 @@ export function HttpClient() {
                   </div>
                   <Button
                     variant="link"
-                    size="sm"
                     className="h-auto p-0 text-xs text-muted-foreground"
                     onClick={() =>
                       setHeaders([
@@ -710,7 +691,6 @@ export function HttpClient() {
                   <div className="flex gap-2">
                     <Button
                       variant="link"
-                      size="sm"
                       className="h-auto p-0 text-xs"
                       onClick={copyRequest}
                       disabled={copySuccess}
@@ -720,7 +700,6 @@ export function HttpClient() {
                     </Button>
                     <Button
                       variant="link"
-                      size="sm"
                       className="h-auto p-0 text-xs"
                       onClick={copyResponse}
                       disabled={copySuccess}

@@ -91,7 +91,7 @@ export function KeyValueEditor({
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}
-            className="h-7 flex-1 text-xs"
+            className="flex-1 text-xs"
           />
           <Input
             value={item.value}
@@ -101,7 +101,7 @@ export function KeyValueEditor({
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}
-            className="h-7 flex-1 text-xs"
+            className="flex-1 text-xs"
           />
           <Button
             variant="ghost"
