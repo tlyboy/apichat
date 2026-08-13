@@ -9,6 +9,7 @@ import {
   Save,
   Import,
   Download,
+  ArrowDownUp,
 } from 'lucide-react'
 import { useHttpClient } from '@/hooks/use-http-client'
 import { KeyValueEditor } from '@/components/key-value-editor'
@@ -136,7 +137,9 @@ export function HttpClient() {
           const text = await file.text()
           const result = await openapiStore.import(text)
           refreshApis()
-          toast.success(`${t('http.importSuccess')}: ${result.imported} APIs`)
+          // importSuccess is "Successfully imported {count} APIs", so count must be passed in;
+          // the original code just fetched the template and appended the English "APIs", leaving the placeholder unreplaced
+          toast.success(t('http.importSuccess', { count: result.imported }))
         } catch (err) {
           // Originally, failures were only written to the console, with no response in the UI, making it indistinguishable from "nothing happens when clicked"
           console.error('Import failed:', err)
@@ -145,6 +148,31 @@ export function HttpClient() {
       })()
     }
     input.click()
+  }
+
+  /**
+   * Export to a file. The two export items originally duplicated the same blob flow, and neither had a .catch() —
+   * failures became unhandled Promise rejections, with no response in the UI.
+   */
+  const downloadFile = async (
+    filename: string,
+    type: string,
+    produce: () => Promise<string>,
+  ) => {
+    try {
+      const content = await produce()
+      const url = URL.createObjectURL(new Blob([content], { type }))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      a.click()
+      // Revoke it on the next event loop tick: revoking immediately after click() removes it before the download can take over
+      setTimeout(() => URL.revokeObjectURL(url), 0)
+      toast.success(t('http.exportSuccess', { filename }))
+    } catch (err) {
+      console.error('Export failed:', err)
+      toast.error(err instanceof Error ? err.message : String(err))
+    }
   }
 
   return (
@@ -290,8 +318,9 @@ export function HttpClient() {
                     variant="ghost"
                     className="px-1.5 text-xs text-muted-foreground"
                   >
-                    <Import className="mr-1 size-3" />
-                    {t('http.import')}
+                    {/* The menu includes both import and export, so the trigger can't just say "Import" */}
+                    <ArrowDownUp className="mr-1 size-3" />
+                    {t('http.importExport')}
                   </Button>
                 </DropdownMenuTrigger>
                 {/*
@@ -305,37 +334,30 @@ export function HttpClient() {
                     {t('http.importOpenApi')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() =>
-                      openapiStore.exportJson().then((spec) => {
-                        const blob = new Blob([JSON.stringify(spec, null, 2)], {
-                          type: 'application/json',
-                        })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = 'apichat-openapi.json'
-                        a.click()
-                        URL.revokeObjectURL(url)
-                      })
-                    }
+                    onClick={() => {
+                      void downloadFile(
+                        'apichat-openapi.json',
+                        'application/json',
+                        async () =>
+                          JSON.stringify(
+                            await openapiStore.exportJson(),
+                            null,
+                            2,
+                          ),
+                      )
+                    }}
                   >
                     <Download className="mr-2 size-4" />
                     {t('http.exportJson')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() =>
-                      openapiStore.exportYaml().then((yaml) => {
-                        const blob = new Blob([yaml], {
-                          type: 'text/yaml',
-                        })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = 'apichat-openapi.yaml'
-                        a.click()
-                        URL.revokeObjectURL(url)
-                      })
-                    }
+                    onClick={() => {
+                      void downloadFile(
+                        'apichat-openapi.yaml',
+                        'text/yaml',
+                        () => openapiStore.exportYaml(),
+                      )
+                    }}
                   >
                     <Download className="mr-2 size-4" />
                     {t('http.exportYaml')}
