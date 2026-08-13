@@ -1,4 +1,5 @@
 import { Globe, Plug, History, Settings } from 'lucide-react'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { siGithub } from 'simple-icons'
 import { SimpleIcon } from '@/components/simple-icon'
 import { ModeToggle } from '@/components/mode-toggle'
@@ -64,19 +65,22 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
       <div className="flex flex-col items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
+            {/*
+              走 opener 插件而不是 <a target="_blank">：后者在 Tauri 里会被
+              shell 插件的链接拦截接管、去调 shell.open，而 capabilities 里只给了
+              shell 的 spawn/kill（sidecar 用），没给 allow-open，于是点了没反应、
+              控制台抛 "shell.open not allowed"。opener:default 本来就含
+              allow-open-url，显式调它即可。
+            */}
             <Button
-              asChild
               variant="ghost"
               size="icon"
               className="size-8 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                void openUrl('https://github.com/tlyboy/apichat')
+              }}
             >
-              <a
-                href="https://github.com/tlyboy/apichat"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <SimpleIcon icon={siGithub} className="size-4" />
-              </a>
+              <SimpleIcon icon={siGithub} className="size-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">{t('nav.github')}</TooltipContent>

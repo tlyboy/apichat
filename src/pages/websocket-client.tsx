@@ -106,7 +106,7 @@ export function WebSocketClientPage() {
         <div className="flex flex-1 flex-col">
           <div className="flex items-center px-4 py-1.5">
             <input
-              className="h-7 flex-1 bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
+              className="flex-1 bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
               value={ws.name}
               onChange={(e) => ws.setName(e.target.value)}
               placeholder={t('ws.namePlaceholder')}
@@ -122,7 +122,6 @@ export function WebSocketClientPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  size="sm"
                   variant="ghost"
                   className="size-7"
                   onClick={ws.saveItem}
@@ -162,7 +161,6 @@ export function WebSocketClientPage() {
 
             {ws.status === 'connected' ? (
               <Button
-                size="sm"
                 variant="destructive"
                 onClick={ws.handleDisconnect}
                 disabled={ws.loading}
@@ -172,7 +170,6 @@ export function WebSocketClientPage() {
               </Button>
             ) : (
               <Button
-                size="sm"
                 onClick={ws.handleConnect}
                 disabled={ws.loading || !ws.url.trim()}
               >
@@ -225,14 +222,13 @@ export function WebSocketClientPage() {
                       </p>
                       <div className="flex justify-end gap-2">
                         <PopoverClose asChild>
-                          <Button variant="outline" size="sm" className="h-7">
+                          <Button variant="outline">
                             {t('common.cancel')}
                           </Button>
                         </PopoverClose>
                         <Button
                           variant="destructive"
-                          size="sm"
-                          className="h-7"
+
                           onClick={() => ws.deleteItem(item.id)}
                         >
                           {t('common.confirm')}
@@ -260,7 +256,6 @@ export function WebSocketClientPage() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
                     className="w-full text-xs text-muted-foreground hover:text-destructive"
                   >
                     {t('ws.clearAllTabs')}
@@ -270,14 +265,11 @@ export function WebSocketClientPage() {
                   <p className="mb-2 text-sm">{t('common.confirmClearTabs')}</p>
                   <div className="flex justify-end gap-2">
                     <PopoverClose asChild>
-                      <Button variant="outline" size="sm" className="h-7">
-                        {t('common.cancel')}
-                      </Button>
+                      <Button variant="outline">{t('common.cancel')}</Button>
                     </PopoverClose>
                     <Button
                       variant="destructive"
-                      size="sm"
-                      className="h-7"
+
                       onClick={ws.clearAll}
                     >
                       {t('common.confirm')}
@@ -390,7 +382,6 @@ export function WebSocketClientPage() {
                 {ws.messages.length > 0 && (
                   <Button
                     variant="ghost"
-                    size="sm"
                     className="h-8 text-xs text-muted-foreground"
                     onClick={ws.clearMessages}
                   >
@@ -398,7 +389,6 @@ export function WebSocketClientPage() {
                   </Button>
                 )}
                 <Button
-                  size="sm"
                   onClick={ws.handleSend}
                   disabled={
                     ws.status !== 'connected' || !ws.messageInput.trim()
@@ -474,18 +464,13 @@ export function WebSocketClientPage() {
                               </p>
                               <div className="flex justify-end gap-2">
                                 <PopoverClose asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-7"
-                                  >
+                                  <Button variant="outline">
                                     {t('common.cancel')}
                                   </Button>
                                 </PopoverClose>
                                 <Button
                                   variant="destructive"
-                                  size="sm"
-                                  className="h-7"
+
                                   onClick={() => ws.deleteSession(session.id)}
                                 >
                                   {t('common.confirm')}
@@ -500,7 +485,6 @@ export function WebSocketClientPage() {
                           <PopoverTrigger asChild>
                             <Button
                               variant="ghost"
-                              size="sm"
                               className="w-full text-xs text-muted-foreground hover:text-destructive"
                             >
                               {t('ws.clearSessions')}
@@ -512,18 +496,13 @@ export function WebSocketClientPage() {
                             </p>
                             <div className="flex justify-end gap-2">
                               <PopoverClose asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-7"
-                                >
+                                <Button variant="outline">
                                   {t('common.cancel')}
                                 </Button>
                               </PopoverClose>
                               <Button
                                 variant="destructive"
-                                size="sm"
-                                className="h-7"
+
                                 onClick={ws.clearSessions}
                               >
                                 {t('common.confirm')}
