@@ -306,7 +306,12 @@ export function HttpClient() {
                     {t('http.import')}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                {/*
+                  w-auto overrides the component's default w-(--radix-dropdown-menu-trigger-width):
+                  that width is locked to the trigger width, which works for select-style dropdowns; here the trigger is a narrow button,
+                  so locking it would wrap long labels like "Import OpenAPI".
+                */}
+                <DropdownMenuContent align="start" className="w-auto">
                   <DropdownMenuItem onClick={handleImportOpenAPI}>
                     <Import className="mr-2 size-4" />
                     {t('http.importOpenApi')}
