@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarNav, type Page } from '@/components/sidebar-nav'
+import { Toaster } from '@/components/ui/sonner'
 
 interface DefaultProps {
   activePage: Page
@@ -14,6 +15,8 @@ function Default({ activePage, onNavigate, children }: DefaultProps) {
         <SidebarNav activePage={activePage} onNavigate={onNavigate} />
         <div className="flex-1 overflow-hidden">{children}</div>
       </div>
+      {/* 放在 ThemeProvider 之内：Toaster 要读 useTheme 才能跟随深浅色 */}
+      <Toaster position="top-center" />
     </ThemeProvider>
   )
 }

@@ -13,6 +13,7 @@ import {
 import { useHttpClient } from '@/hooks/use-http-client'
 import { KeyValueEditor } from '@/components/key-value-editor'
 import { CodeEditor } from '@/components/code-editor'
+import { toast } from 'sonner'
 import { openapi as openapiStore } from '@/utils/store'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -113,50 +114,37 @@ export function HttpClient() {
     { value: 'text', labelKey: 'http.text' },
   ]
 
-  /*
-   * showOpenFilePicker 属于 File System Access API，TypeScript 的内置 DOM
-   * 类型库还没收录它，所以要自己声明。这里只写实际用到的那部分签名，
-   * 比 `(window as any)` 精确得多——至少 getFile / text 的返回值是有类型的。
-   */
-  type FilePickerOptions = {
-    types?: { description: string; accept: Record<string, string[]> }[]
-  }
-  const pickOpenApiFile = (
-    options: FilePickerOptions,
-  ): Promise<FileSystemFileHandle[]> => {
-    const picker = (
-      window as unknown as {
-        showOpenFilePicker?: (
-          o: FilePickerOptions,
-        ) => Promise<FileSystemFileHandle[]>
-      }
-    ).showOpenFilePicker
-    if (!picker) throw new Error('showOpenFilePicker is not available')
-    return picker(options)
-  }
-
-  const handleImportOpenAPI = async () => {
-    try {
-      const [fileHandle] = await pickOpenApiFile({
-        types: [
-          {
-            description: 'OpenAPI Spec',
-            accept: {
-              'application/json': ['.json'],
-              'text/yaml': ['.yaml', '.yml'],
-            },
-          },
-        ],
-      })
-      const file = await fileHandle.getFile()
-      const text = await file.text()
-      const result = await openapiStore.import(text)
-      refreshApis()
-      alert(`${t('http.importSuccess')}: ${result.imported} APIs`)
-    } catch (err) {
-      if ((err as Error).name === 'AbortError') return
-      console.error('Import failed:', err)
+  const handleImportOpenAPI = () => {
+    /*
+     * 用 <input type="file"> 而不是 showOpenFilePicker。后者属于 File System
+     * Access API，只有 Chromium 实现；打包后的应用在 macOS 上跑的是 WKWebView、
+     * Linux 上是 WebKitGTK，两者都没有这个 API，于是 picker 为 undefined、抛错被
+     * catch 吞掉，表现就是「点了没反应」。只有 `pnpm dev` 用 Chrome 打开时才正常，
+     * 所以这个坑在浏览器里测不出来。
+     *
+     * input 走的是标准的 <input> 文件选择，所有 webview 都支持，也不必为此引入
+     * tauri 的 dialog / fs 插件。
+     */
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.json,.yaml,.yml,application/json,text/yaml'
+    input.onchange = () => {
+      const file = input.files?.[0]
+      if (!file) return
+      void (async () => {
+        try {
+          const text = await file.text()
+          const result = await openapiStore.import(text)
+          refreshApis()
+          toast.success(`${t('http.importSuccess')}: ${result.imported} APIs`)
+        } catch (err) {
+          // 原来失败只往 console 写，界面上毫无反应，跟「点了没用」分不出来
+          console.error('Import failed:', err)
+          toast.error(err instanceof Error ? err.message : String(err))
+        }
+      })()
     }
+    input.click()
   }
 
   return (
