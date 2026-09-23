@@ -201,15 +201,17 @@ export function HttpClient() {
             )}
           </div>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                onClick={createNewApi}
-              >
-                <Plus className="size-4" />
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  onClick={createNewApi}
+                />
+              }
+            >
+              <Plus className="size-4" />
             </TooltipTrigger>
             <TooltipContent>{t('http.newRequest')}</TooltipContent>
           </Tooltip>
@@ -232,15 +234,17 @@ export function HttpClient() {
               </span>
             )}
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="size-7"
-                  onClick={saveApi}
-                  disabled={!apiName.trim() && !url.trim()}
-                >
-                  <Save className="size-3.5" />
-                </Button>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    className="size-7"
+                    onClick={saveApi}
+                    disabled={!apiName.trim() && !url.trim()}
+                  />
+                }
+              >
+                <Save className="size-3.5" />
               </TooltipTrigger>
               <TooltipContent>{t('http.save')}</TooltipContent>
             </Tooltip>
@@ -248,7 +252,7 @@ export function HttpClient() {
           <div className="flex items-center gap-2 px-4 py-1.5">
             <Select
               value={method}
-              onValueChange={(v) => setMethod(v as HttpMethod)}
+              onValueChange={(v) => v && setMethod(v as HttpMethod)}
               disabled={loading}
             >
               <SelectTrigger className="w-[110px]">
@@ -293,8 +297,14 @@ export function HttpClient() {
         <div className="flex w-64 flex-col border-r">
           <div className="p-2">
             <Select
+              items={[
+                { value: 'ALL', label: t('http.all') },
+                ...METHODS.map((m) => ({ value: m, label: m })),
+              ]}
               value={filterMethod}
-              onValueChange={(v) => setFilterMethod(v as 'ALL' | HttpMethod)}
+              onValueChange={(v) =>
+                v && setFilterMethod(v as 'ALL' | HttpMethod)
+              }
             >
               <SelectTrigger className="mb-2 w-full text-xs">
                 <SelectValue />
@@ -313,18 +323,20 @@ export function HttpClient() {
                 {t('http.apiCount', { count: filteredList.length })}
               </div>
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="px-1.5 text-xs text-muted-foreground"
-                  >
-                    {/* 菜单里同时有导入和导出，触发器不能只说「导入」 */}
-                    <ArrowDownUp className="mr-1 size-3" />
-                    {t('http.importExport')}
-                  </Button>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className="px-1.5 text-xs text-muted-foreground"
+                    />
+                  }
+                >
+                  {/* 菜单里同时有导入和导出，触发器不能只说「导入」 */}
+                  <ArrowDownUp className="mr-1 size-3" />
+                  {t('http.importExport')}
                 </DropdownMenuTrigger>
                 {/*
-                  w-auto 覆盖组件默认的 w-(--radix-dropdown-menu-trigger-width)：
+                  w-auto 覆盖组件默认的 w-(--anchor-width)：
                   那个宽度锁成触发器宽度，适合 select 型下拉；这里触发器是个窄按钮，
                   锁上之后「导入 OpenAPI」这类长文案会被挤到换行。
                 */}
@@ -389,25 +401,25 @@ export function HttpClient() {
                     {item.name}
                   </span>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2 className="size-3" />
-                      </Button>
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      }
+                    >
+                      <Trash2 className="size-3" />
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-3" side="right">
                       <p className="mb-2 text-sm">
                         {t('common.confirmDelete')}
                       </p>
                       <div className="flex justify-end gap-2">
-                        <PopoverClose asChild>
-                          <Button variant="outline">
-                            {t('common.cancel')}
-                          </Button>
+                        <PopoverClose render={<Button variant="outline" />}>
+                          {t('common.cancel')}
                         </PopoverClose>
                         <Button
                           variant="destructive"
@@ -438,19 +450,21 @@ export function HttpClient() {
           {apis.length > 0 && (
             <div className="border-t p-2">
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full text-xs text-muted-foreground hover:text-destructive"
-                  >
-                    {t('http.clearAllApis')}
-                  </Button>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className="w-full text-xs text-muted-foreground hover:text-destructive"
+                    />
+                  }
+                >
+                  {t('http.clearAllApis')}
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-3" side="top">
                   <p className="mb-2 text-sm">{t('common.confirmClearApis')}</p>
                   <div className="flex justify-end gap-2">
-                    <PopoverClose asChild>
-                      <Button variant="outline">{t('common.cancel')}</Button>
+                    <PopoverClose render={<Button variant="outline" />}>
+                      {t('common.cancel')}
                     </PopoverClose>
                     <Button
                       variant="destructive"

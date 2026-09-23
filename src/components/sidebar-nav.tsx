@@ -44,19 +44,21 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
         <Separator className="mb-1 w-6" />
         {navItems.map(({ page, labelKey, icon: Icon }) => (
           <Tooltip key={page}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`size-8 ${
-                  activePage === page
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                onClick={() => onNavigate(page)}
-              >
-                <Icon className="size-4" />
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`size-8 ${
+                    activePage === page
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => onNavigate(page)}
+                />
+              }
+            >
+              <Icon className="size-4" />
             </TooltipTrigger>
             <TooltipContent side="right">{t(labelKey)}</TooltipContent>
           </Tooltip>
@@ -65,24 +67,26 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
 
       <div className="flex flex-col items-center gap-1">
         <Tooltip>
-          <TooltipTrigger asChild>
-            {/*
+          {/*
               走 opener 插件而不是 <a target="_blank">：后者在 Tauri 里会被
               shell 插件的链接拦截接管、去调 shell.open，而 capabilities 里只给了
               shell 的 spawn/kill（sidecar 用），没给 allow-open，于是点了没反应、
               控制台抛 "shell.open not allowed"。opener:default 本来就含
               allow-open-url，显式调它即可。
             */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-muted-foreground hover:text-foreground"
-              onClick={() => {
-                void openUrl('https://github.com/tlyboy/apichat')
-              }}
-            >
-              <SimpleIcon icon={siGithub} className="size-4" />
-            </Button>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  void openUrl('https://github.com/tlyboy/apichat')
+                }}
+              />
+            }
+          >
+            <SimpleIcon icon={siGithub} className="size-4" />
           </TooltipTrigger>
           <TooltipContent side="right">{t('nav.github')}</TooltipContent>
         </Tooltip>
