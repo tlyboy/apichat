@@ -89,15 +89,17 @@ export function WebSocketClientPage() {
             )}
           </div>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                onClick={ws.createNew}
-              >
-                <Plus className="size-4" />
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  onClick={ws.createNew}
+                />
+              }
+            >
+              <Plus className="size-4" />
             </TooltipTrigger>
             <TooltipContent>{t('ws.newTab')}</TooltipContent>
           </Tooltip>
@@ -120,15 +122,17 @@ export function WebSocketClientPage() {
               </span>
             )}
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="size-7"
-                  onClick={ws.saveItem}
-                  disabled={!ws.name.trim() && !ws.url.trim()}
-                >
-                  <Save className="size-3.5" />
-                </Button>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    className="size-7"
+                    onClick={ws.saveItem}
+                    disabled={!ws.name.trim() && !ws.url.trim()}
+                  />
+                }
+              >
+                <Save className="size-3.5" />
               </TooltipTrigger>
               <TooltipContent>{t('http.save')}</TooltipContent>
             </Tooltip>
@@ -206,25 +210,25 @@ export function WebSocketClientPage() {
                     {item.name}
                   </span>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2 className="size-3" />
-                      </Button>
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      }
+                    >
+                      <Trash2 className="size-3" />
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-3" side="right">
                       <p className="mb-2 text-sm">
                         {t('common.confirmDelete')}
                       </p>
                       <div className="flex justify-end gap-2">
-                        <PopoverClose asChild>
-                          <Button variant="outline">
-                            {t('common.cancel')}
-                          </Button>
+                        <PopoverClose render={<Button variant="outline" />}>
+                          {t('common.cancel')}
                         </PopoverClose>
                         <Button
                           variant="destructive"
@@ -253,19 +257,21 @@ export function WebSocketClientPage() {
           {ws.savedList.length > 0 && (
             <div className="border-t p-2">
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full text-xs text-muted-foreground hover:text-destructive"
-                  >
-                    {t('ws.clearAllTabs')}
-                  </Button>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className="w-full text-xs text-muted-foreground hover:text-destructive"
+                    />
+                  }
+                >
+                  {t('ws.clearAllTabs')}
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-3" side="top">
                   <p className="mb-2 text-sm">{t('common.confirmClearTabs')}</p>
                   <div className="flex justify-end gap-2">
-                    <PopoverClose asChild>
-                      <Button variant="outline">{t('common.cancel')}</Button>
+                    <PopoverClose render={<Button variant="outline" />}>
+                      {t('common.cancel')}
                     </PopoverClose>
                     <Button
                       variant="destructive"
@@ -448,25 +454,27 @@ export function WebSocketClientPage() {
                             </div>
                           </div>
                           <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Trash2 className="size-3" />
-                              </Button>
+                            <PopoverTrigger
+                              render={
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              }
+                            >
+                              <Trash2 className="size-3" />
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-3" side="right">
                               <p className="mb-2 text-sm">
                                 {t('common.confirmDelete')}
                               </p>
                               <div className="flex justify-end gap-2">
-                                <PopoverClose asChild>
-                                  <Button variant="outline">
-                                    {t('common.cancel')}
-                                  </Button>
+                                <PopoverClose
+                                  render={<Button variant="outline" />}
+                                >
+                                  {t('common.cancel')}
                                 </PopoverClose>
                                 <Button
                                   variant="destructive"
@@ -482,23 +490,25 @@ export function WebSocketClientPage() {
                       ))}
                       <div className="border-t p-2">
                         <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="w-full text-xs text-muted-foreground hover:text-destructive"
-                            >
-                              {t('ws.clearSessions')}
-                            </Button>
+                          <PopoverTrigger
+                            render={
+                              <Button
+                                variant="ghost"
+                                className="w-full text-xs text-muted-foreground hover:text-destructive"
+                              />
+                            }
+                          >
+                            {t('ws.clearSessions')}
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-3" side="top">
                             <p className="mb-2 text-sm">
                               {t('ws.confirmClearSessions')}
                             </p>
                             <div className="flex justify-end gap-2">
-                              <PopoverClose asChild>
-                                <Button variant="outline">
-                                  {t('common.cancel')}
-                                </Button>
+                              <PopoverClose
+                                render={<Button variant="outline" />}
+                              >
+                                {t('common.cancel')}
                               </PopoverClose>
                               <Button
                                 variant="destructive"

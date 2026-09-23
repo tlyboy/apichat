@@ -177,8 +177,14 @@ export function HistoryPage() {
         <div className="flex w-64 flex-col border-r">
           <div className="p-2">
             <Select
+              items={[
+                { value: 'ALL', label: t('history.all') },
+                ...METHODS.map((m) => ({ value: m, label: m })),
+              ]}
               value={filterMethod}
-              onValueChange={(v) => setFilterMethod(v as 'ALL' | HttpMethod)}
+              onValueChange={(v) =>
+                v && setFilterMethod(v as 'ALL' | HttpMethod)
+              }
             >
               <SelectTrigger className="mb-2 w-full text-xs">
                 <SelectValue />
@@ -229,25 +235,25 @@ export function HistoryPage() {
                     </div>
                   </div>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      }
+                    >
+                      <Trash2 className="size-3.5" />
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-3" side="right">
                       <p className="mb-2 text-sm">
                         {t('common.confirmDelete')}
                       </p>
                       <div className="flex justify-end gap-2">
-                        <PopoverClose asChild>
-                          <Button variant="outline">
-                            {t('common.cancel')}
-                          </Button>
+                        <PopoverClose render={<Button variant="outline" />}>
+                          {t('common.cancel')}
                         </PopoverClose>
                         <Button
                           variant="destructive"
@@ -281,19 +287,21 @@ export function HistoryPage() {
           {records.length > 0 && (
             <div className="border-t p-2">
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full text-xs text-muted-foreground hover:text-destructive"
-                  >
-                    {t('history.clearAll')}
-                  </Button>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      className="w-full text-xs text-muted-foreground hover:text-destructive"
+                    />
+                  }
+                >
+                  {t('history.clearAll')}
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-3" side="top">
                   <p className="mb-2 text-sm">{t('history.confirmClear')}</p>
                   <div className="flex justify-end gap-2">
-                    <PopoverClose asChild>
-                      <Button variant="outline">{t('common.cancel')}</Button>
+                    <PopoverClose render={<Button variant="outline" />}>
+                      {t('common.cancel')}
                     </PopoverClose>
                     <Button
                       variant="destructive"

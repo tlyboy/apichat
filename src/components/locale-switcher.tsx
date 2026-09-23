@@ -13,14 +13,16 @@ export function LocaleSwitcher() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8 text-muted-foreground hover:text-foreground"
-        >
-          <Languages className="size-4" />
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8 text-muted-foreground hover:text-foreground"
+          />
+        }
+      >
+        <Languages className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-auto">
         {LOCALES.map((l) => (

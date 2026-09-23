@@ -44,19 +44,21 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
         <Separator className="mb-1 w-6" />
         {navItems.map(({ page, labelKey, icon: Icon }) => (
           <Tooltip key={page}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`size-8 ${
-                  activePage === page
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-                onClick={() => onNavigate(page)}
-              >
-                <Icon className="size-4" />
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`size-8 ${
+                    activePage === page
+                      ? 'bg-accent text-accent-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => onNavigate(page)}
+                />
+              }
+            >
+              <Icon className="size-4" />
             </TooltipTrigger>
             <TooltipContent side="right">{t(labelKey)}</TooltipContent>
           </Tooltip>
@@ -65,24 +67,26 @@ export function SidebarNav({ activePage, onNavigate }: SidebarNavProps) {
 
       <div className="flex flex-col items-center gap-1">
         <Tooltip>
-          <TooltipTrigger asChild>
-            {/*
+          {/*
               Use the opener plugin instead of <a target="_blank">: in Tauri, the latter is intercepted and handled by the
               shell plugin, which calls shell.open. But capabilities only grant
               shell spawn/kill (for the sidecar), not allow-open, so clicking does nothing and
               the console throws "shell.open not allowed". opener:default already includes
               allow-open-url, so just call it explicitly.
             */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-muted-foreground hover:text-foreground"
-              onClick={() => {
-                void openUrl('https://github.com/tlyboy/apichat')
-              }}
-            >
-              <SimpleIcon icon={siGithub} className="size-4" />
-            </Button>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  void openUrl('https://github.com/tlyboy/apichat')
+                }}
+              />
+            }
+          >
+            <SimpleIcon icon={siGithub} className="size-4" />
           </TooltipTrigger>
           <TooltipContent side="right">{t('nav.github')}</TooltipContent>
         </Tooltip>
