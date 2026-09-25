@@ -13,19 +13,16 @@ type ThemeProviderProps = {
 }
 
 type ThemeProviderState = {
-  /** The value selected by the user may be 'system'. Use resolvedTheme to check whether the current theme is dark. */
+  /** The value chosen by the user may be 'system'. Use resolvedTheme to check whether the current theme is dark. */
   theme: Theme
   resolvedTheme: ResolvedTheme
   setTheme: (theme: Theme) => void
 }
 
-const initialState: ThemeProviderState = {
-  theme: 'system',
-  resolvedTheme: 'light',
-  setTheme: () => null,
-}
-
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
+// Leave the default value empty: calling useTheme outside ThemeProvider throws an error instead of returning a fake state that does nothing
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
+  undefined,
+)
 
 export function ThemeProvider({
   children,
@@ -34,15 +31,15 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+    () => (localStorage.getItem(storageKey) as Theme | null) ?? defaultTheme,
   )
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() =>
     window.matchMedia(DARK_QUERY).matches ? 'dark' : 'light',
   )
 
   /*
-   * When theme is 'system', follow system changes in real time. Previously, the effect that applied the class only
-   * read matchMedia once, so the UI wouldn't follow changes to the appearance in system settings.
+   * When theme is 'system', follow system changes in real time. Previously, matchMedia was read only once in the effect that applies the class,
+   * so the interface wouldn't update when the user changed the appearance in system settings.
    */
   useEffect(() => {
     const mql = window.matchMedia(DARK_QUERY)
@@ -64,9 +61,9 @@ export function ThemeProvider({
   const value = {
     theme,
     resolvedTheme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme)
-      setTheme(theme)
+    setTheme: (next: Theme) => {
+      localStorage.setItem(storageKey, next)
+      setTheme(next)
     },
   }
 
