@@ -19,13 +19,10 @@ type ThemeProviderState = {
   setTheme: (theme: Theme) => void
 }
 
-const initialState: ThemeProviderState = {
-  theme: 'system',
-  resolvedTheme: 'light',
-  setTheme: () => null,
-}
-
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
+// 默认值留空：useTheme 在 ThemeProvider 外被调用时直接报错，而不是拿到一份什么都不做的假状态
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
+  undefined,
+)
 
 export function ThemeProvider({
   children,
@@ -34,7 +31,7 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+    () => (localStorage.getItem(storageKey) as Theme | null) ?? defaultTheme,
   )
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() =>
     window.matchMedia(DARK_QUERY).matches ? 'dark' : 'light',
@@ -64,9 +61,9 @@ export function ThemeProvider({
   const value = {
     theme,
     resolvedTheme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme)
-      setTheme(theme)
+    setTheme: (next: Theme) => {
+      localStorage.setItem(storageKey, next)
+      setTheme(next)
     },
   }
 
