@@ -3,12 +3,7 @@ import { getApis, createApi, type ApiItem } from './store'
 
 /** 规范里能出现的任意 JSON 值：example、default 这些字段没有固定形状。 */
 type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue }
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
 
 /**
  * OpenAPI 里的 schema。只声明本文件真正读写的字段——JSON Schema 的完整
@@ -356,7 +351,8 @@ export function exportOpenAPI(): OpenAPISpec {
             schema: {
               type: 'string',
               // header 值来自用户填的 JSON，可能是任意类型，统一按字符串写进规范
-              default: value == null || value === '' ? undefined : String(value),
+              default:
+                value == null || value === '' ? undefined : String(value),
             },
           })
         }
