@@ -3,12 +3,7 @@ import { getApis, createApi, type ApiItem } from './store'
 
 /** Any JSON value permitted by the spec: fields like example and default have no fixed shape. */
 type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue }
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
 
 /**
  * Schema in OpenAPI. Declare only the fields this file actually reads and writes—the full set of
@@ -356,7 +351,8 @@ export function exportOpenAPI(): OpenAPISpec {
             schema: {
               type: 'string',
               // Header values come from user-provided JSON and can be any type; write them all to the spec as strings
-              default: value == null || value === '' ? undefined : String(value),
+              default:
+                value == null || value === '' ? undefined : String(value),
             },
           })
         }
