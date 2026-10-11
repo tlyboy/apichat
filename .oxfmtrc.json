@@ -2,13 +2,9 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "semi": false,
   "singleQuote": true,
-  "sortPackageJson": false,
   "sortTailwindcss": {
     "stylesheet": "src/index.css",
-    "functions": [
-      "cn",
-      "cva"
-    ]
+    "functions": ["cn", "cva"]
   },
   "ignorePatterns": [
     "dist",
