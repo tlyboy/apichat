@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": false,
+  "singleQuote": true,
+  "sortPackageJson": false,
+  "sortTailwindcss": {
+    "stylesheet": "src/index.css",
+    "functions": ["cn", "cva"]
+  },
+  "ignorePatterns": [
+    "dist",
+    "pnpm-lock.yaml",
+    "auto-imports.d.ts",
+    "components.d.ts",
+    "route-map.d.ts",
+    "gen",
+    "target",
+    "src/components/ui",
+    ".agents"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "categories": { "correctness": "error" },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    // The `_` prefix means "intentionally unused": a prop discarded during destructuring, or a parameter retained to preserve the function signature.
+    // Teach the rule to recognize the convention instead of changing the code.
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ]
+  },
+  "ignorePatterns": ["dist", "src-tauri/target"],
+  "overrides": [
+    {
+      // Keep components pulled in from shadcn as-is; don't modify them just to pass lint.
+      // Exporting buttonVariants from ui/** and exporting useTheme from theme-provider are standard
+      // shadcn patterns. This rule only affects HMR granularity and is not a defect.
+      // allowConstantExport covers neither one: cva() is a call, and useTheme is a hook.
+      "files": ["src/components/ui/**", "src/components/theme-provider.tsx"],
+      "rules": { "react/only-export-components": "off" }
+    }
+  ]
+}
