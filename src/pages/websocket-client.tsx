@@ -159,7 +159,15 @@ export function WebSocketClientPage() {
                   className={`group flex w-full cursor-pointer items-center gap-2.5 overflow-hidden px-3 py-2 transition-colors ${
                     ws.isSelected(item) ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
                   }`}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => ws.handleItemClick(item)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      ws.handleItemClick(item)
+                    }
+                  }}
                 >
                   <Badge
                     variant="secondary"
@@ -370,7 +378,15 @@ export function WebSocketClientPage() {
                               ? 'bg-accent text-accent-foreground'
                               : 'hover:bg-accent/50'
                           }`}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => ws.setSelectedSessionId(session.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              ws.setSelectedSessionId(session.id)
+                            }
+                          }}
                         >
                           <div className="min-w-0 flex-1">
                             <div className="truncate text-sm font-medium">{session.wsName}</div>

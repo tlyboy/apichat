@@ -349,7 +349,15 @@ export function HttpClient() {
                   className={`group flex w-full cursor-pointer items-center gap-2.5 overflow-hidden px-3 py-2 transition-colors ${
                     isApiSelected(item) ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
                   }`}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleApiClick(item)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleApiClick(item)
+                    }
+                  }}
                 >
                   <Badge
                     variant="secondary"

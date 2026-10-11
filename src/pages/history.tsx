@@ -198,7 +198,15 @@ export function HistoryPage() {
                       ? 'bg-accent text-accent-foreground'
                       : 'hover:bg-accent/50'
                   }`}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setSelectedId(record.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      setSelectedId(record.id)
+                    }
+                  }}
                 >
                   <Badge
                     variant="secondary"
