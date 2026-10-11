@@ -346,26 +346,23 @@ export function HttpClient() {
               filteredList.map((item) => (
                 <div
                   key={item.id}
-                  className={`group flex w-full cursor-pointer items-center gap-2.5 overflow-hidden px-3 py-2 transition-colors ${
+                  className={`group flex w-full items-center gap-2.5 overflow-hidden pr-3 transition-colors ${
                     isApiSelected(item) ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
                   }`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => handleApiClick(item)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      handleApiClick(item)
-                    }
-                  }}
                 >
-                  <Badge
-                    variant="secondary"
-                    className={`w-14 shrink-0 justify-center rounded px-1.5 py-0.5 text-[10px] font-semibold ${METHOD_COLORS[item.method]}`}
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 py-2 pl-3 text-left"
+                    onClick={() => handleApiClick(item)}
                   >
-                    {item.method}
-                  </Badge>
-                  <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
+                    <Badge
+                      variant="secondary"
+                      className={`w-14 shrink-0 justify-center rounded px-1.5 py-0.5 text-[10px] font-semibold ${METHOD_COLORS[item.method]}`}
+                    >
+                      {item.method}
+                    </Badge>
+                    <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
+                  </button>
                   <Popover>
                     <PopoverTrigger
                       render={
@@ -373,7 +370,6 @@ export function HttpClient() {
                           variant="ghost"
                           size="icon"
                           className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                          onClick={(e) => e.stopPropagation()}
                         />
                       }
                     >

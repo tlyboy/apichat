@@ -193,36 +193,33 @@ export function HistoryPage() {
               filteredRecords.map((record) => (
                 <div
                   key={record.id}
-                  className={`group flex cursor-pointer items-center gap-2 px-2 py-3 transition-colors ${
+                  className={`group flex items-center gap-2 pr-2 transition-colors ${
                     selectedId === record.id
                       ? 'bg-accent text-accent-foreground'
                       : 'hover:bg-accent/50'
                   }`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedId(record.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      setSelectedId(record.id)
-                    }
-                  }}
                 >
-                  <Badge
-                    variant="secondary"
-                    className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${METHOD_COLORS[record.method]}`}
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 py-3 pl-2 text-left"
+                    onClick={() => setSelectedId(record.id)}
                   >
-                    {record.method}
-                  </Badge>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="truncate text-sm font-medium">
-                      {record.name || generateTitle(record.url)}
+                    <Badge
+                      variant="secondary"
+                      className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${METHOD_COLORS[record.method]}`}
+                    >
+                      {record.method}
+                    </Badge>
+                    <div className="flex-1 overflow-hidden">
+                      <div className="truncate text-sm font-medium">
+                        {record.name || generateTitle(record.url)}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        {record.status === 'error' && <XCircle className="size-3 text-red-500" />}
+                        <span className="truncate">{formatTime(record.timestamp)}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      {record.status === 'error' && <XCircle className="size-3 text-red-500" />}
-                      <span className="truncate">{formatTime(record.timestamp)}</span>
-                    </div>
-                  </div>
+                  </button>
                   <Popover>
                     <PopoverTrigger
                       render={
@@ -230,7 +227,6 @@ export function HistoryPage() {
                           variant="ghost"
                           size="icon"
                           className="size-7 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                          onClick={(e) => e.stopPropagation()}
                         />
                       }
                     >

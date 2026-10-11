@@ -156,26 +156,23 @@ export function WebSocketClientPage() {
               ws.filteredList.map((item) => (
                 <div
                   key={item.id}
-                  className={`group flex w-full cursor-pointer items-center gap-2.5 overflow-hidden px-3 py-2 transition-colors ${
+                  className={`group flex w-full items-center gap-2.5 overflow-hidden pr-3 transition-colors ${
                     ws.isSelected(item) ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
                   }`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => ws.handleItemClick(item)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      ws.handleItemClick(item)
-                    }
-                  }}
                 >
-                  <Badge
-                    variant="secondary"
-                    className={`w-8 shrink-0 justify-center rounded px-1 py-0.5 text-[10px] font-semibold ${STATUS_STYLES.disconnected.badge}`}
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 py-2 pl-3 text-left"
+                    onClick={() => ws.handleItemClick(item)}
                   >
-                    WS
-                  </Badge>
-                  <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
+                    <Badge
+                      variant="secondary"
+                      className={`w-8 shrink-0 justify-center rounded px-1 py-0.5 text-[10px] font-semibold ${STATUS_STYLES.disconnected.badge}`}
+                    >
+                      WS
+                    </Badge>
+                    <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
+                  </button>
                   <Popover>
                     <PopoverTrigger
                       render={
@@ -183,7 +180,6 @@ export function WebSocketClientPage() {
                           variant="ghost"
                           size="icon"
                           className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                          onClick={(e) => e.stopPropagation()}
                         />
                       }
                     >
@@ -373,22 +369,17 @@ export function WebSocketClientPage() {
                       {ws.sessions.map((session) => (
                         <div
                           key={session.id}
-                          className={`group flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors ${
+                          className={`group flex items-center gap-2 pr-3 transition-colors ${
                             ws.selectedSessionId === session.id
                               ? 'bg-accent text-accent-foreground'
                               : 'hover:bg-accent/50'
                           }`}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => ws.setSelectedSessionId(session.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault()
-                              ws.setSelectedSessionId(session.id)
-                            }
-                          }}
                         >
-                          <div className="min-w-0 flex-1">
+                          <button
+                            type="button"
+                            className="min-w-0 flex-1 cursor-pointer py-2 pl-3 text-left"
+                            onClick={() => ws.setSelectedSessionId(session.id)}
+                          >
                             <div className="truncate text-sm font-medium">{session.wsName}</div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <span>{new Date(session.connectedAt).toLocaleString()}</span>
@@ -399,7 +390,7 @@ export function WebSocketClientPage() {
                                 })}
                               </span>
                             </div>
-                          </div>
+                          </button>
                           <Popover>
                             <PopoverTrigger
                               render={
@@ -407,7 +398,6 @@ export function WebSocketClientPage() {
                                   variant="ghost"
                                   size="icon"
                                   className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                                  onClick={(e) => e.stopPropagation()}
                                 />
                               }
                             >
