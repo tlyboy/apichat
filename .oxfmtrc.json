@@ -5,7 +5,10 @@
   "sortPackageJson": false,
   "sortTailwindcss": {
     "stylesheet": "src/index.css",
-    "functions": ["cn", "cva"]
+    "functions": [
+      "cn",
+      "cva"
+    ]
   },
   "ignorePatterns": [
     "dist",
@@ -16,6 +19,7 @@
     "gen",
     "target",
     "src/components/ui",
-    ".agents"
+    ".agents",
+    "*.toml"
   ]
 }
