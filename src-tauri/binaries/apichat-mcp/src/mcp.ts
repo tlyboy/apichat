@@ -49,11 +49,7 @@ async function executeApi(
 
   // Apply global config
   const config = getConfig()
-  if (
-    config.baseUrl &&
-    !url.startsWith('http://') &&
-    !url.startsWith('https://')
-  ) {
+  if (config.baseUrl && !url.startsWith('http://') && !url.startsWith('https://')) {
     url = `${config.baseUrl.replace(/\/$/, '')}${url.startsWith('/') ? '' : '/'}${url}`
   }
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -112,14 +108,12 @@ async function executeApi(
       init.body = api.body
     } else if (api.bodyType === 'form' && api.formBody) {
       try {
-        const formItems: { enabled: boolean; key: string; value: string }[] =
-          JSON.parse(api.formBody)
+        const formItems: { enabled: boolean; key: string; value: string }[] = JSON.parse(
+          api.formBody,
+        )
         init.body = formItems
           .filter((f) => f.enabled && f.key)
-          .map(
-            (f) =>
-              `${encodeURIComponent(f.key)}=${encodeURIComponent(f.value)}`,
-          )
+          .map((f) => `${encodeURIComponent(f.key)}=${encodeURIComponent(f.value)}`)
           .join('&')
         if (!headers['Content-Type'] && !headers['content-type']) {
           headers['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -163,14 +157,8 @@ function registerTools(server: McpServer) {
       description:
         'List all saved API definitions. Returns id, name, description, method, url for each API.',
       inputSchema: {
-        keyword: z
-          .string()
-          .optional()
-          .describe('Filter by keyword in name/description/url'),
-        method: z
-          .string()
-          .optional()
-          .describe('Filter by HTTP method (GET, POST, etc.)'),
+        keyword: z.string().optional().describe('Filter by keyword in name/description/url'),
+        method: z.string().optional().describe('Filter by HTTP method (GET, POST, etc.)'),
       },
     },
     async ({ keyword, method }) => {
@@ -195,9 +183,7 @@ function registerTools(server: McpServer) {
         description: a.description,
       }))
       return {
-        content: [
-          { type: 'text' as const, text: JSON.stringify(summary, null, 2) },
-        ],
+        content: [{ type: 'text' as const, text: JSON.stringify(summary, null, 2) }],
       }
     },
   )
@@ -205,8 +191,7 @@ function registerTools(server: McpServer) {
   server.registerTool(
     'get_api',
     {
-      description:
-        'Get full details of a specific API by ID, including headers, body, params.',
+      description: 'Get full details of a specific API by ID, including headers, body, params.',
       inputSchema: {
         id: z.string().describe('API ID'),
       },
@@ -220,9 +205,7 @@ function registerTools(server: McpServer) {
         }
       }
       return {
-        content: [
-          { type: 'text' as const, text: JSON.stringify(api, null, 2) },
-        ],
+        content: [{ type: 'text' as const, text: JSON.stringify(api, null, 2) }],
       }
     },
   )
@@ -234,22 +217,10 @@ function registerTools(server: McpServer) {
       inputSchema: {
         name: z.string().describe('API name'),
         description: z.string().optional().describe('API description'),
-        url: z
-          .string()
-          .describe('API URL (can be relative if base URL is configured)'),
-        method: z
-          .string()
-          .describe(
-            'HTTP method: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS',
-          ),
-        params: z
-          .string()
-          .optional()
-          .describe('Query params as key=value&key=value'),
-        headers: z
-          .string()
-          .optional()
-          .describe('Headers as JSON object string'),
+        url: z.string().describe('API URL (can be relative if base URL is configured)'),
+        method: z.string().describe('HTTP method: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS'),
+        params: z.string().optional().describe('Query params as key=value&key=value'),
+        headers: z.string().optional().describe('Headers as JSON object string'),
         bodyType: z.string().optional().describe('Body type: json, form, text'),
         body: z.string().optional().describe('Request body content'),
       },
@@ -279,8 +250,7 @@ function registerTools(server: McpServer) {
   server.registerTool(
     'update_api',
     {
-      description:
-        'Update an existing API definition. Only provided fields will be updated.',
+      description: 'Update an existing API definition. Only provided fields will be updated.',
       inputSchema: {
         id: z.string().describe('API ID to update'),
         name: z.string().optional().describe('New name'),
@@ -296,8 +266,7 @@ function registerTools(server: McpServer) {
     async ({ id, ...updates }) => {
       const cleanUpdates: Record<string, string> = {}
       for (const [k, v] of Object.entries(updates)) {
-        if (v !== undefined)
-          cleanUpdates[k] = k === 'method' ? v.toUpperCase() : v
+        if (v !== undefined) cleanUpdates[k] = k === 'method' ? v.toUpperCase() : v
       }
       const api = updateApi(id, cleanUpdates)
       if (!api) {
@@ -344,10 +313,7 @@ function registerTools(server: McpServer) {
           .string()
           .optional()
           .describe('Path parameters as JSON object, e.g. {"id": "123"}'),
-        queryParams: z
-          .string()
-          .optional()
-          .describe('Query parameter overrides as JSON object'),
+        queryParams: z.string().optional().describe('Query parameter overrides as JSON object'),
         body: z.string().optional().describe('Override request body'),
       },
     },
@@ -377,25 +343,11 @@ function registerTools(server: McpServer) {
         apiId: z
           .string()
           .optional()
-          .describe(
-            'Filter by API ID (matches history records for a specific saved API)',
-          ),
-        method: z
-          .string()
-          .optional()
-          .describe('Filter by HTTP method (GET, POST, etc.)'),
-        status: z
-          .string()
-          .optional()
-          .describe('Filter by status: success or error'),
-        keyword: z
-          .string()
-          .optional()
-          .describe('Filter by keyword in name/url/response'),
-        limit: z
-          .number()
-          .optional()
-          .describe('Max records to return (default 20)'),
+          .describe('Filter by API ID (matches history records for a specific saved API)'),
+        method: z.string().optional().describe('Filter by HTTP method (GET, POST, etc.)'),
+        status: z.string().optional().describe('Filter by status: success or error'),
+        keyword: z.string().optional().describe('Filter by keyword in name/url/response'),
+        limit: z.number().optional().describe('Max records to return (default 20)'),
       },
     },
     async ({ apiId, method, status, keyword, limit: maxResults }) => {
@@ -439,9 +391,7 @@ function registerTools(server: McpServer) {
       }))
 
       return {
-        content: [
-          { type: 'text' as const, text: JSON.stringify(result, null, 2) },
-        ],
+        content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
       }
     },
   )
@@ -455,9 +405,7 @@ function registerTools(server: McpServer) {
     async () => {
       const config = getConfig()
       return {
-        content: [
-          { type: 'text' as const, text: JSON.stringify(config, null, 2) },
-        ],
+        content: [{ type: 'text' as const, text: JSON.stringify(config, null, 2) }],
       }
     },
   )
@@ -471,9 +419,7 @@ function registerTools(server: McpServer) {
         baseUrl: z
           .string()
           .optional()
-          .describe(
-            'Base URL for relative API paths (e.g. "https://api.example.com")',
-          ),
+          .describe('Base URL for relative API paths (e.g. "https://api.example.com")'),
         defaultHeaders: z
           .string()
           .optional()
@@ -484,10 +430,7 @@ function registerTools(server: McpServer) {
       const current = getConfig()
       saveConfig({
         baseUrl: baseUrl !== undefined ? baseUrl : current.baseUrl,
-        defaultHeaders:
-          defaultHeaders !== undefined
-            ? defaultHeaders
-            : current.defaultHeaders,
+        defaultHeaders: defaultHeaders !== undefined ? defaultHeaders : current.defaultHeaders,
       })
       return {
         content: [{ type: 'text' as const, text: `Config updated` }],
@@ -500,10 +443,7 @@ function registerTools(server: McpServer) {
     {
       description: 'List all saved WebSocket connection definitions.',
       inputSchema: {
-        keyword: z
-          .string()
-          .optional()
-          .describe('Filter by keyword in name/description/url'),
+        keyword: z.string().optional().describe('Filter by keyword in name/description/url'),
       },
     },
     async ({ keyword }) => {
@@ -524,9 +464,7 @@ function registerTools(server: McpServer) {
         description: w.description,
       }))
       return {
-        content: [
-          { type: 'text' as const, text: JSON.stringify(summary, null, 2) },
-        ],
+        content: [{ type: 'text' as const, text: JSON.stringify(summary, null, 2) }],
       }
     },
   )
@@ -543,9 +481,7 @@ function registerTools(server: McpServer) {
       const ws = getWs(id)
       if (!ws) {
         return {
-          content: [
-            { type: 'text' as const, text: `WebSocket ${id} not found` },
-          ],
+          content: [{ type: 'text' as const, text: `WebSocket ${id} not found` }],
           isError: true,
         }
       }
@@ -585,8 +521,7 @@ function registerTools(server: McpServer) {
   server.registerTool(
     'update_ws',
     {
-      description:
-        'Update a saved WebSocket connection. Only provided fields will be updated.',
+      description: 'Update a saved WebSocket connection. Only provided fields will be updated.',
       inputSchema: {
         id: z.string().describe('WebSocket ID to update'),
         name: z.string().optional().describe('New name'),
@@ -602,16 +537,12 @@ function registerTools(server: McpServer) {
       const ws = updateWs(id, cleanUpdates)
       if (!ws) {
         return {
-          content: [
-            { type: 'text' as const, text: `WebSocket ${id} not found` },
-          ],
+          content: [{ type: 'text' as const, text: `WebSocket ${id} not found` }],
           isError: true,
         }
       }
       return {
-        content: [
-          { type: 'text' as const, text: `Updated WebSocket: ${ws.name}` },
-        ],
+        content: [{ type: 'text' as const, text: `Updated WebSocket: ${ws.name}` }],
       }
     },
   )
@@ -644,18 +575,9 @@ function registerTools(server: McpServer) {
       description:
         'List WebSocket message history sessions. Each session contains all messages from one connection.',
       inputSchema: {
-        wsId: z
-          .string()
-          .optional()
-          .describe('Filter by saved WebSocket connection ID'),
-        keyword: z
-          .string()
-          .optional()
-          .describe('Filter by keyword in name/url/messages'),
-        limit: z
-          .number()
-          .optional()
-          .describe('Max sessions to return (default 20)'),
+        wsId: z.string().optional().describe('Filter by saved WebSocket connection ID'),
+        keyword: z.string().optional().describe('Filter by keyword in name/url/messages'),
+        limit: z.number().optional().describe('Max sessions to return (default 20)'),
       },
     },
     async ({ wsId, keyword, limit: maxResults }) => {
@@ -684,15 +606,11 @@ function registerTools(server: McpServer) {
         sentCount: s.messages.filter((m) => m.type === 'sent').length,
         receivedCount: s.messages.filter((m) => m.type === 'received').length,
         connectedAt: new Date(s.connectedAt).toISOString(),
-        disconnectedAt: s.disconnectedAt
-          ? new Date(s.disconnectedAt).toISOString()
-          : null,
+        disconnectedAt: s.disconnectedAt ? new Date(s.disconnectedAt).toISOString() : null,
       }))
 
       return {
-        content: [
-          { type: 'text' as const, text: JSON.stringify(result, null, 2) },
-        ],
+        content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
       }
     },
   )
@@ -714,9 +632,7 @@ function registerTools(server: McpServer) {
         }
       }
       return {
-        content: [
-          { type: 'text' as const, text: JSON.stringify(session, null, 2) },
-        ],
+        content: [{ type: 'text' as const, text: JSON.stringify(session, null, 2) }],
       }
     },
   )
@@ -742,9 +658,7 @@ function registerTools(server: McpServer) {
       const count = getHistory().length
       clearHistory()
       return {
-        content: [
-          { type: 'text' as const, text: `Cleared ${count} history records` },
-        ],
+        content: [{ type: 'text' as const, text: `Cleared ${count} history records` }],
       }
     },
   )

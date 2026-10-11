@@ -39,15 +39,9 @@ function getDataDir(): string {
   if (p === 'darwin') {
     return join(home, 'Library', 'Application Support', 'com.tlyboy.apichat')
   } else if (p === 'win32') {
-    return join(
-      process.env.APPDATA || join(home, 'AppData', 'Roaming'),
-      'com.tlyboy.apichat',
-    )
+    return join(process.env.APPDATA || join(home, 'AppData', 'Roaming'), 'com.tlyboy.apichat')
   } else {
-    return join(
-      process.env.XDG_DATA_HOME || join(home, '.local', 'share'),
-      'com.tlyboy.apichat',
-    )
+    return join(process.env.XDG_DATA_HOME || join(home, '.local', 'share'), 'com.tlyboy.apichat')
   }
 }
 
@@ -89,9 +83,7 @@ export function saveApis(apis: ApiItem[]) {
   writeJson('apis.json', apis)
 }
 
-export function createApi(
-  api: Omit<ApiItem, 'id' | 'createdAt' | 'updatedAt'>,
-): ApiItem {
+export function createApi(api: Omit<ApiItem, 'id' | 'createdAt' | 'updatedAt'>): ApiItem {
   const now = Date.now()
   const newApi: ApiItem = {
     ...api,
@@ -105,10 +97,7 @@ export function createApi(
   return newApi
 }
 
-export function updateApi(
-  id: string,
-  updates: Partial<ApiItem>,
-): ApiItem | null {
+export function updateApi(id: string, updates: Partial<ApiItem>): ApiItem | null {
   const apis = getApis()
   const index = apis.findIndex((a) => a.id === id)
   if (index === -1) return null
@@ -135,9 +124,7 @@ export function getHistory(): HistoryRecord[] {
   return readJson<HistoryRecord>('history.json')
 }
 
-export function addHistory(
-  record: Omit<HistoryRecord, 'id' | 'timestamp'>,
-): HistoryRecord {
+export function addHistory(record: Omit<HistoryRecord, 'id' | 'timestamp'>): HistoryRecord {
   const newRecord: HistoryRecord = {
     ...record,
     id: crypto.randomUUID(),
@@ -181,9 +168,7 @@ export function getWs(id: string): WsItem | undefined {
   return getWsList().find((w) => w.id === id)
 }
 
-export function createWs(
-  ws: Omit<WsItem, 'id' | 'createdAt' | 'updatedAt'>,
-): WsItem {
+export function createWs(ws: Omit<WsItem, 'id' | 'createdAt' | 'updatedAt'>): WsItem {
   const now = Date.now()
   const newWs: WsItem = {
     ...ws,

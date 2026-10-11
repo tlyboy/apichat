@@ -7,8 +7,7 @@ export interface WebSocketMessage {
   timestamp: number
 }
 
-export type WebSocketStatus =
-  'disconnected' | 'connecting' | 'connected' | 'error'
+export type WebSocketStatus = 'disconnected' | 'connecting' | 'connected' | 'error'
 
 export class WebSocketClient {
   private ws: WebSocket | null = null
@@ -33,12 +32,7 @@ export class WebSocketClient {
       this.ws = await WebSocket.connect(url)
 
       this.ws.addListener((data) => {
-        if (
-          data &&
-          typeof data === 'object' &&
-          'type' in data &&
-          data.type === 'Close'
-        ) {
+        if (data && typeof data === 'object' && 'type' in data && data.type === 'Close') {
           return
         }
 

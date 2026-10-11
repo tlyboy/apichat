@@ -26,8 +26,7 @@ export const apiStore = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  delete: (id: string) =>
-    request<OkResponse>(`/apis/${id}`, { method: 'DELETE' }),
+  delete: (id: string) => request<OkResponse>(`/apis/${id}`, { method: 'DELETE' }),
   clear: () => request<OkResponse>('/apis', { method: 'DELETE' }),
 }
 
@@ -40,8 +39,7 @@ export const historyStore = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  delete: (id: string) =>
-    request<OkResponse>(`/history/${id}`, { method: 'DELETE' }),
+  delete: (id: string) => request<OkResponse>(`/history/${id}`, { method: 'DELETE' }),
   clear: () => request<OkResponse>('/history', { method: 'DELETE' }),
 }
 
@@ -53,8 +51,7 @@ export const wsStore = {
     request<WsItem>('/ws', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: Partial<WsItem>) =>
     request<WsItem>(`/ws/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: string) =>
-    request<OkResponse>(`/ws/${id}`, { method: 'DELETE' }),
+  delete: (id: string) => request<OkResponse>(`/ws/${id}`, { method: 'DELETE' }),
   clear: () => request<OkResponse>('/ws', { method: 'DELETE' }),
 }
 
@@ -75,16 +72,14 @@ export interface WsSession {
 }
 
 export const wsHistoryStore = {
-  list: (wsId?: string) =>
-    request<WsSession[]>(wsId ? `/ws-history?wsId=${wsId}` : '/ws-history'),
+  list: (wsId?: string) => request<WsSession[]>(wsId ? `/ws-history?wsId=${wsId}` : '/ws-history'),
   get: (id: string) => request<WsSession>(`/ws-history/${id}`),
   add: (data: Omit<WsSession, 'id'>) =>
     request<WsSession>('/ws-history', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  delete: (id: string) =>
-    request<OkResponse>(`/ws-history/${id}`, { method: 'DELETE' }),
+  delete: (id: string) => request<OkResponse>(`/ws-history/${id}`, { method: 'DELETE' }),
   clear: () => request<OkResponse>('/ws-history', { method: 'DELETE' }),
 }
 

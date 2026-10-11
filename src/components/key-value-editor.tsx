@@ -41,16 +41,12 @@ export function KeyValueEditor({
   }
 
   const handleKeyChange = (index: number, value: string) => {
-    const newItems = items.map((item, i) =>
-      i === index ? { ...item, key: value } : { ...item },
-    )
+    const newItems = items.map((item, i) => (i === index ? { ...item, key: value } : { ...item }))
     onChange(autoAdd(index, newItems))
   }
 
   const handleValueChange = (index: number, value: string) => {
-    const newItems = items.map((item, i) =>
-      i === index ? { ...item, value: value } : { ...item },
-    )
+    const newItems = items.map((item, i) => (i === index ? { ...item, value: value } : { ...item }))
     onChange(autoAdd(index, newItems))
   }
 
@@ -108,11 +104,7 @@ export function KeyValueEditor({
             size="icon"
             className="size-7 text-muted-foreground hover:text-destructive"
             onClick={() => handleRemove(index)}
-            disabled={
-              disabled ||
-              items.length <= 1 ||
-              (!item.key.trim() && !item.value.trim())
-            }
+            disabled={disabled || items.length <= 1 || (!item.key.trim() && !item.value.trim())}
           >
             <X className="size-3.5" />
           </Button>

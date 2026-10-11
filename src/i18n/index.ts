@@ -41,20 +41,14 @@ function getNestedValue(obj: Messages, path: string): string | undefined {
   return typeof current === 'string' ? current : undefined
 }
 
-function interpolate(
-  template: string,
-  params?: Record<string, string | number>,
-): string {
+function interpolate(template: string, params?: Record<string, string | number>): string {
   if (!params) return template
   return template.replace(/\{(\w+)\}/g, (_, key) =>
     params[key] !== undefined ? String(params[key]) : `{${key}}`,
   )
 }
 
-export type TranslateFunction = (
-  key: string,
-  params?: Record<string, string | number>,
-) => string
+export type TranslateFunction = (key: string, params?: Record<string, string | number>) => string
 
 export function createTranslator(locale: Locale): TranslateFunction {
   const msg = messages[locale]

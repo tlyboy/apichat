@@ -17,18 +17,11 @@ interface CodeEditorProps {
   className?: string
 }
 
-export function CodeEditor({
-  language,
-  value,
-  readonly,
-  onChange,
-  className,
-}: CodeEditorProps) {
+export function CodeEditor({ language, value, readonly, onChange, className }: CodeEditorProps) {
   const { theme } = useTheme()
   const isDark =
     theme === 'dark' ||
-    (theme === 'system' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches)
+    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   const monacoRef = useRef<Monaco>(null)
 

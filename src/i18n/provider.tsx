@@ -1,10 +1,5 @@
 import { useState } from 'react'
-import {
-  I18nContext,
-  detectLocale,
-  createTranslator,
-  type Locale,
-} from './index'
+import { I18nContext, detectLocale, createTranslator, type Locale } from './index'
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(detectLocale)
@@ -16,9 +11,5 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   const t = createTranslator(locale)
 
-  return (
-    <I18nContext.Provider value={{ locale, setLocale, t }}>
-      {children}
-    </I18nContext.Provider>
-  )
+  return <I18nContext.Provider value={{ locale, setLocale, t }}>{children}</I18nContext.Provider>
 }

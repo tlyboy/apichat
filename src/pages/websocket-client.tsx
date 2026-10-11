@@ -1,14 +1,4 @@
-import {
-  Search,
-  Plus,
-  Send,
-  Trash2,
-  X,
-  Plug,
-  MessageSquare,
-  Save,
-  Clock,
-} from 'lucide-react'
+import { Search, Plus, Send, Trash2, X, Plug, MessageSquare, Save, Clock } from 'lucide-react'
 import { useWebSocketTabs } from '@/hooks/use-websocket-tabs'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -16,17 +6,8 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
-  Popover,
-  PopoverClose,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useTranslations } from '@/i18n'
 import { useState } from 'react'
 
@@ -51,9 +32,7 @@ const STATUS_STYLES = {
 
 export function WebSocketClientPage() {
   const t = useTranslations()
-  const [activeTab, setActiveTab] = useState<
-    'description' | 'messages' | 'history'
-  >('description')
+  const [activeTab, setActiveTab] = useState<'description' | 'messages' | 'history'>('description')
   const ws = useWebSocketTabs(t)
 
   const handleEnter = (e: React.KeyboardEvent) => {
@@ -91,12 +70,7 @@ export function WebSocketClientPage() {
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  onClick={ws.createNew}
-                />
+                <Button variant="ghost" size="icon" className="size-8" onClick={ws.createNew} />
               }
             >
               <Plus className="size-4" />
@@ -117,9 +91,7 @@ export function WebSocketClientPage() {
               spellCheck={false}
             />
             {ws.hasUnsavedChanges && (
-              <span className="mr-2 text-xs text-muted-foreground">
-                {t('http.unsaved')}
-              </span>
+              <span className="mr-2 text-xs text-muted-foreground">{t('http.unsaved')}</span>
             )}
             <Tooltip>
               <TooltipTrigger
@@ -142,9 +114,7 @@ export function WebSocketClientPage() {
               variant="outline"
               className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 ${STATUS_STYLES[ws.status].badge}`}
             >
-              <span
-                className={`size-1.5 rounded-full ${STATUS_STYLES[ws.status].dot}`}
-              />
+              <span className={`size-1.5 rounded-full ${STATUS_STYLES[ws.status].dot}`} />
               {ws.statusText}
             </Badge>
 
@@ -164,19 +134,12 @@ export function WebSocketClientPage() {
             />
 
             {ws.status === 'connected' ? (
-              <Button
-                variant="destructive"
-                onClick={ws.handleDisconnect}
-                disabled={ws.loading}
-              >
+              <Button variant="destructive" onClick={ws.handleDisconnect} disabled={ws.loading}>
                 {ws.connectButtonText}
                 <X className="ml-1 size-4" />
               </Button>
             ) : (
-              <Button
-                onClick={ws.handleConnect}
-                disabled={ws.loading || !ws.url.trim()}
-              >
+              <Button onClick={ws.handleConnect} disabled={ws.loading || !ws.url.trim()}>
                 {ws.connectButtonText}
                 <Plug className="ml-1 size-4" />
               </Button>
@@ -194,9 +157,7 @@ export function WebSocketClientPage() {
                 <div
                   key={item.id}
                   className={`group flex w-full cursor-pointer items-center gap-2.5 overflow-hidden px-3 py-2 transition-colors ${
-                    ws.isSelected(item)
-                      ? 'bg-accent text-accent-foreground'
-                      : 'hover:bg-accent/50'
+                    ws.isSelected(item) ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
                   }`}
                   onClick={() => ws.handleItemClick(item)}
                 >
@@ -206,9 +167,7 @@ export function WebSocketClientPage() {
                   >
                     WS
                   </Badge>
-                  <span className="min-w-0 flex-1 truncate text-sm">
-                    {item.name}
-                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
                   <Popover>
                     <PopoverTrigger
                       render={
@@ -223,9 +182,7 @@ export function WebSocketClientPage() {
                       <Trash2 className="size-3" />
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-3" side="right">
-                      <p className="mb-2 text-sm">
-                        {t('common.confirmDelete')}
-                      </p>
+                      <p className="mb-2 text-sm">{t('common.confirmDelete')}</p>
                       <div className="flex justify-end gap-2">
                         <PopoverClose render={<Button variant="outline" />}>
                           {t('common.cancel')}
@@ -290,33 +247,21 @@ export function WebSocketClientPage() {
         {/* Right content */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {ws.error && (
-            <div className="bg-destructive/10 px-4 py-2 text-sm text-destructive">
-              {ws.error}
-            </div>
+            <div className="bg-destructive/10 px-4 py-2 text-sm text-destructive">{ws.error}</div>
           )}
 
           <Tabs
             value={activeTab}
-            onValueChange={(v) =>
-              setActiveTab(v as 'description' | 'messages' | 'history')
-            }
+            onValueChange={(v) => setActiveTab(v as 'description' | 'messages' | 'history')}
             className="flex flex-1 flex-col gap-0 overflow-hidden"
           >
-            <TabsList
-              variant="line"
-              className="w-full justify-start rounded-none px-2"
-            >
-              <TabsTrigger value="description">
-                {t('http.description')}
-              </TabsTrigger>
+            <TabsList variant="line" className="w-full justify-start rounded-none px-2">
+              <TabsTrigger value="description">{t('http.description')}</TabsTrigger>
               <TabsTrigger value="messages">{t('ws.messages')}</TabsTrigger>
               <TabsTrigger value="history">{t('ws.history')}</TabsTrigger>
             </TabsList>
 
-            <TabsContent
-              value="messages"
-              className="flex flex-1 flex-col overflow-hidden"
-            >
+            <TabsContent value="messages" className="flex flex-1 flex-col overflow-hidden">
               {/* Messages area */}
               <ScrollArea className="h-0 flex-1">
                 <div className="p-2">
@@ -339,8 +284,7 @@ export function WebSocketClientPage() {
                               className={`text-xs ${
                                 {
                                   sent: 'text-blue-600 dark:text-blue-400',
-                                  received:
-                                    'text-green-600 dark:text-green-400',
+                                  received: 'text-green-600 dark:text-green-400',
                                   system: 'text-muted-foreground',
                                 }[message.type]
                               }`}
@@ -355,18 +299,14 @@ export function WebSocketClientPage() {
                               {ws.formatMessageTime(message.timestamp)}
                             </span>
                           </div>
-                          <div className="text-sm break-all">
-                            {message.content}
-                          </div>
+                          <div className="text-sm break-all">{message.content}</div>
                         </div>
                       ))}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                       <MessageSquare className="mb-2 size-10" />
-                      <div className="text-center text-sm">
-                        {t('ws.noMessages')}
-                      </div>
+                      <div className="text-center text-sm">{t('ws.noMessages')}</div>
                     </div>
                   )}
                 </div>
@@ -396,9 +336,7 @@ export function WebSocketClientPage() {
                 )}
                 <Button
                   onClick={ws.handleSend}
-                  disabled={
-                    ws.status !== 'connected' || !ws.messageInput.trim()
-                  }
+                  disabled={ws.status !== 'connected' || !ws.messageInput.trim()}
                 >
                   {t('ws.send')}
                   <Send className="ml-1 size-4" />
@@ -418,10 +356,7 @@ export function WebSocketClientPage() {
               </div>
             </TabsContent>
 
-            <TabsContent
-              value="history"
-              className="flex flex-1 flex-col overflow-hidden"
-            >
+            <TabsContent value="history" className="flex flex-1 flex-col overflow-hidden">
               <div className="flex flex-1 overflow-hidden">
                 {/* Session list */}
                 <ScrollArea className="w-64 border-r">
@@ -438,13 +373,9 @@ export function WebSocketClientPage() {
                           onClick={() => ws.setSelectedSessionId(session.id)}
                         >
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-medium">
-                              {session.wsName}
-                            </div>
+                            <div className="truncate text-sm font-medium">{session.wsName}</div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <span>
-                                {new Date(session.connectedAt).toLocaleString()}
-                              </span>
+                              <span>{new Date(session.connectedAt).toLocaleString()}</span>
                               <span>·</span>
                               <span>
                                 {t('ws.messageCount', {
@@ -467,13 +398,9 @@ export function WebSocketClientPage() {
                               <Trash2 className="size-3" />
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-3" side="right">
-                              <p className="mb-2 text-sm">
-                                {t('common.confirmDelete')}
-                              </p>
+                              <p className="mb-2 text-sm">{t('common.confirmDelete')}</p>
                               <div className="flex justify-end gap-2">
-                                <PopoverClose
-                                  render={<Button variant="outline" />}
-                                >
+                                <PopoverClose render={<Button variant="outline" />}>
                                   {t('common.cancel')}
                                 </PopoverClose>
                                 <Button
@@ -501,13 +428,9 @@ export function WebSocketClientPage() {
                             {t('ws.clearSessions')}
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-3" side="top">
-                            <p className="mb-2 text-sm">
-                              {t('ws.confirmClearSessions')}
-                            </p>
+                            <p className="mb-2 text-sm">{t('ws.confirmClearSessions')}</p>
                             <div className="flex justify-end gap-2">
-                              <PopoverClose
-                                render={<Button variant="outline" />}
-                              >
+                              <PopoverClose render={<Button variant="outline" />}>
                                 {t('common.cancel')}
                               </PopoverClose>
                               <Button
@@ -525,9 +448,7 @@ export function WebSocketClientPage() {
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                       <Clock className="mb-2 size-6" />
-                      <div className="text-center text-sm">
-                        {t('ws.noSessions')}
-                      </div>
+                      <div className="text-center text-sm">{t('ws.noSessions')}</div>
                     </div>
                   )}
                 </ScrollArea>
@@ -553,8 +474,7 @@ export function WebSocketClientPage() {
                               className={`text-xs ${
                                 {
                                   sent: 'text-blue-600 dark:text-blue-400',
-                                  received:
-                                    'text-green-600 dark:text-green-400',
+                                  received: 'text-green-600 dark:text-green-400',
                                   system: 'text-muted-foreground',
                                 }[message.type]
                               }`}
@@ -569,9 +489,7 @@ export function WebSocketClientPage() {
                               {ws.formatMessageTime(message.timestamp)}
                             </span>
                           </div>
-                          <div className="text-sm break-all">
-                            {message.content}
-                          </div>
+                          <div className="text-sm break-all">{message.content}</div>
                         </div>
                       ))}
                     </div>

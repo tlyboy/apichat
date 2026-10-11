@@ -3,9 +3,7 @@ import type { HistoryRecord } from '@/types'
 
 export type { HistoryRecord }
 
-export async function addHistoryRecord(
-  record: Omit<HistoryRecord, 'id' | 'timestamp'>,
-) {
+export async function addHistoryRecord(record: Omit<HistoryRecord, 'id' | 'timestamp'>) {
   try {
     const newRecord = await historyStore.add(record)
     window.dispatchEvent(new CustomEvent('apichat-history-updated'))

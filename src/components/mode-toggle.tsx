@@ -34,13 +34,9 @@ export function ModeToggle() {
     const cx = (x / window.innerWidth) * 100
     const cy = (y / window.innerHeight) * 100
     // The percentage radius of circle() is based on sqrt(w² + h²) / sqrt(2)
-    const radiusRef =
-      Math.hypot(window.innerWidth, window.innerHeight) / Math.SQRT2
+    const radiusRef = Math.hypot(window.innerWidth, window.innerHeight) / Math.SQRT2
     const endPct =
-      (Math.hypot(
-        Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y),
-      ) /
+      (Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y)) /
         radiusRef) *
       100
 
@@ -53,10 +49,7 @@ export function ModeToggle() {
 
     void transition.ready
       .then(() => {
-        const clipPath = [
-          `circle(0% at ${cx}% ${cy}%)`,
-          `circle(${endPct}% at ${cx}% ${cy}%)`,
-        ]
+        const clipPath = [`circle(0% at ${cx}% ${cy}%)`, `circle(${endPct}% at ${cx}% ${cy}%)`]
         const animation = document.documentElement.animate(
           {
             clipPath: newTheme === 'dark' ? [...clipPath].reverse() : clipPath,
@@ -66,9 +59,7 @@ export function ModeToggle() {
             easing: 'ease-out',
             fill: 'forwards',
             pseudoElement:
-              newTheme === 'dark'
-                ? '::view-transition-old(root)'
-                : '::view-transition-new(root)',
+              newTheme === 'dark' ? '::view-transition-old(root)' : '::view-transition-new(root)',
           },
         )
         // An animation with fill: 'forwards' doesn't disappear when it ends; it stays attached to documentElement.

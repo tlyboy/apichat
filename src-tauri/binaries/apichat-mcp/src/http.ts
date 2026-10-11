@@ -45,9 +45,7 @@ export function startHttpServer(port: number) {
         'http://localhost:1420',
         'http://localhost',
       ]
-      const corsOrigin = allowedOrigins.includes(origin)
-        ? origin
-        : allowedOrigins[0]
+      const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0]
 
       if (method === 'OPTIONS') {
         return new Response(null, {
@@ -106,9 +104,7 @@ export function startHttpServer(port: number) {
           }
 
           if (method === 'DELETE') {
-            return deleteApi(id)
-              ? json({ ok: true })
-              : json({ error: 'Not found' }, 404)
+            return deleteApi(id) ? json({ ok: true }) : json({ error: 'Not found' }, 404)
           }
         }
 
@@ -131,9 +127,7 @@ export function startHttpServer(port: number) {
         const historyMatch = path.match(/^\/history\/([^/]+)$/)
         if (historyMatch && method === 'DELETE') {
           const id = historyMatch[1]
-          return deleteHistory(id)
-            ? json({ ok: true })
-            : json({ error: 'Not found' }, 404)
+          return deleteHistory(id) ? json({ ok: true }) : json({ error: 'Not found' }, 404)
         }
 
         // --- OpenAPI ---
@@ -201,9 +195,7 @@ export function startHttpServer(port: number) {
           }
 
           if (method === 'DELETE') {
-            return deleteWs(id)
-              ? json({ ok: true })
-              : json({ error: 'Not found' }, 404)
+            return deleteWs(id) ? json({ ok: true }) : json({ error: 'Not found' }, 404)
           }
         }
 
@@ -234,9 +226,7 @@ export function startHttpServer(port: number) {
             return session ? json(session) : json({ error: 'Not found' }, 404)
           }
           if (method === 'DELETE') {
-            return deleteWsSession(id)
-              ? json({ ok: true })
-              : json({ error: 'Not found' }, 404)
+            return deleteWsSession(id) ? json({ ok: true }) : json({ error: 'Not found' }, 404)
           }
         }
 

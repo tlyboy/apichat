@@ -24,16 +24,12 @@ const DEFAULT_HEADERS: HeaderItem[] = [
 export function useHttpClient(t: TranslateFunction) {
   const [url, setUrl] = useState('')
   const [method, setMethod] = useState<HttpMethod>('GET')
-  const [params, setParams] = useState<ParamItem[]>([
-    { key: '', value: '', enabled: false },
-  ])
+  const [params, setParams] = useState<ParamItem[]>([{ key: '', value: '', enabled: false }])
   const [headers, setHeaders] = useState<HeaderItem[]>([...DEFAULT_HEADERS])
   const [bodyType, setBodyType] = useState<BodyType>('json')
   const [jsonBody, setJsonBody] = useState('')
   const [textBody, setTextBody] = useState('')
-  const [formBody, setFormBody] = useState<FormItem[]>([
-    { key: '', value: '', enabled: false },
-  ])
+  const [formBody, setFormBody] = useState<FormItem[]>([{ key: '', value: '', enabled: false }])
   const [response, setResponse] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -271,9 +267,7 @@ export function useHttpClient(t: TranslateFunction) {
     else if (item.bodyType === 'text') setTextBody(item.body)
     try {
       setFormBody(
-        item.formBody
-          ? JSON.parse(item.formBody)
-          : [{ key: '', value: '', enabled: false }],
+        item.formBody ? JSON.parse(item.formBody) : [{ key: '', value: '', enabled: false }],
       )
     } catch {
       setFormBody([{ key: '', value: '', enabled: false }])
@@ -316,11 +310,7 @@ export function useHttpClient(t: TranslateFunction) {
 
       // Build URL: if relative path and base URL exists, combine them
       let rawUrl = url.trim()
-      if (
-        globalBaseUrl &&
-        !rawUrl.startsWith('http://') &&
-        !rawUrl.startsWith('https://')
-      ) {
+      if (globalBaseUrl && !rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
         rawUrl = `${globalBaseUrl}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`
       }
       const formattedUrl = formatUrl(rawUrl)
@@ -358,8 +348,7 @@ export function useHttpClient(t: TranslateFunction) {
       const hasBodyContent =
         (bodyType === 'json' && jsonBody.trim()) ||
         (bodyType === 'text' && textBody.trim()) ||
-        (bodyType === 'form' &&
-          formBody.some((item) => item.enabled && item.key.trim()))
+        (bodyType === 'form' && formBody.some((item) => item.enabled && item.key.trim()))
 
       if (hasBodyContent) {
         if (bodyType === 'json') {
@@ -377,9 +366,7 @@ export function useHttpClient(t: TranslateFunction) {
             .filter((item) => item.enabled && item.key.trim())
             .map(
               (item) =>
-                encodeURIComponent(item.key.trim()) +
-                '=' +
-                encodeURIComponent(item.value.trim()),
+                encodeURIComponent(item.key.trim()) + '=' + encodeURIComponent(item.value.trim()),
             )
             .join('&')
         } else if (bodyType === 'text') {
@@ -397,8 +384,7 @@ export function useHttpClient(t: TranslateFunction) {
         url: fullUrl,
         method,
         params: params.map((p) => p.key + '=' + p.value).join('&'),
-        body:
-          bodyType === 'json' ? jsonBody : bodyType === 'text' ? textBody : '',
+        body: bodyType === 'json' ? jsonBody : bodyType === 'text' ? textBody : '',
         headers: stringifyHeaders(headers),
         bodyType,
         formBody: JSON.stringify(formBody),
@@ -407,8 +393,7 @@ export function useHttpClient(t: TranslateFunction) {
       })
     } catch (err) {
       console.error('Request failed:', err)
-      const errMsg =
-        err instanceof Error ? err.message : t('common.requestFailed')
+      const errMsg = err instanceof Error ? err.message : t('common.requestFailed')
       setError(errMsg)
       setResponse('')
       addHistoryRecord({
@@ -416,8 +401,7 @@ export function useHttpClient(t: TranslateFunction) {
         url: formatUrl(url),
         method,
         params: params.map((p) => p.key + '=' + p.value).join('&'),
-        body:
-          bodyType === 'json' ? jsonBody : bodyType === 'text' ? textBody : '',
+        body: bodyType === 'json' ? jsonBody : bodyType === 'text' ? textBody : '',
         headers: stringifyHeaders(headers),
         bodyType,
         formBody: JSON.stringify(formBody),

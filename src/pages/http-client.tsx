@@ -28,17 +28,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
-  Popover,
-  PopoverClose,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,11 +145,7 @@ export function HttpClient() {
    * Export to a file. The two export items originally duplicated the same blob flow, and neither had a .catch() —
    * failures became unhandled Promise rejections, with no response in the UI.
    */
-  const downloadFile = async (
-    filename: string,
-    type: string,
-    produce: () => Promise<string>,
-  ) => {
+  const downloadFile = async (filename: string, type: string, produce: () => Promise<string>) => {
     try {
       const content = await produce()
       const url = URL.createObjectURL(new Blob([content], { type }))
@@ -203,12 +190,7 @@ export function HttpClient() {
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  onClick={createNewApi}
-                />
+                <Button variant="ghost" size="icon" className="size-8" onClick={createNewApi} />
               }
             >
               <Plus className="size-4" />
@@ -229,9 +211,7 @@ export function HttpClient() {
               spellCheck={false}
             />
             {hasUnsavedChanges && (
-              <span className="mr-2 text-xs text-muted-foreground">
-                {t('http.unsaved')}
-              </span>
+              <span className="mr-2 text-xs text-muted-foreground">{t('http.unsaved')}</span>
             )}
             <Tooltip>
               <TooltipTrigger
@@ -282,11 +262,7 @@ export function HttpClient() {
 
             <Button onClick={handleSend} disabled={loading || !url.trim()}>
               {loading ? t('http.sending') : t('http.send')}
-              {loading ? (
-                <Clock className="ml-1 size-4" />
-              ) : (
-                <Send className="ml-1 size-4" />
-              )}
+              {loading ? <Clock className="ml-1 size-4" /> : <Send className="ml-1 size-4" />}
             </Button>
           </div>
         </div>
@@ -302,9 +278,7 @@ export function HttpClient() {
                 ...METHODS.map((m) => ({ value: m, label: m })),
               ]}
               value={filterMethod}
-              onValueChange={(v) =>
-                v && setFilterMethod(v as 'ALL' | HttpMethod)
-              }
+              onValueChange={(v) => v && setFilterMethod(v as 'ALL' | HttpMethod)}
             >
               <SelectTrigger className="mb-2 w-full text-xs">
                 <SelectValue />
@@ -325,10 +299,7 @@ export function HttpClient() {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
-                    <Button
-                      variant="ghost"
-                      className="px-1.5 text-xs text-muted-foreground"
-                    />
+                    <Button variant="ghost" className="px-1.5 text-xs text-muted-foreground" />
                   }
                 >
                   {/* The menu has both import and export, so the trigger can't just say "Import" */}
@@ -347,15 +318,8 @@ export function HttpClient() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
-                      void downloadFile(
-                        'apichat-openapi.json',
-                        'application/json',
-                        async () =>
-                          JSON.stringify(
-                            await openapiStore.exportJson(),
-                            null,
-                            2,
-                          ),
+                      void downloadFile('apichat-openapi.json', 'application/json', async () =>
+                        JSON.stringify(await openapiStore.exportJson(), null, 2),
                       )
                     }}
                   >
@@ -364,10 +328,8 @@ export function HttpClient() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
-                      void downloadFile(
-                        'apichat-openapi.yaml',
-                        'text/yaml',
-                        () => openapiStore.exportYaml(),
+                      void downloadFile('apichat-openapi.yaml', 'text/yaml', () =>
+                        openapiStore.exportYaml(),
                       )
                     }}
                   >
@@ -385,9 +347,7 @@ export function HttpClient() {
                 <div
                   key={item.id}
                   className={`group flex w-full cursor-pointer items-center gap-2.5 overflow-hidden px-3 py-2 transition-colors ${
-                    isApiSelected(item)
-                      ? 'bg-accent text-accent-foreground'
-                      : 'hover:bg-accent/50'
+                    isApiSelected(item) ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
                   }`}
                   onClick={() => handleApiClick(item)}
                 >
@@ -397,9 +357,7 @@ export function HttpClient() {
                   >
                     {item.method}
                   </Badge>
-                  <span className="min-w-0 flex-1 truncate text-sm">
-                    {item.name}
-                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm">{item.name}</span>
                   <Popover>
                     <PopoverTrigger
                       render={
@@ -414,9 +372,7 @@ export function HttpClient() {
                       <Trash2 className="size-3" />
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-3" side="right">
-                      <p className="mb-2 text-sm">
-                        {t('common.confirmDelete')}
-                      </p>
+                      <p className="mb-2 text-sm">{t('common.confirmDelete')}</p>
                       <div className="flex justify-end gap-2">
                         <PopoverClose render={<Button variant="outline" />}>
                           {t('common.cancel')}
@@ -483,9 +439,7 @@ export function HttpClient() {
         {/* Right content area */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {error && (
-            <div className="bg-destructive/10 px-4 py-2 text-sm text-destructive">
-              {error}
-            </div>
+            <div className="bg-destructive/10 px-4 py-2 text-sm text-destructive">{error}</div>
           )}
 
           <Tabs
@@ -493,13 +447,8 @@ export function HttpClient() {
             onValueChange={(v) => setActiveTab(v as ActiveTab)}
             className="flex flex-1 flex-col gap-0 overflow-hidden"
           >
-            <TabsList
-              variant="line"
-              className="w-full justify-start rounded-none px-2"
-            >
-              <TabsTrigger value="description">
-                {t('http.description')}
-              </TabsTrigger>
+            <TabsList variant="line" className="w-full justify-start rounded-none px-2">
+              <TabsTrigger value="description">{t('http.description')}</TabsTrigger>
               <TabsTrigger value="params">{t('http.params')}</TabsTrigger>
               <TabsTrigger value="body">{t('http.body')}</TabsTrigger>
               <TabsTrigger value="headers">{t('http.headers')}</TabsTrigger>
@@ -542,9 +491,7 @@ export function HttpClient() {
                     <Button
                       variant="link"
                       className="h-auto p-0 text-xs text-muted-foreground"
-                      onClick={() =>
-                        setParams([{ key: '', value: '', enabled: false }])
-                      }
+                      onClick={() => setParams([{ key: '', value: '', enabled: false }])}
                       disabled={loading}
                     >
                       {t('http.reset')}
@@ -568,9 +515,7 @@ export function HttpClient() {
                     {bodyTypes.map((type) => (
                       <Button
                         key={type.value}
-                        variant={
-                          bodyType === type.value ? 'default' : 'outline'
-                        }
+                        variant={bodyType === type.value ? 'default' : 'outline'}
                         className="rounded-full px-3 text-xs"
                         onClick={() => setBodyType(type.value)}
                       >
@@ -585,11 +530,7 @@ export function HttpClient() {
                         className="h-auto p-0 text-xs"
                         onClick={() =>
                           setJsonBody(
-                            JSON.stringify(
-                              { name: 'john', age: 25, city: 'beijing' },
-                              null,
-                              2,
-                            ),
+                            JSON.stringify({ name: 'john', age: 25, city: 'beijing' }, null, 2),
                           )
                         }
                         disabled={loading}
@@ -617,11 +558,7 @@ export function HttpClient() {
                         <Button
                           variant="link"
                           className="h-auto p-0 text-xs text-muted-foreground"
-                          onClick={() =>
-                            setFormBody([
-                              { key: '', value: '', enabled: false },
-                            ])
-                          }
+                          onClick={() => setFormBody([{ key: '', value: '', enabled: false }])}
                           disabled={loading}
                         >
                           {t('http.reset')}

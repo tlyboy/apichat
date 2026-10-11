@@ -15,11 +15,9 @@ function App() {
   const sidecar = useSidecar()
 
   useEffect(() => {
-    const unlisten = getCurrentWindow().onFocusChanged(
-      ({ payload: focused }) => {
-        if (focused) window.dispatchEvent(new Event('app-focus'))
-      },
-    )
+    const unlisten = getCurrentWindow().onFocusChanged(({ payload: focused }) => {
+      if (focused) window.dispatchEvent(new Event('app-focus'))
+    })
     return () => {
       unlisten.then((fn) => fn())
     }
@@ -29,10 +27,7 @@ function App() {
     <I18nProvider>
       <TooltipProvider>
         <Default activePage={activePage} onNavigate={setActivePage}>
-          <div
-            className="h-full"
-            style={{ display: activePage === 'http' ? 'block' : 'none' }}
-          >
+          <div className="h-full" style={{ display: activePage === 'http' ? 'block' : 'none' }}>
             <HttpClient />
           </div>
           <div

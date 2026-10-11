@@ -20,9 +20,7 @@ type ThemeProviderState = {
 }
 
 // Leave the default value empty: calling useTheme outside ThemeProvider throws an error instead of returning a fake state that does nothing
-const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
-  undefined,
-)
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined)
 
 export function ThemeProvider({
   children,
@@ -43,8 +41,7 @@ export function ThemeProvider({
    */
   useEffect(() => {
     const mql = window.matchMedia(DARK_QUERY)
-    const onChange = (e: MediaQueryListEvent) =>
-      setSystemTheme(e.matches ? 'dark' : 'light')
+    const onChange = (e: MediaQueryListEvent) => setSystemTheme(e.matches ? 'dark' : 'light')
     mql.addEventListener('change', onChange)
     return () => mql.removeEventListener('change', onChange)
   }, [])
@@ -77,8 +74,7 @@ export function ThemeProvider({
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext)
 
-  if (context === undefined)
-    throw new Error('useTheme must be used within a ThemeProvider')
+  if (context === undefined) throw new Error('useTheme must be used within a ThemeProvider')
 
   return context
 }

@@ -1,9 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import {
-  WebSocketClient,
-  type WebSocketMessage,
-  type WebSocketStatus,
-} from '@/utils/websocket'
+import { WebSocketClient, type WebSocketMessage, type WebSocketStatus } from '@/utils/websocket'
 import { wsStore, wsHistoryStore, type WsSession } from '@/utils/store'
 import type { WsItem } from '@/types'
 import { useI18n, type TranslateFunction } from '@/i18n'
@@ -52,9 +48,7 @@ export function useWebSocketTabs(t: TranslateFunction) {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [sessions, setSessions] = useState<WsSession[]>([])
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
-    null,
-  )
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
   const connectedAtRef = useRef<number>(0)
   const messagesRef = useRef(messages)
   const wsClientRef = useRef(wsClient)
@@ -157,9 +151,7 @@ export function useWebSocketTabs(t: TranslateFunction) {
   const generateName = (urlString: string) => {
     if (!urlString) return t('ws.newConnection')
     try {
-      const u = new URL(
-        urlString.startsWith('ws') ? urlString : `ws://${urlString}`,
-      )
+      const u = new URL(urlString.startsWith('ws') ? urlString : `ws://${urlString}`)
       return u.host
     } catch {
       return urlString.slice(0, 30)
@@ -214,9 +206,7 @@ export function useWebSocketTabs(t: TranslateFunction) {
           description,
           url,
         })
-        setSavedList(
-          savedListRef.current.map((w) => (w.id === currentId ? updated : w)),
-        )
+        setSavedList(savedListRef.current.map((w) => (w.id === currentId ? updated : w)))
       } else {
         const created = await wsStore.create({
           name: itemName,
@@ -371,10 +361,7 @@ export function useWebSocketTabs(t: TranslateFunction) {
   const markChanged = () => setHasUnsavedChanges(true)
 
   const formatMessageTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString(
-      LOCALE_MAP[locale] || locale,
-      { hour12: false },
-    )
+    return new Date(timestamp).toLocaleTimeString(LOCALE_MAP[locale] || locale, { hour12: false })
   }
 
   const statusText = (() => {

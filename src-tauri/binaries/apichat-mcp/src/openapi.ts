@@ -2,8 +2,7 @@ import YAML from 'yaml'
 import { getApis, createApi, type ApiItem } from './store'
 
 /** Any JSON value permitted by the spec: fields like example and default have no fixed shape. */
-type JsonValue =
-  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
 
 /**
  * Schema in OpenAPI. Declare only the fields this file actually reads and writes—the full set of
@@ -56,10 +55,7 @@ interface ImportOptions {
 
 import { parseHeadersString } from './store'
 
-function buildExampleFromSchema(
-  schema: JsonSchema | undefined,
-  depth = 0,
-): JsonValue | undefined {
+function buildExampleFromSchema(schema: JsonSchema | undefined, depth = 0): JsonValue | undefined {
   if (!schema || depth > 5) return undefined
   if (schema.example !== undefined) return schema.example
 
@@ -94,10 +90,7 @@ function defaultForType(type?: string): string {
   return ''
 }
 
-function describeSchemaFields(
-  schema: JsonSchema | undefined,
-  prefix = '',
-): string[] {
+function describeSchemaFields(schema: JsonSchema | undefined, prefix = ''): string[] {
   const lines: string[] = []
   if (!schema?.properties) return lines
   for (const [key, prop] of Object.entries(schema.properties)) {
@@ -109,10 +102,7 @@ function describeSchemaFields(
   return lines
 }
 
-export function importOpenAPI(
-  input: string,
-  options: ImportOptions = {},
-): ApiItem[] {
+export function importOpenAPI(input: string, options: ImportOptions = {}): ApiItem[] {
   let spec: OpenAPISpec
 
   // Try JSON first, then YAML
@@ -128,9 +118,7 @@ export function importOpenAPI(
 
   // Base URL: user-provided > spec servers > empty
   const baseUrl =
-    options.baseUrl?.replace(/\/$/, '') ||
-    spec.servers?.[0]?.url?.replace(/\/$/, '') ||
-    ''
+    options.baseUrl?.replace(/\/$/, '') || spec.servers?.[0]?.url?.replace(/\/$/, '') || ''
 
   // Global headers
   const globalHeadersObj = parseHeadersString(options.globalHeaders || '')
@@ -147,10 +135,7 @@ export function importOpenAPI(
         continue
       }
 
-      const name =
-        operation.operationId ||
-        operation.summary ||
-        `${method.toUpperCase()} ${path}`
+      const name = operation.operationId || operation.summary || `${method.toUpperCase()} ${path}`
 
       const summaryText = operation.description || operation.summary || ''
 
@@ -162,50 +147,39 @@ export function importOpenAPI(
       if (summaryText) descParts.push(summaryText)
 
       // Path params
-      const pathParams = (operation.parameters || []).filter(
-        (p) => p.in === 'path',
-      )
+      const pathParams = (operation.parameters || []).filter((p) => p.in === 'path')
       if (pathParams.length > 0) {
         descParts.push('')
         descParts.push('Path 参数:')
         for (const p of pathParams) {
           const type = p.schema?.type || 'string'
           const req = p.required ? ', required' : ''
-          descParts.push(
-            `- ${p.name}: ${p.description || ''}(${type}${req})`.trimEnd(),
-          )
+          descParts.push(`- ${p.name}: ${p.description || ''}(${type}${req})`.trimEnd())
         }
       }
 
       // Query params
-      const queryParams = (operation.parameters || []).filter(
-        (p) => p.in === 'query',
-      )
+      const queryParams = (operation.parameters || []).filter((p) => p.in === 'query')
       if (queryParams.length > 0) {
         descParts.push('')
         descParts.push('Query 参数:')
         for (const p of queryParams) {
           const type = p.schema?.type || 'string'
           const req = p.required ? ', required' : ''
-          descParts.push(
-            `- ${p.name}: ${p.description || ''}(${type}${req})`.trimEnd(),
-          )
+          descParts.push(`- ${p.name}: ${p.description || ''}(${type}${req})`.trimEnd())
         }
       }
       const paramsStr = queryParams
         .filter((p) => p.name)
         .map((p) => {
-          const defaultVal =
-            p.schema?.default?.toString() || defaultForType(p.schema?.type)
+          const defaultVal = p.schema?.default?.toString() || defaultForType(p.schema?.type)
           return `${p.name}=${defaultVal}`
         })
         .join('&')
 
       // Headers: global + per-operation
       const headersObj: Record<string, string> = { ...globalHeadersObj }
-      const headerParams = (operation.parameters || []).filter(
-        (p) => p.in === 'header',
-      )
+      const headerParams = (operation.parameters || []).filter((p) => p.in === 'header')
       for (const h of headerParams) {
         headersObj[h.name] = h.schema?.default?.toString() || ''
       }
@@ -218,8 +192,7 @@ export function importOpenAPI(
         if (content['application/json']) {
           bodyType = 'json'
           const jsonContent = content['application/json']
-          const example =
-            jsonContent.example ?? buildExampleFromSchema(jsonContent.schema)
+          const example = jsonContent.example ?? buildExampleFromSchema(jsonContent.schema)
           if (example !== undefined) {
             body = JSON.stringify(example, null, 2)
           }
@@ -251,10 +224,7 @@ export function importOpenAPI(
         method: method.toUpperCase(),
         params: paramsStr,
         body,
-        headers:
-          Object.keys(headersObj).length > 0
-            ? JSON.stringify(headersObj, null, 2)
-            : '{}',
+        headers: Object.keys(headersObj).length > 0 ? JSON.stringify(headersObj, null, 2) : '{}',
         bodyType,
       })
 
@@ -343,16 +313,14 @@ export function exportOpenAPI(): OpenAPISpec {
         const headersObj: Record<string, unknown> = JSON.parse(api.headers)
         for (const [key, value] of Object.entries(headersObj)) {
           // Skip common headers
-          if (['content-type', 'user-agent'].includes(key.toLowerCase()))
-            continue
+          if (['content-type', 'user-agent'].includes(key.toLowerCase())) continue
           parameters.push({
             name: key,
             in: 'header',
             schema: {
               type: 'string',
               // Header values come from user-provided JSON and can be any type; write them all to the spec as strings
-              default:
-                value == null || value === '' ? undefined : String(value),
+              default: value == null || value === '' ? undefined : String(value),
             },
           })
         }

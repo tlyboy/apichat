@@ -87,9 +87,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
 
   const handleCopyMcp = async (type: 'claude' | 'codex') => {
     try {
-      await navigator.clipboard.writeText(
-        type === 'claude' ? claudeConfig : codexConfig,
-      )
+      await navigator.clipboard.writeText(type === 'claude' ? claudeConfig : codexConfig)
       setMcpCopied(type)
       setTimeout(() => setMcpCopied(null), 1500)
     } catch {
@@ -107,9 +105,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
         <div className="mx-auto max-w-2xl space-y-8 px-6 py-6">
           {/* Global Config */}
           <section>
-            <h2 className="mb-4 text-sm font-semibold">
-              {t('settings.global')}
-            </h2>
+            <h2 className="mb-4 text-sm font-semibold">{t('settings.global')}</h2>
             <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-xs text-muted-foreground">
@@ -124,9 +120,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                   autoCorrect="off"
                   spellCheck={false}
                 />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t('settings.baseUrlDesc')}
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{t('settings.baseUrlDesc')}</p>
               </div>
 
               <div>
@@ -161,9 +155,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
 
           {/* Sidecar */}
           <section>
-            <h2 className="mb-4 text-sm font-semibold">
-              {t('settings.sidecar')}
-            </h2>
+            <h2 className="mb-4 text-sm font-semibold">{t('settings.sidecar')}</h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -181,16 +173,10 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
                     <Circle
                       className={`size-2 fill-current ${sidecar.running ? 'text-green-500' : 'text-red-500'}`}
                     />
-                    {sidecar.running
-                      ? t('settings.sidecarRunning')
-                      : t('settings.sidecarStopped')}
+                    {sidecar.running ? t('settings.sidecarRunning') : t('settings.sidecarStopped')}
                   </Badge>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={sidecar.restart}
-                  disabled={sidecar.restarting}
-                >
+                <Button variant="outline" onClick={sidecar.restart} disabled={sidecar.restarting}>
                   <RefreshCw
                     className={`mr-1 size-3.5 ${sidecar.restarting ? 'animate-spin' : ''}`}
                   />
@@ -207,23 +193,15 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
 
           {/* Update */}
           <section>
-            <h2 className="mb-4 text-sm font-semibold">
-              {t('settings.update')}
-            </h2>
+            <h2 className="mb-4 text-sm font-semibold">{t('settings.update')}</h2>
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
                 {t('settings.currentVersion')}: v{__APP_VERSION__}
               </div>
               <Button
                 variant="outline"
-                onClick={
-                  updateStatus === 'ready'
-                    ? () => location.reload()
-                    : handleCheckUpdate
-                }
-                disabled={
-                  updateStatus === 'checking' || updateStatus === 'downloading'
-                }
+                onClick={updateStatus === 'ready' ? () => location.reload() : handleCheckUpdate}
+                disabled={updateStatus === 'checking' || updateStatus === 'downloading'}
               >
                 {updateStatus === 'checking' && (
                   <>
@@ -265,9 +243,7 @@ export function SettingsPage({ sidecar }: { sidecar: SidecarState }) {
           {/* MCP Config */}
           <section>
             <h2 className="mb-2 text-sm font-semibold">{t('settings.mcp')}</h2>
-            <p className="mb-3 text-xs text-muted-foreground">
-              {t('settings.mcpDesc')}
-            </p>
+            <p className="mb-3 text-xs text-muted-foreground">{t('settings.mcpDesc')}</p>
             <div className="space-y-4">
               <div>
                 <div className="mb-1.5 flex items-center justify-between">

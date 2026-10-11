@@ -17,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Popover,
-  PopoverClose,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CodeEditor } from '@/components/code-editor'
 import { useTranslations } from '@/i18n'
 import { METHODS, METHOD_COLORS, type HttpMethod } from '@/types'
@@ -82,9 +77,7 @@ export function HistoryPage() {
     if (searchKeyword.trim()) {
       const keyword = searchKeyword.toLowerCase()
       filtered = filtered.filter(
-        (r) =>
-          r.url.toLowerCase().includes(keyword) ||
-          r.method.toLowerCase().includes(keyword),
+        (r) => r.url.toLowerCase().includes(keyword) || r.method.toLowerCase().includes(keyword),
       )
     }
     if (filterMethod !== 'ALL') {
@@ -110,10 +103,8 @@ export function HistoryPage() {
   const formatTime = (timestamp: number) => {
     const diff = now - timestamp
     if (diff < 60000) return t('history.justNow')
-    if (diff < 3600000)
-      return t('history.minutesAgo', { count: Math.floor(diff / 60000) })
-    if (diff < 86400000)
-      return t('history.hoursAgo', { count: Math.floor(diff / 3600000) })
+    if (diff < 3600000) return t('history.minutesAgo', { count: Math.floor(diff / 60000) })
+    if (diff < 86400000) return t('history.hoursAgo', { count: Math.floor(diff / 3600000) })
     return new Date(timestamp).toLocaleDateString()
   }
 
@@ -146,9 +137,7 @@ export function HistoryPage() {
 
         <div className="flex h-full flex-1 items-center justify-between px-4">
           <div className="text-sm font-medium text-muted-foreground">
-            {selectedRecord
-              ? `${selectedRecord.method} ${selectedRecord.url}`
-              : t('history.title')}
+            {selectedRecord ? `${selectedRecord.method} ${selectedRecord.url}` : t('history.title')}
           </div>
           {selectedRecord && (
             <Badge
@@ -164,9 +153,7 @@ export function HistoryPage() {
               ) : (
                 <XCircle className="size-3" />
               )}
-              {selectedRecord.status === 'success'
-                ? t('history.success')
-                : t('history.error')}
+              {selectedRecord.status === 'success' ? t('history.success') : t('history.error')}
             </Badge>
           )}
         </div>
@@ -182,9 +169,7 @@ export function HistoryPage() {
                 ...METHODS.map((m) => ({ value: m, label: m })),
               ]}
               value={filterMethod}
-              onValueChange={(v) =>
-                v && setFilterMethod(v as 'ALL' | HttpMethod)
-              }
+              onValueChange={(v) => v && setFilterMethod(v as 'ALL' | HttpMethod)}
             >
               <SelectTrigger className="mb-2 w-full text-xs">
                 <SelectValue />
@@ -226,12 +211,8 @@ export function HistoryPage() {
                       {record.name || generateTitle(record.url)}
                     </div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      {record.status === 'error' && (
-                        <XCircle className="size-3 text-red-500" />
-                      )}
-                      <span className="truncate">
-                        {formatTime(record.timestamp)}
-                      </span>
+                      {record.status === 'error' && <XCircle className="size-3 text-red-500" />}
+                      <span className="truncate">{formatTime(record.timestamp)}</span>
                     </div>
                   </div>
                   <Popover>
@@ -248,9 +229,7 @@ export function HistoryPage() {
                       <Trash2 className="size-3.5" />
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-3" side="right">
-                      <p className="mb-2 text-sm">
-                        {t('common.confirmDelete')}
-                      </p>
+                      <p className="mb-2 text-sm">{t('common.confirmDelete')}</p>
                       <div className="flex justify-end gap-2">
                         <PopoverClose render={<Button variant="outline" />}>
                           {t('common.cancel')}
